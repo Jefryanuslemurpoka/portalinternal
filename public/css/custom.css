@@ -1,0 +1,352 @@
+/* ============================================
+   Custom CSS - Portal Internal
+   ============================================ */
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Scrollbar Custom */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Smooth Scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Button Utilities */
+.btn {
+    @apply px-4 py-2 rounded-lg font-semibold transition duration-300 inline-flex items-center justify-center;
+}
+
+.btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg;
+}
+
+.btn-success {
+    @apply bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700 shadow-md hover:shadow-lg;
+}
+
+.btn-danger {
+    @apply bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg;
+}
+
+.btn-warning {
+    @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+/* Badge Utilities */
+.badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold inline-block;
+}
+
+.badge-success {
+    @apply bg-green-100 text-green-700;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-700;
+}
+
+.badge-warning {
+    @apply bg-yellow-100 text-yellow-700;
+}
+
+.badge-info {
+    @apply bg-blue-100 text-blue-700;
+}
+
+.badge-secondary {
+    @apply bg-gray-100 text-gray-700;
+}
+
+/* Form Input Custom */
+.form-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition;
+}
+
+.form-label {
+    @apply block text-sm font-semibold text-gray-700 mb-2;
+}
+
+.form-error {
+    @apply text-xs text-red-600 mt-1;
+}
+
+/* Card Hover Effect */
+.card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Fade In Animation */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sidebar Mobile Toggle */
+@media (max-width: 1024px) {
+    #sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        z-index: 40;
+        transition: left 0.3s ease-in-out;
+    }
+    
+    #sidebar.active {
+        left: 0;
+    }
+}
+
+/* Table Responsive */
+@media (max-width: 768px) {
+    table {
+        font-size: 0.875rem;
+    }
+    
+    th, td {
+        padding: 0.5rem !important;
+    }
+}
+
+/* Status Badge Custom */
+.status-aktif {
+    @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.status-nonaktif {
+    @apply bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.status-pending {
+    @apply bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.status-disetujui {
+    @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.status-ditolak {
+    @apply bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .sidebar, header {
+        display: none !important;
+    }
+}
+
+/* Custom Dropdown */
+.dropdown-menu {
+    @apply absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 border border-gray-200 hidden;
+}
+
+.dropdown-menu.show {
+    @apply block;
+}
+
+/* File Upload Custom */
+.file-upload {
+    @apply relative cursor-pointer bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition;
+}
+
+.file-upload input[type="file"] {
+    @apply absolute inset-0 w-full h-full opacity-0 cursor-pointer;
+}
+
+/* Tooltip Custom */
+.tooltip {
+    @apply relative inline-block;
+}
+
+.tooltip .tooltiptext {
+    @apply invisible absolute z-10 w-32 bg-gray-900 text-white text-xs rounded-lg py-2 px-3 bottom-full left-1/2 -ml-16 mb-2;
+}
+
+.tooltip:hover .tooltiptext {
+    @apply visible;
+}
+
+/* Image Preview */
+.image-preview {
+    @apply w-32 h-32 object-cover rounded-lg border-2 border-gray-300;
+}
+
+/* Action Button Group */
+.action-buttons {
+    @apply flex items-center space-x-2;
+}
+
+.action-buttons button {
+    @apply p-2 rounded-lg transition duration-200;
+}
+
+.action-buttons .btn-edit {
+    @apply text-blue-600 hover:bg-blue-50;
+}
+
+.action-buttons .btn-delete {
+    @apply text-red-600 hover:bg-red-50;
+}
+
+.action-buttons .btn-view {
+    @apply text-green-600 hover:bg-green-50;
+}
+
+/* Empty State */
+.empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-gray-400;
+}
+
+.empty-state i {
+    @apply text-6xl mb-4;
+}
+
+.empty-state p {
+    @apply text-lg;
+}
+
+/* Gradient Text */
+.gradient-text {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+/* Notification Dot */
+.notification-dot {
+    @apply absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2;
+}
+
+/* Custom Alert */
+.alert {
+    @apply p-4 rounded-lg flex items-center justify-between mb-4;
+}
+
+.alert-success {
+    @apply bg-green-100 border border-green-400 text-green-700;
+}
+
+.alert-error {
+    @apply bg-red-100 border border-red-400 text-red-700;
+}
+
+.alert-warning {
+    @apply bg-yellow-100 border border-yellow-400 text-yellow-700;
+}
+
+.alert-info {
+    @apply bg-blue-100 border border-blue-400 text-blue-700;
+}
+
+/* Skeleton Loading */
+.skeleton {
+    @apply bg-gray-200 animate-pulse rounded;
+}
+
+.skeleton-text {
+    @apply h-4 w-full mb-2 skeleton;
+}
+
+.skeleton-avatar {
+    @apply h-12 w-12 rounded-full skeleton;
+}
+
+/* Divider */
+.divider {
+    @apply border-t border-gray-200 my-4;
+}
+
+/* Grid Layout */
+.grid-dashboard {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+/* Z-Index Utilities */
+.z-sidebar {
+    z-index: 40;
+}
+
+.z-header {
+    z-index: 30;
+}
+
+.z-dropdown {
+    z-index: 50;
+}
+
+.z-modal {
+    z-index: 60;
+}
+
+.z-toast {
+    z-index: 70;
+}
