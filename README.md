@@ -90,8 +90,8 @@ Saat ini, proyek masih dalam tahap **pengembangan** (*development phase*) dan ak
 
 **Nama:** Jefryanus Lemur
 📍 Jakarta, Indonesia
-📧 [jeanlee0990@gmail.com](mailto:jeanlee0990@gmail.com)
-📱 081511238645
+📧 [jefrylemur@gmail.com](mailto:jefrylemur@gmail.com)
+📱 082122098898
 
 ---
 
