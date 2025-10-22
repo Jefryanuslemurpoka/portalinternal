@@ -1,6 +1,3 @@
-// ============================================
-// 4. create_pengumuman_table.php
-// ============================================
 <?php
 
 use Illuminate\Database\Migrations\Migration;

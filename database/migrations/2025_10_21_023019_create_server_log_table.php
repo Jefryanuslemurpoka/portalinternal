@@ -1,6 +1,3 @@
-// ============================================
-// 6. create_server_log_table.php
-// ============================================
 <?php
 
 use Illuminate\Database\Migrations\Migration;

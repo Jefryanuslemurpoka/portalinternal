@@ -1,6 +1,3 @@
-// ============================================
-// 5. create_surat_table.php
-// ============================================
 <?php
 
 use Illuminate\Database\Migrations\Migration;

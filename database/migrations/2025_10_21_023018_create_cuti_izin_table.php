@@ -1,6 +1,3 @@
-// ============================================
-// 3. create_cuti_izin_table.php
-// ============================================
 <?php
 
 use Illuminate\Database\Migrations\Migration;

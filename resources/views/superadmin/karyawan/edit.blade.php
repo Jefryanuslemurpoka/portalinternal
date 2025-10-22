@@ -92,4 +92,62 @@
                     <label for="divisi" class="form-label">
                         <i class="fas fa-building mr-2"></i>Divisi <span class="text-red-500">*</span>
                     </label>
-                    <select name="divisi" id="divisi"
+                    <select name="divisi" id="divisi" class="form-input @error('divisi') border-red-500 @enderror" required>
+                        <option value="">-- Pilih Divisi --</option>
+                        <option value="IT" {{ old('divisi', $karyawan->divisi) == 'IT' ? 'selected' : '' }}>IT</option>
+                        <option value="HRD" {{ old('divisi', $karyawan->divisi) == 'HRD' ? 'selected' : '' }}>HRD</option>
+                        <option value="Finance" {{ old('divisi', $karyawan->divisi) == 'Finance' ? 'selected' : '' }}>Finance</option>
+                        <option value="Marketing" {{ old('divisi', $karyawan->divisi) == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                        <option value="Operasional" {{ old('divisi', $karyawan->divisi) == 'Operasional' ? 'selected' : '' }}>Operasional</option>
+                    </select>
+                    @error('divisi')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label for="status" class="form-label">
+                        <i class="fas fa-toggle-on mr-2"></i>Status <span class="text-red-500">*</span>
+                    </label>
+                    <select name="status" id="status" class="form-input @error('status') border-red-500 @enderror" required>
+                        <option value="">-- Pilih Status --</option>
+                        <option value="aktif" {{ old('status', $karyawan->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="nonaktif" {{ old('status', $karyawan->status) == 'nonaktif' ? 'selected' : '' }}>Non-Aktif</option>
+                    </select>
+                    @error('status')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                <a href="{{ route('superadmin.karyawan.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-times mr-2"></i>Batal
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i>Update Karyawan
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    // Preview Image
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            document.getElementById('imagePreview').src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+@endpush

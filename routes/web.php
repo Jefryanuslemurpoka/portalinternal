@@ -1,6 +1,3 @@
-// ============================================
-// 1. web.php (routes/web.php)
-// ============================================
 <?php
 
 use Illuminate\Support\Facades\Route;
