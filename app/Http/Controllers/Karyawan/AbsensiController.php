@@ -1,0 +1,229 @@
+<?php
+
+namespace App\Http\Controllers\Karyawan;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Absensi;
+use App\Models\LogAktivitas;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+
+class AbsensiController extends Controller
+{
+    // Tampilkan halaman absensi
+    public function index()
+    {
+        $today = Carbon::today();
+        $user = Auth::user();
+
+        // Cek absensi hari ini
+        $absensiHariIni = Absensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->first();
+
+        // Jam kerja dari cache
+        $jamMasuk = Cache::get('jam_masuk', '08:00');
+        $jamKeluar = Cache::get('jam_keluar', '17:00');
+        $toleransi = Cache::get('toleransi_keterlambatan', 15);
+
+        // Lokasi kantor dari cache
+        $lokasiKantor = Cache::get('lokasi_kantor', [
+            'nama' => 'Kantor Pusat',
+            'latitude' => '-6.200000',
+            'longitude' => '106.816666',
+            'radius' => 100,
+        ]);
+
+        return view('karyawan.absensi.index', compact(
+            'absensiHariIni',
+            'jamMasuk',
+            'jamKeluar',
+            'toleransi',
+            'lokasiKantor'
+        ));
+    }
+
+    // Check-in
+    public function checkIn(Request $request)
+    {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'foto' => 'required|string', // base64 image
+        ]);
+
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        // Cek apakah sudah check-in hari ini
+        $existingAbsensi = Absensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->first();
+
+        if ($existingAbsensi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah melakukan check-in hari ini'
+            ], 400);
+        }
+
+        // Validasi lokasi (radius)
+        $lokasiKantor = Cache::get('lokasi_kantor');
+        $distance = $this->calculateDistance(
+            $request->latitude,
+            $request->longitude,
+            $lokasiKantor['latitude'],
+            $lokasiKantor['longitude']
+        );
+
+        if ($distance > $lokasiKantor['radius']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda berada di luar radius kantor (' . round($distance) . 'm). Radius maksimal: ' . $lokasiKantor['radius'] . 'm'
+            ], 400);
+        }
+
+        // Simpan foto
+        $fotoPath = $this->saveFotoBase64($request->foto, 'checkin');
+
+        // Buat absensi
+        $absensi = Absensi::create([
+            'user_id' => $user->id,
+            'tanggal' => $today,
+            'jam_masuk' => Carbon::now()->format('H:i:s'),
+            'lokasi' => $request->latitude . ', ' . $request->longitude,
+            'foto' => $fotoPath,
+        ]);
+
+        // Log aktivitas
+        LogAktivitas::create([
+            'user_id' => $user->id,
+            'aktivitas' => 'Check-in Absensi',
+            'deskripsi' => 'Check-in pada ' . Carbon::now()->format('H:i:s'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Check-in berhasil!',
+            'data' => $absensi
+        ]);
+    }
+
+    // Check-out
+    public function checkOut(Request $request)
+    {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        // Cek absensi hari ini
+        $absensi = Absensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->first();
+
+        if (!$absensi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum melakukan check-in hari ini'
+            ], 400);
+        }
+
+        if ($absensi->jam_keluar) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah melakukan check-out hari ini'
+            ], 400);
+        }
+
+        // Validasi lokasi (radius)
+        $lokasiKantor = Cache::get('lokasi_kantor');
+        $distance = $this->calculateDistance(
+            $request->latitude,
+            $request->longitude,
+            $lokasiKantor['latitude'],
+            $lokasiKantor['longitude']
+        );
+
+        if ($distance > $lokasiKantor['radius']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda berada di luar radius kantor (' . round($distance) . 'm). Radius maksimal: ' . $lokasiKantor['radius'] . 'm'
+            ], 400);
+        }
+
+        // Update jam keluar
+        $absensi->update([
+            'jam_keluar' => Carbon::now()->format('H:i:s'),
+        ]);
+
+        // Log aktivitas
+        LogAktivitas::create([
+            'user_id' => $user->id,
+            'aktivitas' => 'Check-out Absensi',
+            'deskripsi' => 'Check-out pada ' . Carbon::now()->format('H:i:s'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Check-out berhasil!',
+            'data' => $absensi
+        ]);
+    }
+
+    // Hitung jarak antara 2 koordinat (Haversine formula)
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // meter
+
+        $latFrom = deg2rad($lat1);
+        $lonFrom = deg2rad($lon1);
+        $latTo = deg2rad($lat2);
+        $lonTo = deg2rad($lon2);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+
+        return $angle * $earthRadius;
+    }
+
+    // Simpan foto dari base64
+    private function saveFotoBase64($base64Image, $prefix)
+    {
+        // Remove data:image/png;base64, prefix
+        $image = str_replace('data:image/png;base64,', '', $base64Image);
+        $image = str_replace('data:image/jpeg;base64,', '', $image);
+        $image = str_replace(' ', '+', $image);
+        
+        $imageName = $prefix . '_' . time() . '_' . uniqid() . '.png';
+        $path = 'absensi/' . $imageName;
+        
+        \Storage::disk('public')->put($path, base64_decode($image));
+        
+        return $path;
+    }
+
+    // Get absensi today (untuk AJAX)
+    public function today()
+    {
+        $today = Carbon::today();
+        $user = Auth::user();
+
+        $absensi = Absensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => $absensi
+        ]);
+    }
+}
