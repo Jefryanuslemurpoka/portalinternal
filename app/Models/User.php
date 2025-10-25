@@ -69,4 +69,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(CutiIzin::class, 'approved_by');
     }
+
+    /**
+     * Relasi ke Notifications
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get unread notifications count
+     */
+    public function unreadNotificationsCount()
+    {
+        return $this->notifications()->unread()->count();
+    }
 }
