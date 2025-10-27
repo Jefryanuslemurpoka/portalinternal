@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Karyawan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Absensi;
-use App\Models\LogAktivitas;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -51,7 +50,6 @@ class AbsensiController extends Controller
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'foto' => 'required|string', // base64 image
         ]);
 
         $user = Auth::user();
@@ -70,7 +68,12 @@ class AbsensiController extends Controller
         }
 
         // Validasi lokasi (radius)
-        $lokasiKantor = Cache::get('lokasi_kantor');
+        $lokasiKantor = Cache::get('lokasi_kantor', [
+            'latitude' => '-6.200000',
+            'longitude' => '106.816666',
+            'radius' => 100,
+        ]);
+        
         $distance = $this->calculateDistance(
             $request->latitude,
             $request->longitude,
@@ -85,28 +88,18 @@ class AbsensiController extends Controller
             ], 400);
         }
 
-        // Simpan foto
-        $fotoPath = $this->saveFotoBase64($request->foto, 'checkin');
-
         // Buat absensi
         $absensi = Absensi::create([
             'user_id' => $user->id,
             'tanggal' => $today,
             'jam_masuk' => Carbon::now()->format('H:i:s'),
             'lokasi' => $request->latitude . ', ' . $request->longitude,
-            'foto' => $fotoPath,
-        ]);
-
-        // Log aktivitas
-        LogAktivitas::create([
-            'user_id' => $user->id,
-            'aktivitas' => 'Check-in Absensi',
-            'deskripsi' => 'Check-in pada ' . Carbon::now()->format('H:i:s'),
+            'status' => 'Hadir',
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Check-in berhasil!',
+            'message' => 'Check-in berhasil pada ' . Carbon::now()->format('H:i:s'),
             'data' => $absensi
         ]);
     }
@@ -142,7 +135,12 @@ class AbsensiController extends Controller
         }
 
         // Validasi lokasi (radius)
-        $lokasiKantor = Cache::get('lokasi_kantor');
+        $lokasiKantor = Cache::get('lokasi_kantor', [
+            'latitude' => '-6.200000',
+            'longitude' => '106.816666',
+            'radius' => 100,
+        ]);
+        
         $distance = $this->calculateDistance(
             $request->latitude,
             $request->longitude,
@@ -162,16 +160,9 @@ class AbsensiController extends Controller
             'jam_keluar' => Carbon::now()->format('H:i:s'),
         ]);
 
-        // Log aktivitas
-        LogAktivitas::create([
-            'user_id' => $user->id,
-            'aktivitas' => 'Check-out Absensi',
-            'deskripsi' => 'Check-out pada ' . Carbon::now()->format('H:i:s'),
-        ]);
-
         return response()->json([
             'success' => true,
-            'message' => 'Check-out berhasil!',
+            'message' => 'Check-out berhasil pada ' . Carbon::now()->format('H:i:s'),
             'data' => $absensi
         ]);
     }
@@ -193,22 +184,6 @@ class AbsensiController extends Controller
             cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
 
         return $angle * $earthRadius;
-    }
-
-    // Simpan foto dari base64
-    private function saveFotoBase64($base64Image, $prefix)
-    {
-        // Remove data:image/png;base64, prefix
-        $image = str_replace('data:image/png;base64,', '', $base64Image);
-        $image = str_replace('data:image/jpeg;base64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-        
-        $imageName = $prefix . '_' . time() . '_' . uniqid() . '.png';
-        $path = 'absensi/' . $imageName;
-        
-        \Storage::disk('public')->put($path, base64_decode($image));
-        
-        return $path;
     }
 
     // Get absensi today (untuk AJAX)

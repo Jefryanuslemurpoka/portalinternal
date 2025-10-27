@@ -13,7 +13,7 @@
                 <h2 class="text-2xl font-bold mb-2">
                     <i class="fas fa-clipboard-check mr-2"></i>Absensi Hari Ini
                 </h2>
-                <p class="text-purple-100">{{ now()->format('l, d F Y') }}</p>
+                <p class="text-purple-100">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
             </div>
             <div class="hidden md:block">
                 <div class="text-5xl font-bold">
@@ -53,9 +53,9 @@
                     </div>
                     @if($absensiHariIni)
                         @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($jamMasuk))
-                            <span class="badge badge-success">Tepat Waktu</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Tepat Waktu</span>
                         @else
-                            <span class="badge badge-danger">Terlambat</span>
+                            <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Terlambat</span>
                         @endif
                     @endif
                 </div>
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                     @if($absensiHariIni && $absensiHariIni->jam_keluar)
-                        <span class="badge badge-info">Selesai</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Selesai</span>
                     @endif
                 </div>
 
@@ -132,33 +132,6 @@
     <div class="bg-white rounded-xl shadow-lg p-6">
         <div class="max-w-2xl mx-auto">
             
-            <!-- Camera Preview -->
-            <div class="mb-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">
-                    <i class="fas fa-camera mr-2"></i>Ambil Foto untuk Absensi
-                </h3>
-                
-                <div class="relative">
-                    <video id="camera" autoplay playsinline class="w-full rounded-lg border-4 border-gray-200 hidden"></video>
-                    <canvas id="canvas" class="w-full rounded-lg border-4 border-purple-500 hidden"></canvas>
-                    <div id="placeholder" class="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center border-4 border-dashed border-gray-300">
-                        <div class="text-center">
-                            <i class="fas fa-camera text-6xl text-gray-300 mb-4"></i>
-                            <p class="text-gray-500">Kamera akan aktif saat Anda klik tombol absensi</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="cameraControls" class="mt-4 flex justify-center space-x-3 hidden">
-                    <button type="button" onclick="capturePhoto()" class="btn btn-primary">
-                        <i class="fas fa-camera mr-2"></i>Ambil Foto
-                    </button>
-                    <button type="button" onclick="retakePhoto()" class="btn btn-secondary hidden" id="retakeBtn">
-                        <i class="fas fa-redo mr-2"></i>Foto Ulang
-                    </button>
-                </div>
-            </div>
-
             <!-- Location Info -->
             <div id="locationInfo" class="mb-6 hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -170,7 +143,7 @@
                             <p class="text-xs text-blue-700">Longitude: <span id="userLng">-</span></p>
                             <p class="text-xs text-blue-700 mt-1">Jarak dari kantor: <span id="distance">-</span> meter</p>
                         </div>
-                        <span id="locationStatus" class="badge"></span>
+                        <span id="locationStatus" class="px-3 py-1 text-xs font-semibold rounded-full"></span>
                     </div>
                 </div>
             </div>
@@ -178,11 +151,11 @@
             <!-- Action Buttons -->
             <div class="flex justify-center space-x-4">
                 @if(!$absensiHariIni)
-                    <button type="button" onclick="startCheckIn()" id="checkInBtn" class="btn btn-primary px-8 py-4 text-lg">
+                    <button type="button" onclick="doCheckIn()" id="checkInBtn" class="px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
                         <i class="fas fa-sign-in-alt mr-2"></i>Check-in Sekarang
                     </button>
                 @elseif(!$absensiHariIni->jam_keluar)
-                    <button type="button" onclick="startCheckOut()" id="checkOutBtn" class="btn btn-danger px-8 py-4 text-lg">
+                    <button type="button" onclick="doCheckOut()" id="checkOutBtn" class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
                         <i class="fas fa-sign-out-alt mr-2"></i>Check-out Sekarang
                     </button>
                 @else
@@ -216,7 +189,7 @@
             <div class="md:col-span-2">
                 <a href="https://www.google.com/maps?q={{ $lokasiKantor['latitude'] }},{{ $lokasiKantor['longitude'] }}" 
                    target="_blank" 
-                   class="btn btn-secondary w-full">
+                   class="block w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-center rounded-lg transition duration-200">
                     <i class="fas fa-map-marked-alt mr-2"></i>Lihat di Google Maps
                 </a>
             </div>
@@ -229,16 +202,7 @@
 @push('scripts')
 <script>
     // Global variables
-    let camera = document.getElementById('camera');
-    let canvas = document.getElementById('canvas');
-    let placeholder = document.getElementById('placeholder');
-    let cameraControls = document.getElementById('cameraControls');
-    let locationInfo = document.getElementById('locationInfo');
-    let retakeBtn = document.getElementById('retakeBtn');
-    let stream = null;
-    let photoData = null;
     let userLocation = null;
-    let isCheckIn = false;
 
     const lokasiKantor = {
         lat: {{ $lokasiKantor['latitude'] }},
@@ -254,144 +218,152 @@
             now.getMinutes().toString().padStart(2, '0');
     }, 1000);
 
-    // Start Check-in Process
-    function startCheckIn() {
-        isCheckIn = true;
-        initializeAbsensi();
-    }
-
-    // Start Check-out Process
-    function startCheckOut() {
-        isCheckIn = false;
-        initializeCheckOut();
-    }
-
-    // Initialize Absensi (Check-in)
-    function initializeAbsensi() {
-        // Get location
-        getLocation();
-        
-        // Start camera
-        startCamera();
-    }
-
-    // Initialize Check-out (no camera needed)
-    function initializeCheckOut() {
-        getLocation();
-        
-        // Show confirmation after location is ready
-        setTimeout(() => {
-            if (userLocation) {
-                confirmCheckOut();
+    // Check-in Process
+    function doCheckIn() {
+        // Show loading
+        Swal.fire({
+            title: 'Mendeteksi Lokasi...',
+            text: 'Mohon tunggu',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
-        }, 2000);
+        });
+
+        // Get location
+        getLocation((location) => {
+            Swal.close();
+            
+            if (location) {
+                // Confirm check-in
+                Swal.fire({
+                    title: 'Konfirmasi Check-in',
+                    html: `
+                        <p>Lokasi Anda terdeteksi</p>
+                        <p class="text-sm text-gray-600 mt-2">Jarak dari kantor: <strong>${Math.round(location.distance)}m</strong></p>
+                        <p class="text-sm ${location.inRadius ? 'text-green-600' : 'text-red-600'}">
+                            ${location.inRadius ? '✓ Dalam radius kantor' : '✗ Diluar radius kantor'}
+                        </p>
+                    `,
+                    icon: location.inRadius ? 'question' : 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Check-in',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitCheckIn(location);
+                    }
+                });
+            }
+        });
+    }
+
+    // Check-out Process
+    function doCheckOut() {
+        // Show loading
+        Swal.fire({
+            title: 'Mendeteksi Lokasi...',
+            text: 'Mohon tunggu',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Get location
+        getLocation((location) => {
+            Swal.close();
+            
+            if (location) {
+                // Confirm check-out
+                Swal.fire({
+                    title: 'Konfirmasi Check-out',
+                    html: `
+                        <p>Lokasi Anda terdeteksi</p>
+                        <p class="text-sm text-gray-600 mt-2">Jarak dari kantor: <strong>${Math.round(location.distance)}m</strong></p>
+                        <p class="text-sm ${location.inRadius ? 'text-green-600' : 'text-red-600'}">
+                            ${location.inRadius ? '✓ Dalam radius kantor' : '✗ Diluar radius kantor'}
+                        </p>
+                    `,
+                    icon: location.inRadius ? 'question' : 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Check-out',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitCheckOut(location);
+                    }
+                });
+            }
+        });
     }
 
     // Get user location
-    function getLocation() {
+    function getLocation(callback) {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    userLocation = {
+                    const location = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
                     
-                    document.getElementById('userLat').textContent = userLocation.lat.toFixed(6);
-                    document.getElementById('userLng').textContent = userLocation.lng.toFixed(6);
-                    
                     // Calculate distance
                     const distance = calculateDistance(
-                        userLocation.lat,
-                        userLocation.lng,
+                        location.lat,
+                        location.lng,
                         lokasiKantor.lat,
                         lokasiKantor.lng
                     );
                     
+                    location.distance = distance;
+                    location.inRadius = distance <= lokasiKantor.radius;
+                    
+                    // Display location info
+                    document.getElementById('userLat').textContent = location.lat.toFixed(6);
+                    document.getElementById('userLng').textContent = location.lng.toFixed(6);
                     document.getElementById('distance').textContent = Math.round(distance);
                     
                     const locationStatus = document.getElementById('locationStatus');
-                    if (distance <= lokasiKantor.radius) {
+                    if (location.inRadius) {
                         locationStatus.textContent = 'Dalam Radius';
-                        locationStatus.className = 'badge badge-success';
+                        locationStatus.className = 'px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full';
                     } else {
                         locationStatus.textContent = 'Diluar Radius';
-                        locationStatus.className = 'badge badge-danger';
+                        locationStatus.className = 'px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full';
                     }
                     
-                    locationInfo.classList.remove('hidden');
+                    document.getElementById('locationInfo').classList.remove('hidden');
+                    
+                    callback(location);
                 },
                 (error) => {
-                    alert('Gagal mendapatkan lokasi: ' + error.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Mendapatkan Lokasi',
+                        text: error.message,
+                        confirmButtonColor: '#ef4444'
+                    });
+                    callback(null);
                 }
             );
         } else {
-            alert('Browser tidak mendukung geolocation');
-        }
-    }
-
-    // Start camera
-    function startCamera() {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-            .then((mediaStream) => {
-                stream = mediaStream;
-                camera.srcObject = stream;
-                
-                placeholder.classList.add('hidden');
-                camera.classList.remove('hidden');
-                cameraControls.classList.remove('hidden');
-            })
-            .catch((error) => {
-                alert('Gagal mengakses kamera: ' + error.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Browser Tidak Mendukung',
+                text: 'Browser Anda tidak mendukung geolocation',
+                confirmButtonColor: '#ef4444'
             });
-    }
-
-    // Capture photo
-    function capturePhoto() {
-        const context = canvas.getContext('2d');
-        canvas.width = camera.videoWidth;
-        canvas.height = camera.videoHeight;
-        context.drawImage(camera, 0, 0);
-        
-        photoData = canvas.toDataURL('image/png');
-        
-        // Stop camera
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
+            callback(null);
         }
-        
-        // Show canvas, hide camera
-        camera.classList.add('hidden');
-        canvas.classList.remove('hidden');
-        retakeBtn.classList.remove('hidden');
-        
-        // Auto submit check-in
-        setTimeout(() => {
-            submitCheckIn();
-        }, 500);
-    }
-
-    // Retake photo
-    function retakePhoto() {
-        canvas.classList.add('hidden');
-        retakeBtn.classList.add('hidden');
-        photoData = null;
-        startCamera();
     }
 
     // Submit check-in
-    function submitCheckIn() {
-        if (!photoData) {
-            alert('Silakan ambil foto terlebih dahulu');
-            return;
-        }
-        
-        if (!userLocation) {
-            alert('Lokasi belum terdeteksi');
-            return;
-        }
-        
-        // Show loading
+    function submitCheckIn(location) {
         Swal.fire({
             title: 'Memproses...',
             text: 'Mohon tunggu',
@@ -408,9 +380,8 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
-                latitude: userLocation.lat,
-                longitude: userLocation.lng,
-                foto: photoData
+                latitude: location.lat,
+                longitude: location.lng
             })
         })
         .then(response => response.json())
@@ -446,31 +417,8 @@
         });
     }
 
-    // Confirm check-out
-    function confirmCheckOut() {
-        Swal.fire({
-            title: 'Konfirmasi Check-out',
-            text: 'Apakah Anda yakin ingin check-out?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Ya, Check-out',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                submitCheckOut();
-            }
-        });
-    }
-
     // Submit check-out
-    function submitCheckOut() {
-        if (!userLocation) {
-            alert('Lokasi belum terdeteksi');
-            return;
-        }
-        
+    function submitCheckOut(location) {
         Swal.fire({
             title: 'Memproses...',
             text: 'Mohon tunggu',
@@ -487,8 +435,8 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
-                latitude: userLocation.lat,
-                longitude: userLocation.lng
+                latitude: location.lat,
+                longitude: location.lng
             })
         })
         .then(response => response.json())
