@@ -7,11 +7,11 @@
 <div class="space-y-6">
 
     <!-- Welcome Section -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+    <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl shadow-lg p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h2>
-                <p class="text-blue-100">Kelola sistem absensi dan karyawan dengan mudah</p>
+                <p class="text-teal-50">Kelola sistem absensi dan karyawan dengan mudah</p>
             </div>
             <div class="hidden md:block">
                 <i class="fas fa-chart-line text-6xl text-white/20"></i>
@@ -31,7 +31,7 @@
             subtitle="{{ $karyawanAktif }} Aktif"
         >
             <x-slot name="footer">
-                <a href="{{ route('superadmin.karyawan.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                <a href="{{ route('superadmin.karyawan.index') }}" class="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center transition">
                     Lihat Detail <i class="fas fa-arrow-right ml-2 text-xs"></i>
                 </a>
             </x-slot>
@@ -46,7 +46,7 @@
             subtitle="{{ $belumAbsen }} Belum Absen"
         >
             <x-slot name="footer">
-                <a href="{{ route('superadmin.absensi.index') }}" class="text-sm text-green-600 hover:text-green-800 font-medium flex items-center">
+                <a href="{{ route('superadmin.absensi.index') }}" class="text-sm text-cyan-600 hover:text-cyan-700 font-medium flex items-center transition">
                     Lihat Detail <i class="fas fa-arrow-right ml-2 text-xs"></i>
                 </a>
             </x-slot>
@@ -61,7 +61,7 @@
             subtitle="Cuti/Izin Menunggu"
         >
             <x-slot name="footer">
-                <a href="{{ route('superadmin.cutiizin.index') }}" class="text-sm text-yellow-600 hover:text-yellow-800 font-medium flex items-center">
+                <a href="{{ route('superadmin.cutiizin.index') }}" class="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center transition">
                     Lihat Detail <i class="fas fa-arrow-right ml-2 text-xs"></i>
                 </a>
             </x-slot>
@@ -76,7 +76,7 @@
             subtitle="Pengumuman Aktif"
         >
             <x-slot name="footer">
-                <a href="{{ route('superadmin.pengumuman.index') }}" class="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center">
+                <a href="{{ route('superadmin.pengumuman.index') }}" class="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center transition">
                     Lihat Detail <i class="fas fa-arrow-right ml-2 text-xs"></i>
                 </a>
             </x-slot>
@@ -88,14 +88,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Grafik Kehadiran 7 Hari Terakhir -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-lg font-bold text-gray-800">Statistik Kehadiran</h3>
                     <p class="text-sm text-gray-500">7 Hari Terakhir</p>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-chart-bar text-blue-600 text-xl"></i>
+                <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-teal-600 text-xl"></i>
                 </div>
             </div>
             <div class="chart-container">
@@ -104,14 +104,14 @@
         </div>
 
         <!-- Grafik Karyawan per Divisi -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-lg font-bold text-gray-800">Karyawan per Divisi</h3>
                     <p class="text-sm text-gray-500">Distribusi Karyawan</p>
                 </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
+                <div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-cyan-600 text-xl"></i>
                 </div>
             </div>
             <div class="chart-container">
@@ -125,24 +125,24 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Pengajuan Cuti/Izin Terbaru -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
                 <h3 class="text-lg font-bold text-white">Pengajuan Cuti/Izin Pending</h3>
             </div>
             <div class="p-6">
                 @if($cutiTerbaru->count() > 0)
                     <div class="space-y-4">
                         @foreach($cutiTerbaru as $cuti)
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-teal-50 transition">
                             <div class="flex items-center space-x-3">
-                                <img src="{{ $cuti->user->foto ? asset('storage/' . $cuti->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($cuti->user->name) }}" 
-                                     class="w-10 h-10 rounded-full object-cover">
+                                <img src="{{ $cuti->user->foto ? asset('storage/' . $cuti->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($cuti->user->name) . '&background=14b8a6&color=fff' }}" 
+                                     class="w-10 h-10 rounded-full object-cover border-2 border-teal-200">
                                 <div>
                                     <p class="font-semibold text-gray-800">{{ $cuti->user->name }}</p>
                                     <p class="text-xs text-gray-500">{{ ucfirst($cuti->jenis) }} - {{ $cuti->tanggal_mulai->format('d M Y') }}</p>
                                 </div>
                             </div>
-                            <a href="{{ route('superadmin.cutiizin.index') }}" class="text-blue-600 hover:text-blue-800">
+                            <a href="{{ route('superadmin.cutiizin.index') }}" class="text-teal-600 hover:text-teal-700 transition">
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
@@ -158,18 +158,18 @@
         </div>
 
         <!-- Karyawan Terbaru -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-green-500 to-teal-500 px-6 py-4">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-teal-500 to-cyan-600 px-6 py-4">
                 <h3 class="text-lg font-bold text-white">Karyawan Terbaru</h3>
             </div>
             <div class="p-6">
                 @if($karyawanTerbaru->count() > 0)
                     <div class="space-y-4">
                         @foreach($karyawanTerbaru as $karyawan)
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-teal-50 transition">
                             <div class="flex items-center space-x-3">
-                                <img src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) }}" 
-                                     class="w-10 h-10 rounded-full object-cover">
+                                <img src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) . '&background=14b8a6&color=fff' }}" 
+                                     class="w-10 h-10 rounded-full object-cover border-2 border-teal-200">
                                 <div>
                                     <p class="font-semibold text-gray-800">{{ $karyawan->name }}</p>
                                     <p class="text-xs text-gray-500">{{ $karyawan->divisi }} - {{ $karyawan->created_at->diffForHumans() }}</p>
@@ -193,11 +193,11 @@
     </div>
 
     <!-- Pengumuman Terbaru -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-teal-500 to-cyan-600 px-6 py-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-white">Pengumuman Terbaru</h3>
-                <a href="{{ route('superadmin.pengumuman.index') }}" class="text-sm text-white hover:text-gray-100">
+                <a href="{{ route('superadmin.pengumuman.index') }}" class="text-sm text-white hover:text-gray-100 transition">
                     Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
                 </a>
             </div>
@@ -206,14 +206,14 @@
             @if($pengumumanTerbaru->count() > 0)
                 <div class="space-y-4">
                     @foreach($pengumumanTerbaru as $pengumuman)
-                    <div class="border-l-4 border-purple-500 pl-4 py-2">
+                    <div class="border-l-4 border-teal-500 pl-4 py-2 hover:bg-teal-50 transition rounded-r-lg">
                         <h4 class="font-semibold text-gray-800 mb-1">{{ $pengumuman->judul }}</h4>
                         <p class="text-sm text-gray-600 mb-2">{{ Str::limit($pengumuman->konten, 150) }}</p>
                         <div class="flex items-center text-xs text-gray-500">
-                            <i class="fas fa-calendar mr-2"></i>
+                            <i class="fas fa-calendar mr-2 text-teal-500"></i>
                             <span>{{ $pengumuman->tanggal->format('d M Y') }}</span>
                             <span class="mx-2">•</span>
-                            <i class="fas fa-user mr-2"></i>
+                            <i class="fas fa-user mr-2 text-teal-500"></i>
                             <span>{{ $pengumuman->creator->name }}</span>
                         </div>
                     </div>
@@ -243,8 +243,8 @@
                 {
                     label: 'Hadir',
                     data: @json($dataHadir),
-                    borderColor: 'rgb(34, 197, 94)',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderColor: 'rgb(20, 184, 166)',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
                     tension: 0.4,
                     fill: true
                 },
@@ -286,8 +286,8 @@
             datasets: [{
                 data: @json($divisiValues),
                 backgroundColor: [
-                    'rgb(59, 130, 246)',
-                    'rgb(168, 85, 247)',
+                    'rgb(20, 184, 166)',
+                    'rgb(6, 182, 212)',
                     'rgb(34, 197, 94)',
                     'rgb(251, 146, 60)',
                     'rgb(239, 68, 68)',

@@ -7,19 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-teal-50 to-cyan-100 min-h-screen flex items-center justify-center p-4">
     
     <div class="w-full max-w-md">
         <!-- Card Login -->
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-teal-100">
             
             <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-center">
-                <div class="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <i class="fas fa-building text-4xl text-blue-600"></i>
+            <div class="bg-gradient-to-br from-teal-500 to-cyan-600 p-10 text-center">
+                <div class="w-16 h-16 bg-white/95 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-building text-3xl text-teal-600"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-white mb-2">Portal Internal</h1>
-                <p class="text-blue-100">Sistem Manajemen Karyawan</p>
+                <h1 class="text-2xl font-bold text-white mb-1 tracking-tight">Portal Internal</h1>
+                <p class="text-teal-50 text-sm font-light">Sistem Manajemen Karyawan</p>
             </div>
 
             <!-- Form Login -->
@@ -27,18 +27,18 @@
                 
                 <!-- Alert Success -->
                 @if(session('success'))
-                <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
+                <div class="mb-6 p-4 bg-teal-50 border border-teal-200 text-teal-700 rounded-xl flex items-center">
                     <i class="fas fa-check-circle mr-2"></i>
-                    <span>{{ session('success') }}</span>
+                    <span class="text-sm">{{ session('success') }}</span>
                 </div>
                 @endif
 
                 <!-- Alert Error -->
                 @if($errors->any())
-                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
                     <i class="fas fa-exclamation-circle mr-2"></i>
                     @foreach($errors->all() as $error)
-                        <p>{{ $error }}</p>
+                        <p class="text-sm">{{ $error }}</p>
                     @endforeach
                 </div>
                 @endif
@@ -47,41 +47,49 @@
                     @csrf
 
                     <!-- Email Input -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="email">
-                            <i class="fas fa-envelope mr-2"></i>Email
+                    <div class="mb-5">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="email">
+                            Email
                         </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            id="email"
-                            value="{{ old('email') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('email') border-red-500 @enderror"
-                            placeholder="nama@email.com"
-                            required
-                        >
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-teal-500">
+                                <i class="fas fa-envelope text-sm"></i>
+                            </span>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                id="email"
+                                value="{{ old('email') }}"
+                                class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition @error('email') border-red-300 @enderror"
+                                placeholder="nama@email.com"
+                                required
+                            >
+                        </div>
                     </div>
 
                     <!-- Password Input -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="password">
-                            <i class="fas fa-lock mr-2"></i>Password
+                    <div class="mb-5">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="password">
+                            Password
                         </label>
                         <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-teal-500">
+                                <i class="fas fa-lock text-sm"></i>
+                            </span>
                             <input 
                                 type="password" 
                                 name="password" 
                                 id="password"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('password') border-red-500 @enderror"
+                                class="w-full pl-11 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition @error('password') border-red-300 @enderror"
                                 placeholder="••••••••"
                                 required
                             >
                             <button 
                                 type="button" 
                                 onclick="togglePassword()"
-                                class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                                class="absolute right-4 top-3.5 text-gray-400 hover:text-teal-600 transition"
                             >
-                                <i class="fas fa-eye" id="toggleIcon"></i>
+                                <i class="fas fa-eye text-sm" id="toggleIcon"></i>
                             </button>
                         </div>
                     </div>
@@ -92,9 +100,9 @@
                             type="checkbox" 
                             name="remember" 
                             id="remember"
-                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            class="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-400"
                         >
-                        <label for="remember" class="ml-2 text-sm text-gray-700">
+                        <label for="remember" class="ml-2 text-sm text-gray-600">
                             Ingat Saya
                         </label>
                     </div>
@@ -102,19 +110,19 @@
                     <!-- Submit Button -->
                     <button 
                         type="submit"
-                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 shadow-lg"
+                        class="w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-medium py-3.5 rounded-xl hover:from-teal-600 hover:to-cyan-700 transition duration-200 shadow-md hover:shadow-lg"
                     >
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        <i class="fas fa-sign-in-alt mr-2"></i>Masuk
                     </button>
 
                 </form>
 
                 <!-- Info Akun Demo -->
-                <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-600 font-semibold mb-2">Akun Demo:</p>
-                    <div class="text-xs text-gray-600 space-y-1">
-                        <p><strong>Admin:</strong> admin@portal.com / admin123</p>
-                        <p><strong>Karyawan:</strong> budi@portal.com / karyawan123</p>
+                <div class="mt-6 p-4 bg-teal-50/50 rounded-xl border border-teal-100">
+                    <p class="text-xs text-gray-500 font-semibold mb-2.5">Akun Demo:</p>
+                    <div class="text-xs text-gray-600 space-y-1.5">
+                        <p><span class="font-medium text-teal-700">Admin:</span> admin@portal.com / admin123</p>
+                        <p><span class="font-medium text-teal-700">Karyawan:</span> budi@portal.com / karyawan123</p>
                     </div>
                 </div>
 
@@ -123,7 +131,7 @@
         </div>
 
         <!-- Footer -->
-        <p class="text-center text-white text-sm mt-6">
+        <p class="text-center text-teal-700 text-sm mt-6 font-light">
             &copy; 2025 Portal Internal. All rights reserved.
         </p>
 

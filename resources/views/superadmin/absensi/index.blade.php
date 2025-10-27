@@ -8,7 +8,7 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Hadir</p>
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Tepat Waktu</p>
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Terlambat</p>
@@ -49,14 +49,14 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
         <form method="GET" action="{{ route('superadmin.absensi.index') }}" class="space-y-4">
             
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-filter mr-2"></i>Filter Absensi
+                    <i class="fas fa-filter mr-2 text-teal-600"></i>Filter Absensi
                 </h3>
-                <button type="button" onclick="resetFilter()" class="text-sm text-gray-600 hover:text-gray-800">
+                <button type="button" onclick="resetFilter()" class="text-sm text-gray-600 hover:text-teal-600 transition">
                     <i class="fas fa-redo mr-1"></i>Reset Filter
                 </button>
             </div>
@@ -126,7 +126,7 @@
                 </div>
             </div>
 
-            <button type="button" onclick="toggleRangeFilter()" class="text-sm text-blue-600 hover:text-blue-800">
+            <button type="button" onclick="toggleRangeFilter()" class="text-sm text-teal-600 hover:text-teal-700 font-medium transition">
                 <i class="fas fa-calendar-week mr-1"></i>
                 <span id="rangeToggleText">Gunakan Range Tanggal</span>
             </button>
@@ -142,7 +142,7 @@
         :addButton="false"
     >
         @forelse($absensi as $key => $a)
-        <tr class="hover:bg-gray-50 transition">
+        <tr class="hover:bg-teal-50 transition">
             <td class="px-6 py-4 text-sm text-gray-900">
                 {{ $absensi->firstItem() + $key }}
             </td>
@@ -154,9 +154,9 @@
             </td>
             <td class="px-6 py-4">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ $a->user->foto ? asset('storage/' . $a->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($a->user->name) . '&background=4F46E5&color=fff' }}" 
+                    <img src="{{ $a->user->foto ? asset('storage/' . $a->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($a->user->name) . '&background=14b8a6&color=fff' }}" 
                          alt="{{ $a->user->name }}"
-                         class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
+                         class="w-10 h-10 rounded-full object-cover border-2 border-teal-200">
                     <div>
                         <p class="text-sm font-semibold text-gray-900">{{ $a->user->name }}</p>
                         <p class="text-xs text-gray-500">{{ $a->user->email }}</p>
@@ -164,14 +164,14 @@
                 </div>
             </td>
             <td class="px-6 py-4">
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                <span class="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-semibold">
                     {{ $a->user->divisi }}
                 </span>
             </td>
             <td class="px-6 py-4">
                 <div class="flex items-center space-x-2">
                     @if($a->jam_masuk)
-                        <span class="text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime('08:00:00') ? 'text-green-600' : 'text-red-600' }}">
+                        <span class="text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime('08:00:00') ? 'text-teal-600' : 'text-red-600' }}">
                             {{ date('H:i', strtotime($a->jam_masuk)) }}
                         </span>
                         @if(strtotime($a->jam_masuk) > strtotime('08:00:00'))
@@ -190,14 +190,14 @@
                         {{ date('H:i', strtotime($a->jam_keluar)) }}
                     </span>
                 @else
-                    <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
+                    <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">
                         Belum Check-out
                     </span>
                 @endif
             </td>
             <td class="px-6 py-4">
                 @if($a->lokasi)
-                    <button onclick="showLocation('{{ $a->lokasi }}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                    <button onclick="showLocation('{{ $a->lokasi }}')" class="text-teal-600 hover:text-teal-700 text-sm font-medium transition">
                         <i class="fas fa-map-marker-alt mr-1"></i>Lihat
                     </button>
                 @else
@@ -228,7 +228,7 @@
                 <div class="flex items-center space-x-2">
                     @if($a->foto)
                     <button onclick="showPhoto('{{ asset('storage/' . $a->foto) }}')" 
-                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            class="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition"
                             title="Lihat Foto">
                         <i class="fas fa-camera"></i>
                     </button>

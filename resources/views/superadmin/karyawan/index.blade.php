@@ -15,7 +15,7 @@
         addText="Tambah Karyawan"
     >
         <x-slot name="filters">
-            <select id="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition">
                 <option value="">Semua Status</option>
                 <option value="aktif">Aktif</option>
                 <option value="nonaktif">Non-Aktif</option>
@@ -23,14 +23,14 @@
         </x-slot>
 
         @forelse($karyawan as $key => $k)
-        <tr class="hover:bg-gray-50 transition">
+        <tr class="hover:bg-teal-50 transition">
             <td class="px-6 py-4 text-sm text-gray-900">
                 {{ $karyawan->firstItem() + $key }}
             </td>
             <td class="px-6 py-4">
-                <img src="{{ $k->foto ? asset('storage/' . $k->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($k->name) . '&background=4F46E5&color=fff' }}" 
+                <img src="{{ $k->foto ? asset('storage/' . $k->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($k->name) . '&background=14b8a6&color=fff' }}" 
                      alt="{{ $k->name }}"
-                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                     class="w-12 h-12 rounded-full object-cover border-2 border-teal-200 shadow-sm">
             </td>
             <td class="px-6 py-4">
                 <div>
@@ -42,7 +42,7 @@
                 {{ $k->email }}
             </td>
             <td class="px-6 py-4">
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                <span class="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-semibold">
                     {{ $k->divisi }}
                 </span>
             </td>
@@ -54,12 +54,12 @@
             <td class="px-6 py-4">
                 <div class="flex items-center space-x-2">
                     <a href="{{ route('superadmin.karyawan.edit', $k->id) }}" 
-                       class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                       class="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition"
                        title="Edit">
                         <i class="fas fa-edit"></i>
                     </a>
                     <button onclick="openResetModal({{ $k->id }}, '{{ $k->name }}')" 
-                            class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition"
+                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition"
                             title="Reset Password">
                         <i class="fas fa-key"></i>
                     </button>
@@ -110,14 +110,14 @@
     <form id="resetForm" method="POST">
         @csrf
         <div class="text-center">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-key text-yellow-600 text-2xl"></i>
+            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-key text-amber-600 text-2xl"></i>
             </div>
             <p class="text-gray-700 mb-2">Reset password untuk karyawan:</p>
             <p class="text-lg font-bold text-gray-900 mb-4" id="resetKaryawanName"></p>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="bg-teal-50 border border-teal-200 rounded-xl p-4">
                 <p class="text-sm text-gray-600 mb-1">Password akan direset menjadi:</p>
-                <p class="text-lg font-mono font-bold text-blue-600">karyawan123</p>
+                <p class="text-lg font-mono font-bold text-teal-600">karyawan123</p>
             </div>
         </div>
     </form>
@@ -125,7 +125,7 @@
         <button type="button" onclick="closeModal('resetModal')" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
             Batal
         </button>
-        <button type="submit" form="resetForm" class="px-5 py-2.5 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-semibold rounded-lg hover:from-yellow-700 hover:to-orange-700 transition shadow-md">
+        <button type="submit" form="resetForm" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-600 hover:to-orange-600 transition shadow-md">
             <i class="fas fa-key mr-2"></i>Reset Password
         </button>
     </x-slot>

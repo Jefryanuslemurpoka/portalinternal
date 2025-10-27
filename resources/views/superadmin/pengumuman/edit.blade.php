@@ -18,7 +18,7 @@
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         
         <!-- Header -->
-        <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+        <div class="bg-gradient-to-r from-teal-600 to-cyan-600 px-6 py-4">
             <h3 class="text-xl font-bold text-white">
                 <i class="fas fa-edit mr-2"></i>Form Edit Pengumuman
             </h3>
@@ -32,12 +32,12 @@
             <div class="space-y-6">
 
                 <!-- Info Box -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
                     <div class="flex items-start">
-                        <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                        <i class="fas fa-info-circle text-teal-600 mt-1 mr-3"></i>
                         <div>
-                            <p class="text-sm text-blue-800 font-semibold mb-1">Tips Pengumuman Efektif</p>
-                            <ul class="text-xs text-blue-700 space-y-1">
+                            <p class="text-sm text-teal-800 font-semibold mb-1">Tips Pengumuman Efektif</p>
+                            <ul class="text-xs text-teal-700 space-y-1">
                                 <li>• Gunakan judul yang jelas dan menarik perhatian</li>
                                 <li>• Tulis konten yang singkat, padat, dan mudah dipahami</li>
                                 <li>• Cantumkan informasi penting seperti tanggal, waktu, dan lokasi</li>
@@ -99,7 +99,7 @@
                     </h4>
                     <div class="bg-white rounded-lg p-4 border border-gray-200">
                         <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white">
+                            <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white">
                                 <i class="fas fa-bullhorn"></i>
                             </div>
                             <div>

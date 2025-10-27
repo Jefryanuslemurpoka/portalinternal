@@ -8,17 +8,17 @@
 
     <!-- Back Button -->
     <div class="mb-6">
-        <a href="{{ route('superadmin.karyawan.index') }}" class="inline-flex items-center text-gray-600 hover:text-gray-800">
+        <a href="{{ route('superadmin.karyawan.index') }}" class="inline-flex items-center text-gray-600 hover:text-teal-600 transition font-medium">
             <i class="fas fa-arrow-left mr-2"></i>
             Kembali ke Daftar Karyawan
         </a>
     </div>
 
     <!-- Form Card -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         
         <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+        <div class="bg-gradient-to-r from-teal-500 to-cyan-600 px-6 py-4">
             <h3 class="text-xl font-bold text-white">Form Edit Karyawan</h3>
         </div>
 
@@ -32,15 +32,15 @@
                 <!-- Foto Profile -->
                 <div>
                     <label class="form-label">
-                        <i class="fas fa-camera mr-2"></i>Foto Profil
+                        <i class="fas fa-camera mr-2 text-teal-600"></i>Foto Profil
                     </label>
                     <div class="file-upload">
                         <input type="file" name="foto" id="foto" accept="image/*" onchange="previewImage(event)">
                         <div class="text-center">
                             <img id="imagePreview" 
-                                 src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) . '&background=4F46E5&color=fff&size=200' }}" 
-                                 class="mx-auto mb-3 w-32 h-32 rounded-full object-cover border-4 border-gray-200">
-                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                 src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) . '&background=14b8a6&color=fff&size=200' }}" 
+                                 class="mx-auto mb-3 w-32 h-32 rounded-full object-cover border-4 border-teal-200 shadow-md">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-teal-400 mb-2"></i>
                             <p class="text-sm text-gray-600">Klik untuk upload foto baru</p>
                             <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max: 2MB)</p>
                         </div>
@@ -53,7 +53,7 @@
                 <!-- Nama -->
                 <div>
                     <label for="name" class="form-label">
-                        <i class="fas fa-user mr-2"></i>Nama Lengkap <span class="text-red-500">*</span>
+                        <i class="fas fa-user mr-2 text-teal-600"></i>Nama Lengkap <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="name" id="name" value="{{ old('name', $karyawan->name) }}" 
                            class="form-input @error('name') border-red-500 @enderror" 
@@ -66,7 +66,7 @@
                 <!-- Email -->
                 <div>
                     <label for="email" class="form-label">
-                        <i class="fas fa-envelope mr-2"></i>Email <span class="text-red-500">*</span>
+                        <i class="fas fa-envelope mr-2 text-teal-600"></i>Email <span class="text-red-500">*</span>
                     </label>
                     <input type="email" name="email" id="email" value="{{ old('email', $karyawan->email) }}" 
                            class="form-input @error('email') border-red-500 @enderror" 
@@ -77,12 +77,12 @@
                 </div>
 
                 <!-- Info Password -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="bg-teal-50 border border-teal-200 rounded-xl p-4">
                     <div class="flex items-start">
-                        <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                        <i class="fas fa-info-circle text-teal-600 mt-1 mr-3"></i>
                         <div>
-                            <p class="text-sm text-blue-800 font-semibold mb-1">Informasi Password</p>
-                            <p class="text-xs text-blue-700">Password tidak akan diubah. Gunakan tombol "Reset Password" di daftar karyawan jika ingin mereset password.</p>
+                            <p class="text-sm text-teal-800 font-semibold mb-1">Informasi Password</p>
+                            <p class="text-xs text-teal-700">Password tidak akan diubah. Gunakan tombol "Reset Password" di daftar karyawan jika ingin mereset password.</p>
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                 <!-- Divisi -->
                 <div>
                     <label for="divisi" class="form-label">
-                        <i class="fas fa-building mr-2"></i>Divisi <span class="text-red-500">*</span>
+                        <i class="fas fa-building mr-2 text-teal-600"></i>Divisi <span class="text-red-500">*</span>
                     </label>
                     <select name="divisi" id="divisi" class="form-input @error('divisi') border-red-500 @enderror" required>
                         <option value="">-- Pilih Divisi --</option>
@@ -108,7 +108,7 @@
                 <!-- Status -->
                 <div>
                     <label for="status" class="form-label">
-                        <i class="fas fa-toggle-on mr-2"></i>Status <span class="text-red-500">*</span>
+                        <i class="fas fa-toggle-on mr-2 text-teal-600"></i>Status <span class="text-red-500">*</span>
                     </label>
                     <select name="status" id="status" class="form-input @error('status') border-red-500 @enderror" required>
                         <option value="">-- Pilih Status --</option>

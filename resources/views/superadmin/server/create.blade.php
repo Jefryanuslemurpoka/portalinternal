@@ -18,7 +18,7 @@
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         
         <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+        <div class="bg-gradient-to-r from-teal-600 to-cyan-600 px-6 py-4">
             <h3 class="text-xl font-bold text-white">Form Tambah Log Server</h3>
         </div>
 

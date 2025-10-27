@@ -17,7 +17,7 @@
     
     @stack('styles')
 </head>
-<body class="bg-gray-100">
+<body class="bg-gradient-to-br from-teal-50 to-cyan-50">
     
     <div class="flex h-screen overflow-hidden">
         
@@ -35,28 +35,28 @@
             @include('layouts.header')
 
             <!-- Content Area -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-teal-50 to-cyan-50 p-6">
                 
                 <!-- Alert Messages -->
                 @if(session('success'))
-                <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between">
+                <div class="mb-6 p-4 bg-teal-50 border border-teal-200 text-teal-700 rounded-xl flex items-center justify-between shadow-sm">
                     <div class="flex items-center">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        <span>{{ session('success') }}</span>
+                        <i class="fas fa-check-circle mr-2 text-teal-500"></i>
+                        <span class="text-sm font-medium">{{ session('success') }}</span>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-green-700 hover:text-green-900">
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-teal-600 hover:text-teal-800 transition">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 @endif
 
                 @if(session('error'))
-                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center justify-between">
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center justify-between shadow-sm">
                     <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        <span>{{ session('error') }}</span>
+                        <i class="fas fa-exclamation-circle mr-2 text-red-500"></i>
+                        <span class="text-sm font-medium">{{ session('error') }}</span>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-700 hover:text-red-900">
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-600 hover:text-red-800 transition">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

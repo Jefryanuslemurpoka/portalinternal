@@ -8,7 +8,7 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Surat</p>
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Surat Keluar</p>
@@ -129,7 +129,7 @@
             </td>
             <td class="px-6 py-4">
                 <span class="px-3 py-1 rounded-full text-xs font-semibold
-                    {{ $s->jenis == 'masuk' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700' }}">
+                    {{ $s->jenis == 'masuk' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                     <i class="fas fa-{{ $s->jenis == 'masuk' ? 'inbox' : 'paper-plane' }} mr-1"></i>
                     {{ ucfirst($s->jenis) }}
                 </span>

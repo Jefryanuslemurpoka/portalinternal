@@ -8,7 +8,7 @@
 
     <!-- Statistics Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-700 to-teal-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Pengumuman</p>
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-cyan-600 to-teal-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Bulan Ini</p>
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-green-500 to-teal-500 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-600 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Minggu Ini</p>
@@ -71,7 +71,7 @@
                     <div class="flex-1">
                         <!-- Header -->
                         <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white">
+                            <div class="w-12 h-12 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-full flex items-center justify-center text-white">
                                 <i class="fas fa-bullhorn text-xl"></i>
                             </div>
                             <div class="flex-1">
@@ -100,7 +100,7 @@
                             </p>
                             @if(strlen($p->konten) > 200)
                                 <button onclick="showDetail({{ json_encode($p) }})" 
-                                        class="text-blue-600 hover:text-blue-800 text-sm mt-2 font-medium">
+                                        class="text-teal-600 hover:text-teal-800 text-sm mt-2 font-medium">
                                     Baca selengkapnya <i class="fas fa-arrow-right ml-1"></i>
                                 </button>
                             @endif
@@ -110,7 +110,7 @@
                     <!-- Action Buttons -->
                     <div class="flex items-center space-x-2 ml-4">
                         <a href="{{ route('superadmin.pengumuman.edit', $p->id) }}" 
-                           class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                           class="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition"
                            title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -163,7 +163,7 @@
 <x-modal id="detailModal" title="Detail Pengumuman" size="lg" type="info">
     <div class="space-y-4">
         <div class="flex items-center space-x-3 pb-4 border-b">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white">
+            <div class="w-12 h-12 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-full flex items-center justify-center text-white">
                 <i class="fas fa-bullhorn text-xl"></i>
             </div>
             <div>
@@ -181,7 +181,7 @@
         </div>
     </div>
     <x-slot name="footerButtons">
-        <button type="button" onclick="closeModal('detailModal')" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition shadow-md">
+        <button type="button" onclick="closeModal('detailModal')" class="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition shadow-md">
             Tutup
         </button>
     </x-slot>

@@ -8,7 +8,7 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Log</p>
@@ -124,7 +124,7 @@
                 </div>
             </div>
 
-            <button type="button" onclick="toggleRangeFilter()" class="text-sm text-blue-600 hover:text-blue-800">
+            <button type="button" onclick="toggleRangeFilter()" class="text-sm text-teal-600 hover:text-teal-800">
                 <i class="fas fa-calendar-week mr-1"></i>
                 <span id="rangeToggleText">Gunakan Range Tanggal</span>
             </button>
@@ -172,7 +172,7 @@
                         </p>
                         @if(strlen($log->deskripsi) > 100)
                             <button onclick="showDetail({{ json_encode($log) }})" 
-                                    class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                                    class="text-xs text-teal-600 hover:text-teal-800 mt-1">
                                 Lihat lengkap
                             </button>
                         @endif
@@ -253,7 +253,7 @@
         </div>
     </div>
     <x-slot name="footerButtons">
-        <button type="button" onclick="closeModal('detailModal')" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition shadow-md">
+        <button type="button" onclick="closeModal('detailModal')" class="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition shadow-md">
             Tutup
         </button>
     </x-slot>

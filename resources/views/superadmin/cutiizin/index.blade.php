@@ -8,7 +8,7 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Pending</p>
@@ -20,7 +20,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-green-500 to-teal-500 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Disetujui</p>
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-red-500 to-pink-500 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Ditolak</p>
@@ -53,13 +53,13 @@
         :addButton="false"
     >
         <x-slot name="filters">
-            <select id="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition">
                 <option value="">Semua Status</option>
                 <option value="pending">Pending</option>
                 <option value="disetujui">Disetujui</option>
                 <option value="ditolak">Ditolak</option>
             </select>
-            <select id="filterJenis" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="filterJenis" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition">
                 <option value="">Semua Jenis</option>
                 <option value="cuti">Cuti</option>
                 <option value="izin">Izin</option>
@@ -68,15 +68,15 @@
         </x-slot>
 
         @forelse($cutiIzin as $key => $ci)
-        <tr class="hover:bg-gray-50 transition">
+        <tr class="hover:bg-teal-50 transition">
             <td class="px-6 py-4 text-sm text-gray-900">
                 {{ $cutiIzin->firstItem() + $key }}
             </td>
             <td class="px-6 py-4">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ $ci->user->foto ? asset('storage/' . $ci->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($ci->user->name) . '&background=4F46E5&color=fff' }}" 
+                    <img src="{{ $ci->user->foto ? asset('storage/' . $ci->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($ci->user->name) . '&background=14b8a6&color=fff' }}" 
                          alt="{{ $ci->user->name }}"
-                         class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
+                         class="w-10 h-10 rounded-full object-cover border-2 border-teal-200">
                     <div>
                         <p class="text-sm font-semibold text-gray-900">{{ $ci->user->name }}</p>
                         <p class="text-xs text-gray-500">{{ $ci->user->divisi }}</p>
@@ -85,8 +85,8 @@
             </td>
             <td class="px-6 py-4">
                 <span class="px-3 py-1 rounded-full text-xs font-semibold
-                    {{ $ci->jenis == 'cuti' ? 'bg-blue-100 text-blue-700' : '' }}
-                    {{ $ci->jenis == 'izin' ? 'bg-purple-100 text-purple-700' : '' }}
+                    {{ $ci->jenis == 'cuti' ? 'bg-teal-100 text-teal-700' : '' }}
+                    {{ $ci->jenis == 'izin' ? 'bg-cyan-100 text-cyan-700' : '' }}
                     {{ $ci->jenis == 'sakit' ? 'bg-red-100 text-red-700' : '' }}">
                     {{ ucfirst($ci->jenis) }}
                 </span>
@@ -114,7 +114,7 @@
                 @if($ci->status == 'pending')
                 <div class="flex items-center space-x-2">
                     <button onclick="openApproveModal({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
-                            class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                            class="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition"
                             title="Setujui">
                         <i class="fas fa-check"></i>
                     </button>
@@ -124,7 +124,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                     <button onclick="openDetailModal({{ json_encode($ci) }})" 
-                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition"
                             title="Detail">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -132,7 +132,7 @@
                 @else
                 <div class="flex items-center space-x-2">
                     <button onclick="openDetailModal({{ json_encode($ci) }})" 
-                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition"
                             title="Detail">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -167,8 +167,8 @@
     <form id="approveForm" method="POST">
         @csrf
         <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+            <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check-circle text-teal-600 text-2xl"></i>
             </div>
             <p class="text-gray-700 mb-2">Setujui pengajuan <span id="approveJenis" class="font-semibold"></span> dari:</p>
             <p class="text-lg font-bold text-gray-900" id="approveKaryawanName"></p>
@@ -176,7 +176,7 @@
 
         <div>
             <label for="keterangan_approve" class="form-label">
-                <i class="fas fa-comment mr-2"></i>Keterangan (Opsional)
+                <i class="fas fa-comment mr-2 text-teal-600"></i>Keterangan (Opsional)
             </label>
             <textarea name="keterangan_approval" id="keterangan_approve" rows="3" 
                       class="form-input" 
@@ -187,7 +187,7 @@
         <button type="button" onclick="closeModal('approveModal')" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
             Batal
         </button>
-        <button type="submit" form="approveForm" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-teal-700 transition shadow-md">
+        <button type="submit" form="approveForm" class="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md">
             <i class="fas fa-check mr-2"></i>Setujui
         </button>
     </x-slot>
@@ -207,7 +207,7 @@
 
         <div>
             <label for="keterangan_reject" class="form-label">
-                <i class="fas fa-comment mr-2"></i>Alasan Penolakan <span class="text-red-500">*</span>
+                <i class="fas fa-comment mr-2 text-red-600"></i>Alasan Penolakan <span class="text-red-500">*</span>
             </label>
             <textarea name="keterangan_approval" id="keterangan_reject" rows="3" 
                       class="form-input" 
@@ -229,7 +229,7 @@
 <x-modal id="detailModal" title="Detail Pengajuan" size="lg" type="info">
     <div class="space-y-4">
         <div class="flex items-center space-x-4 pb-4 border-b">
-            <img id="detailFoto" src="" alt="" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+            <img id="detailFoto" src="" alt="" class="w-16 h-16 rounded-full object-cover border-2 border-teal-200">
             <div>
                 <h4 id="detailNama" class="text-lg font-bold text-gray-900"></h4>
                 <p id="detailDivisi" class="text-sm text-gray-500"></p>
@@ -266,14 +266,14 @@
 
         <div id="detailApprovalSection" class="hidden">
             <p class="text-xs text-gray-500 mb-1">Keterangan Approval</p>
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p id="detailKeterangan" class="text-sm text-blue-800"></p>
-                <p id="detailApprover" class="text-xs text-blue-600 mt-2"></p>
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                <p id="detailKeterangan" class="text-sm text-teal-800"></p>
+                <p id="detailApprover" class="text-xs text-teal-600 mt-2"></p>
             </div>
         </div>
     </div>
     <x-slot name="footerButtons">
-        <button type="button" onclick="closeModal('detailModal')" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition shadow-md">
+        <button type="button" onclick="closeModal('detailModal')" class="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md">
             Tutup
         </button>
     </x-slot>
@@ -330,7 +330,7 @@
         
         document.getElementById('detailFoto').src = cutiIzin.user.foto 
             ? `/storage/${cutiIzin.user.foto}` 
-            : `https://ui-avatars.com/api/?name=${encodeURIComponent(cutiIzin.user.name)}&background=4F46E5&color=fff`;
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(cutiIzin.user.name)}&background=14b8a6&color=fff`;
         document.getElementById('detailNama').textContent = cutiIzin.user.name;
         document.getElementById('detailDivisi').textContent = cutiIzin.user.divisi;
         document.getElementById('detailJenis').textContent = cutiIzin.jenis.charAt(0).toUpperCase() + cutiIzin.jenis.slice(1);
