@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\LogAktivitas;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class KaryawanController extends Controller
@@ -31,6 +32,9 @@ class KaryawanController extends Controller
     // Simpan karyawan baru
     public function store(Request $request)
     {
+        // Debug: Log semua input
+        \Log::info('Form Input:', $request->all());
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -53,56 +57,69 @@ class KaryawanController extends Controller
             'foto.max' => 'Ukuran gambar maksimal 2MB',
         ]);
 
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'karyawan',
-            'divisi' => $request->divisi,
-            'status' => $request->status,
-        ];
+        try {
+            $data = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'karyawan',
+                'divisi' => $request->divisi,
+                'status' => $request->status,
+            ];
 
-        // Upload foto jika ada
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('karyawan/foto', 'public');
-            $data['foto'] = $fotoPath;
+            // Upload foto jika ada
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('karyawan/foto', 'public');
+                $data['foto'] = $fotoPath;
+            }
+
+            $karyawan = User::create($data);
+
+            // Debug: Log user yang baru dibuat
+            \Log::info('User Created:', $karyawan->toArray());
+
+            // Log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Tambah Karyawan',
+                'deskripsi' => 'Menambahkan karyawan baru: ' . $karyawan->name,
+            ]);
+
+            return redirect()->route('superadmin.karyawan.index')
+                ->with('success', 'Karyawan berhasil ditambahkan');
+
+        } catch (\Exception $e) {
+            // Debug: Log error
+            \Log::error('Error Store Karyawan: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menambahkan karyawan: ' . $e->getMessage());
         }
-
-        $karyawan = User::create($data);
-
-        // Log aktivitas
-        LogAktivitas::create([
-            'user_id' => auth()->id(),
-            'aktivitas' => 'Tambah Karyawan',
-            'deskripsi' => 'Menambahkan karyawan baru: ' . $karyawan->name,
-        ]);
-
-        return redirect()->route('superadmin.karyawan.index')
-            ->with('success', 'Karyawan berhasil ditambahkan');
     }
 
     // Tampilkan detail karyawan
-    public function show($id)
+    public function show($uuid)
     {
-        $karyawan = User::findOrFail($id);
+        $karyawan = User::where('uuid', $uuid)->firstOrFail();
         return view('superadmin.karyawan.show', compact('karyawan'));
     }
 
     // Tampilkan form edit karyawan
-    public function edit($id)
+    public function edit($uuid)
     {
-        $karyawan = User::findOrFail($id);
+        $karyawan = User::where('uuid', $uuid)->firstOrFail();
         return view('superadmin.karyawan.edit', compact('karyawan'));
     }
 
     // Update karyawan
-    public function update(Request $request, $id)
+    public function update(Request $request, $uuid)
     {
-        $karyawan = User::findOrFail($id);
+        $karyawan = User::where('uuid', $uuid)->firstOrFail();
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($karyawan->id)],
             'divisi' => 'required|string',
             'status' => 'required|in:aktif,nonaktif',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -150,9 +167,9 @@ class KaryawanController extends Controller
     }
 
     // Hapus karyawan
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $karyawan = User::findOrFail($id);
+        $karyawan = User::where('uuid', $uuid)->firstOrFail();
         $namaKaryawan = $karyawan->name;
 
         // Hapus foto jika ada
@@ -174,23 +191,27 @@ class KaryawanController extends Controller
     }
 
     // Reset password karyawan
-    public function resetPassword($id)
+    public function resetPassword($uuid)
     {
-        $karyawan = User::findOrFail($id);
+        $karyawan = User::where('uuid', $uuid)->firstOrFail();
         $defaultPassword = 'karyawan123';
         
-        $karyawan->update([
-            'password' => Hash::make($defaultPassword)
-        ]);
+        // Update password langsung ke database
+        DB::table('users')
+            ->where('uuid', $uuid)
+            ->update([
+                'password' => Hash::make($defaultPassword),
+                'updated_at' => now()
+            ]);
 
         // Log aktivitas
         LogAktivitas::create([
             'user_id' => auth()->id(),
             'aktivitas' => 'Reset Password',
-            'deskripsi' => 'Reset password karyawan: ' . $karyawan->name,
+            'deskripsi' => 'Reset password karyawan: ' . $karyawan->name . ' menjadi: ' . $defaultPassword,
         ]);
 
         return redirect()->route('superadmin.karyawan.index')
-            ->with('success', 'Password berhasil direset ke: ' . $defaultPassword);
+            ->with('success', 'Password berhasil direset menjadi: ' . $defaultPassword);
     }
 }

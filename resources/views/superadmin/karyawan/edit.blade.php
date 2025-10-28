@@ -23,7 +23,7 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('superadmin.karyawan.update', $karyawan->id) }}" method="POST" enctype="multipart/form-data" class="p-6">
+        <form action="{{ route('superadmin.karyawan.update', $karyawan->uuid) }}" method="POST" enctype="multipart/form-data" class="p-6">
             @csrf
             @method('PUT')
 
@@ -34,8 +34,8 @@
                     <label class="form-label">
                         <i class="fas fa-camera mr-2 text-teal-600"></i>Foto Profil
                     </label>
-                    <div class="file-upload">
-                        <input type="file" name="foto" id="foto" accept="image/*" onchange="previewImage(event)">
+                    <div class="file-upload cursor-pointer" onclick="document.getElementById('foto').click()">
+                        <input type="file" name="foto" id="foto" accept="image/*" onchange="previewImage(event)" class="hidden">
                         <div class="text-center">
                             <img id="imagePreview" 
                                  src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) . '&background=14b8a6&color=fff&size=200' }}" 
@@ -141,13 +141,16 @@
 
 @push('scripts')
 <script>
-    // Preview Image
+    // Preview Image - FIXED
     function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            document.getElementById('imagePreview').src = reader.result;
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(event.target.files[0]);
     }
 </script>
 @endpush

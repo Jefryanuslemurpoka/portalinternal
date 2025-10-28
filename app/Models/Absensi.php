@@ -17,8 +17,7 @@ class Absensi extends Model
         'jam_masuk',
         'jam_keluar',
         'lokasi',
-        'status',
-        'keterangan',
+        'foto',  // 👈 TAMBAHKAN INI
     ];
 
     protected $casts = [

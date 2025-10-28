@@ -22,17 +22,22 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
         Route::get('/', [KaryawanController::class, 'index'])->name('index');
         Route::get('/create', [KaryawanController::class, 'create'])->name('create');
         Route::post('/', [KaryawanController::class, 'store'])->name('store');
-        Route::get('/{id}', [KaryawanController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [KaryawanController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [KaryawanController::class, 'update'])->name('update');
-        Route::delete('/{id}', [KaryawanController::class, 'destroy'])->name('destroy');
-        Route::post('/{id}/reset-password', [KaryawanController::class, 'resetPassword'])->name('reset-password');
+        Route::get('/{uuid}', [KaryawanController::class, 'show'])->name('show');
+        Route::get('/{uuid}/edit', [KaryawanController::class, 'edit'])->name('edit');
+        Route::put('/{uuid}', [KaryawanController::class, 'update'])->name('update');
+        Route::delete('/{uuid}', [KaryawanController::class, 'destroy'])->name('destroy');
+        Route::post('/{uuid}/reset-password', [KaryawanController::class, 'resetPassword'])->name('reset-password');
     });
 
     // Manajemen Absensi
     Route::prefix('absensi')->name('superadmin.absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
+        Route::get('/create', [AbsensiController::class, 'create'])->name('create');
+        Route::post('/', [AbsensiController::class, 'store'])->name('store');
+        Route::post('/export', [AbsensiController::class, 'export'])->name('export');
         Route::get('/filter', [AbsensiController::class, 'filter'])->name('filter');
+        Route::get('/{id}/edit', [AbsensiController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AbsensiController::class, 'update'])->name('update');
         Route::get('/{id}', [AbsensiController::class, 'show'])->name('show');
         Route::delete('/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
     });
@@ -40,7 +45,12 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // Persetujuan Cuti/Izin
     Route::prefix('cuti-izin')->name('superadmin.cutiizin.')->group(function () {
         Route::get('/', [CutiIzinController::class, 'index'])->name('index');
+        Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
+        Route::post('/', [CutiIzinController::class, 'store'])->name('store');
         Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [CutiIzinController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [CutiIzinController::class, 'update'])->name('update');
+        Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/approve', [CutiIzinController::class, 'approve'])->name('approve');
         Route::post('/{id}/reject', [CutiIzinController::class, 'reject'])->name('reject');
     });

@@ -6,6 +6,30 @@
 @section('content')
 <div class="max-w-3xl mx-auto">
 
+    <!-- Debug Error Messages (Hapus setelah selesai debug) -->
+    @if ($errors->any())
+        <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+            <h3 class="text-red-800 font-bold mb-2">Error Validation:</h3>
+            <ul class="list-disc list-inside text-red-700 text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+            <p class="text-green-800 font-semibold">✅ {{ session('success') }}</p>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+            <p class="text-red-800 font-semibold">❌ {{ session('error') }}</p>
+        </div>
+    @endif
+
     <!-- Back Button -->
     <div class="mb-6">
         <a href="{{ route('superadmin.karyawan.index') }}" class="inline-flex items-center text-gray-600 hover:text-teal-600 transition font-medium">
@@ -33,10 +57,10 @@
                     <label class="form-label">
                         <i class="fas fa-camera mr-2 text-teal-600"></i>Foto Profil (Opsional)
                     </label>
-                    <div class="file-upload">
-                        <input type="file" name="foto" id="foto" accept="image/*" onchange="previewImage(event)">
+                    <div class="file-upload cursor-pointer" onclick="document.getElementById('foto').click()">
+                        <input type="file" name="foto" id="foto" accept="image/*" onchange="previewImage(event)" class="hidden">
                         <div class="text-center">
-                            <img id="imagePreview" src="https://via.placeholder.com/150?text=Upload+Foto" class="mx-auto mb-3 w-32 h-32 rounded-full object-cover border-4 border-teal-200 shadow-md">
+                            <img id="imagePreview" src="https://ui-avatars.com/api/?name=Upload+Foto&background=e0e0e0&color=9ca3af&size=200" class="mx-auto mb-3 w-32 h-32 rounded-full object-cover border-4 border-teal-200 shadow-md">
                             <i class="fas fa-cloud-upload-alt text-3xl text-teal-400 mb-2"></i>
                             <p class="text-sm text-gray-600">Klik untuk upload foto</p>
                             <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max: 2MB)</p>
@@ -155,13 +179,16 @@
 
 @push('scripts')
 <script>
-    // Preview Image
+    // Preview Image - FIXED
     function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            document.getElementById('imagePreview').src = reader.result;
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(event.target.files[0]);
     }
 
     // Toggle Password Visibility

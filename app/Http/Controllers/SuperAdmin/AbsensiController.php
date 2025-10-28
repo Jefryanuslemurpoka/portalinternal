@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Absensi;
 use App\Models\User;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;  // ← TAMBAHKAN BARIS INI
+use App\Exports\AbsensiExport;         // ← DAN BARIS INI
 
 class AbsensiController extends Controller
 {
@@ -71,8 +73,141 @@ class AbsensiController extends Controller
     // Filter absensi (AJAX)
     public function filter(Request $request)
     {
-        // Method ini bisa digunakan untuk AJAX request jika diperlukan
         return $this->index($request);
+    }
+
+    // Tampilkan form tambah absensi
+    public function create()
+    {
+        $karyawan = User::where('role', 'karyawan')
+                       ->where('status', 'aktif')
+                       ->orderBy('name')
+                       ->get();
+
+        return view('superadmin.absensi.create', compact('karyawan'));
+    }
+
+    // Simpan absensi baru
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'tanggal' => 'required|date',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_keluar' => 'nullable|date_format:H:i|after:jam_masuk',
+            'lokasi' => 'nullable|string|max:255',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'user_id.required' => 'Karyawan harus dipilih',
+            'user_id.exists' => 'Karyawan tidak valid',
+            'tanggal.required' => 'Tanggal harus diisi',
+            'tanggal.date' => 'Format tanggal tidak valid',
+            'jam_masuk.date_format' => 'Format jam masuk harus HH:MM',
+            'jam_keluar.date_format' => 'Format jam keluar harus HH:MM',
+            'jam_keluar.after' => 'Jam keluar harus lebih besar dari jam masuk',
+            'foto.image' => 'File harus berupa gambar',
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg',
+            'foto.max' => 'Ukuran foto maksimal 2MB',
+        ]);
+
+        // Cek duplikasi absensi
+        $exists = Absensi::where('user_id', $validated['user_id'])
+                        ->whereDate('tanggal', $validated['tanggal'])
+                        ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Absensi untuk karyawan ini pada tanggal yang sama sudah ada!');
+        }
+
+        // Upload foto jika ada
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $filename = 'absensi_' . time() . '_' . uniqid() . '.' . $foto->getClientOriginalExtension();
+            $path = $foto->storeAs('absensi', $filename, 'public');
+            $validated['foto'] = $path;
+        }
+
+        // Simpan data
+        $absensi = Absensi::create($validated);
+
+        $user = User::find($validated['user_id']);
+
+        return redirect()->route('superadmin.absensi.index')
+            ->with('success', "Absensi {$user->name} tanggal " . Carbon::parse($validated['tanggal'])->format('d M Y') . " berhasil ditambahkan");
+    }
+
+    // Tampilkan form edit absensi
+    public function edit($id)
+    {
+        $absensi = Absensi::with('user')->findOrFail($id);
+        
+        $karyawan = User::where('role', 'karyawan')
+                       ->where('status', 'aktif')
+                       ->orderBy('name')
+                       ->get();
+
+        return view('superadmin.absensi.edit', compact('absensi', 'karyawan'));
+    }
+
+    // Update absensi
+    public function update(Request $request, $id)
+    {
+        $absensi = Absensi::findOrFail($id);
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'tanggal' => 'required|date',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_keluar' => 'nullable|date_format:H:i|after:jam_masuk',
+            'lokasi' => 'nullable|string|max:255',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'user_id.required' => 'Karyawan harus dipilih',
+            'user_id.exists' => 'Karyawan tidak valid',
+            'tanggal.required' => 'Tanggal harus diisi',
+            'tanggal.date' => 'Format tanggal tidak valid',
+            'jam_masuk.date_format' => 'Format jam masuk harus HH:MM',
+            'jam_keluar.date_format' => 'Format jam keluar harus HH:MM',
+            'jam_keluar.after' => 'Jam keluar harus lebih besar dari jam masuk',
+            'foto.image' => 'File harus berupa gambar',
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg',
+            'foto.max' => 'Ukuran foto maksimal 2MB',
+        ]);
+
+        // Cek duplikasi absensi (kecuali data yang sedang diedit)
+        $exists = Absensi::where('user_id', $validated['user_id'])
+                        ->whereDate('tanggal', $validated['tanggal'])
+                        ->where('id', '!=', $id)
+                        ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Absensi untuk karyawan ini pada tanggal yang sama sudah ada!');
+        }
+
+        // Upload foto baru jika ada
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($absensi->foto && \Storage::disk('public')->exists($absensi->foto)) {
+                \Storage::disk('public')->delete($absensi->foto);
+            }
+
+            $foto = $request->file('foto');
+            $filename = 'absensi_' . time() . '_' . uniqid() . '.' . $foto->getClientOriginalExtension();
+            $path = $foto->storeAs('absensi', $filename, 'public');
+            $validated['foto'] = $path;
+        }
+
+        // Update data
+        $absensi->update($validated);
+
+        $user = User::find($validated['user_id']);
+
+        return redirect()->route('superadmin.absensi.index')
+            ->with('success', "Absensi {$user->name} tanggal " . Carbon::parse($validated['tanggal'])->format('d M Y') . " berhasil diperbarui");
     }
 
     // Detail absensi
@@ -89,9 +224,43 @@ class AbsensiController extends Controller
         $namaKaryawan = $absensi->user->name;
         $tanggal = $absensi->tanggal->format('d M Y');
 
+        // Hapus foto jika ada
+        if ($absensi->foto && \Storage::disk('public')->exists($absensi->foto)) {
+            \Storage::disk('public')->delete($absensi->foto);
+        }
+
         $absensi->delete();
 
         return redirect()->route('superadmin.absensi.index')
             ->with('success', "Absensi {$namaKaryawan} tanggal {$tanggal} berhasil dihapus");
+    }
+
+    // Export ke Excel
+    public function export(Request $request)
+    {
+        // Ambil filter dari request
+        $filters = [
+            'tanggal' => $request->tanggal,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'user_id' => $request->user_id,
+            'divisi' => $request->divisi,
+        ];
+
+        // Generate nama file
+        $filename = 'Absensi_';
+        
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
+            $filename .= Carbon::parse($request->tanggal_mulai)->format('d-m-Y') . '_sampai_' . Carbon::parse($request->tanggal_selesai)->format('d-m-Y');
+        } elseif ($request->filled('tanggal')) {
+            $filename .= Carbon::parse($request->tanggal)->format('d-m-Y');
+        } else {
+            $filename .= Carbon::today()->format('d-m-Y');
+        }
+        
+        $filename .= '.xlsx';
+
+        // Export
+        return Excel::download(new AbsensiExport($filters), $filename);
     }
 }

@@ -17,6 +17,7 @@ class CutiIzin extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'alasan',
+        'dokumen',
         'status',
         'approved_by',
         'keterangan_approval',
@@ -27,19 +28,25 @@ class CutiIzin extends Model
         'tanggal_selesai' => 'date',
     ];
 
-    // Relasi ke User (pengaju)
+    /**
+     * Relasi ke User (pengaju)
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi ke User (yang approve)
+    /**
+     * Relasi ke User (yang approve)
+     */
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    // Status Checker
+    /**
+     * Status Checker
+     */
     public function isPending()
     {
         return $this->status === 'pending';
@@ -53,5 +60,29 @@ class CutiIzin extends Model
     public function isDitolak()
     {
         return $this->status === 'ditolak';
+    }
+
+    /**
+     * Scope untuk filter status
+     */
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope untuk filter jenis
+     */
+    public function scopeJenis($query, $jenis)
+    {
+        return $query->where('jenis', $jenis);
+    }
+
+    /**
+     * Accessor untuk mendapatkan durasi dalam hari
+     */
+    public function getDurasiAttribute()
+    {
+        return $this->tanggal_mulai->diffInDays($this->tanggal_selesai) + 1;
     }
 }
