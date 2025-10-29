@@ -4,60 +4,60 @@
 @section('page-title', 'Pengaturan Sistem')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-6">
 
     <!-- Welcome Section -->
-    <div class="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-2xl font-bold mb-2">
+    <div class="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">
                     <i class="fas fa-cog mr-2"></i>Pengaturan Sistem
                 </h2>
-                <p class="text-teal-50">Kelola konfigurasi jam kerja, lokasi kantor, dan informasi perusahaan</p>
+                <p class="text-xs sm:text-sm md:text-base text-teal-50">Kelola konfigurasi jam kerja, lokasi kantor, dan informasi perusahaan</p>
             </div>
-            <div class="hidden md:block">
-                <i class="fas fa-sliders-h text-6xl text-white/20"></i>
+            <div class="hidden lg:block flex-shrink-0">
+                <i class="fas fa-sliders-h text-4xl xl:text-6xl text-white/20"></i>
             </div>
         </div>
     </div>
 
     <!-- Tabs Navigation -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="border-b border-gray-200">
-            <nav class="flex space-x-1 px-6" aria-label="Tabs">
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">
+        <div class="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+            <nav class="flex space-x-0 px-2 sm:px-4 md:px-6" aria-label="Tabs">
                 <button onclick="switchTab('jamKerja')" id="tab-jamKerja" 
-                        class="tab-button active px-6 py-4 text-sm font-medium border-b-2">
-                    <i class="fas fa-clock mr-2"></i>Jam Kerja
+                        class="tab-button active flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap">
+                    <i class="fas fa-clock mr-1 sm:mr-2"></i><span class="hidden xs:inline">Jam Kerja</span><span class="xs:hidden">Jam</span>
                 </button>
                 <button onclick="switchTab('lokasi')" id="tab-lokasi" 
-                        class="tab-button px-6 py-4 text-sm font-medium border-b-2">
-                    <i class="fas fa-map-marker-alt mr-2"></i>Lokasi Kantor
+                        class="tab-button flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap">
+                    <i class="fas fa-map-marker-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">Lokasi</span><span class="xs:hidden">Lokasi</span>
                 </button>
                 <button onclick="switchTab('general')" id="tab-general" 
-                        class="tab-button px-6 py-4 text-sm font-medium border-b-2">
-                    <i class="fas fa-building mr-2"></i>Info Perusahaan
+                        class="tab-button flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap">
+                    <i class="fas fa-building mr-1 sm:mr-2"></i><span class="hidden xs:inline">Info Perusahaan</span><span class="xs:hidden">Info</span>
                 </button>
             </nav>
         </div>
 
         <!-- Tab Content: Jam Kerja -->
-        <div id="content-jamKerja" class="tab-content p-6">
+        <div id="content-jamKerja" class="tab-content p-4 sm:p-6 lg:p-8">
             <form action="{{ route('superadmin.pengaturan.jam-kerja') }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <div class="max-w-2xl">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Pengaturan Jam Kerja</h3>
+                <div class="max-w-3xl mx-auto">
+                    <h3 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Pengaturan Jam Kerja</h3>
                     
-                    <div class="space-y-6">
+                    <div class="space-y-4 sm:space-y-6">
 
                         <!-- Info Box -->
-                        <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-info-circle text-teal-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-teal-800 font-semibold mb-1">Informasi Jam Kerja</p>
-                                    <ul class="text-xs text-teal-700 space-y-1">
+                        <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 sm:p-4">
+                            <div class="flex items-start gap-2 sm:gap-3">
+                                <i class="fas fa-info-circle text-teal-600 mt-0.5 sm:mt-1 flex-shrink-0 text-sm sm:text-base"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm text-teal-800 font-semibold mb-1">Informasi Jam Kerja</p>
+                                    <ul class="text-xs text-teal-700 space-y-0.5 sm:space-y-1">
                                         <li>• Jam kerja akan digunakan sebagai acuan absensi karyawan</li>
                                         <li>• Toleransi keterlambatan akan ditambahkan ke jam masuk</li>
                                         <li>• Karyawan yang absen setelah toleransi dianggap terlambat</li>
@@ -68,60 +68,60 @@
 
                         <!-- Jam Masuk -->
                         <div>
-                            <label for="jam_masuk" class="form-label">
-                                <i class="fas fa-sign-in-alt mr-2 text-teal-600"></i>Jam Masuk <span class="text-red-500">*</span>
+                            <label for="jam_masuk" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-sign-in-alt mr-1 sm:mr-2 text-teal-600"></i>Jam Masuk <span class="text-red-500">*</span>
                             </label>
                             <input type="time" name="jam_masuk" id="jam_masuk" 
                                    value="{{ old('jam_masuk', $jamMasuk) }}" 
-                                   class="form-input @error('jam_masuk') border-red-500 @enderror" required>
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('jam_masuk') border-red-500 @enderror" required>
                             @error('jam_masuk')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Jam Keluar -->
                         <div>
-                            <label for="jam_keluar" class="form-label">
-                                <i class="fas fa-sign-out-alt mr-2 text-teal-600"></i>Jam Keluar <span class="text-red-500">*</span>
+                            <label for="jam_keluar" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-sign-out-alt mr-1 sm:mr-2 text-teal-600"></i>Jam Keluar <span class="text-red-500">*</span>
                             </label>
                             <input type="time" name="jam_keluar" id="jam_keluar" 
                                    value="{{ old('jam_keluar', $jamKeluar) }}" 
-                                   class="form-input @error('jam_keluar') border-red-500 @enderror" required>
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('jam_keluar') border-red-500 @enderror" required>
                             @error('jam_keluar')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Toleransi Keterlambatan -->
                         <div>
-                            <label for="toleransi_keterlambatan" class="form-label">
-                                <i class="fas fa-hourglass-half mr-2 text-teal-600"></i>Toleransi Keterlambatan (Menit) <span class="text-red-500">*</span>
+                            <label for="toleransi_keterlambatan" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-hourglass-half mr-1 sm:mr-2 text-teal-600"></i>Toleransi Keterlambatan (Menit) <span class="text-red-500">*</span>
                             </label>
                             <input type="number" name="toleransi_keterlambatan" id="toleransi_keterlambatan" 
                                    value="{{ old('toleransi_keterlambatan', $toleransiKeterlambatan) }}" 
-                                   class="form-input @error('toleransi_keterlambatan') border-red-500 @enderror" 
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('toleransi_keterlambatan') border-red-500 @enderror" 
                                    min="0" max="60" required>
                             @error('toleransi_keterlambatan')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                             <p class="text-xs text-gray-500 mt-1">Batas waktu toleransi (0-60 menit)</p>
                         </div>
 
                         <!-- Preview -->
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <h4 class="text-sm font-bold text-gray-700 mb-2">Preview Jam Kerja</h4>
-                            <div class="flex items-center space-x-4 text-sm text-gray-700">
-                                <div class="flex items-center">
-                                    <i class="fas fa-sign-in-alt text-teal-600 mr-2"></i>
-                                    <span>Masuk: <strong id="preview-masuk">{{ $jamMasuk }}</strong></span>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">Preview Jam Kerja</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-700">
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-sign-in-alt text-teal-600"></i>
+                                    <span class="truncate">Masuk: <strong id="preview-masuk">{{ $jamMasuk }}</strong></span>
                                 </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-sign-out-alt text-cyan-600 mr-2"></i>
-                                    <span>Keluar: <strong id="preview-keluar">{{ $jamKeluar }}</strong></span>
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-sign-out-alt text-cyan-600"></i>
+                                    <span class="truncate">Keluar: <strong id="preview-keluar">{{ $jamKeluar }}</strong></span>
                                 </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-hourglass-half text-teal-500 mr-2"></i>
-                                    <span>Toleransi: <strong id="preview-toleransi">{{ $toleransiKeterlambatan }}</strong> menit</span>
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-hourglass-half text-teal-500"></i>
+                                    <span class="truncate">Toleransi: <strong id="preview-toleransi">{{ $toleransiKeterlambatan }}</strong> mnt</span>
                                 </div>
                             </div>
                         </div>
@@ -129,8 +129,8 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex justify-end mt-8 pt-6 border-t border-gray-200">
-                        <button type="submit" class="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg px-4 py-2 transition shadow-md">
+                    <div class="flex justify-end mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
+                        <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg px-4 sm:px-6 py-2.5 sm:py-3 transition shadow-md text-sm sm:text-base">
                             <i class="fas fa-save mr-2"></i>Simpan Pengaturan
                         </button>
                     </div>
@@ -140,74 +140,109 @@
         </div>
 
         <!-- Tab Content: Lokasi Kantor -->
-        <div id="content-lokasi" class="tab-content hidden p-6">
+        <div id="content-lokasi" class="tab-content hidden p-4 sm:p-6 lg:p-8">
             <form action="{{ route('superadmin.pengaturan.lokasi') }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <div class="max-w-4xl">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Pengaturan Lokasi Kantor</h3>
+                <div class="max-w-5xl mx-auto">
+                    <h3 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Pengaturan Lokasi Kantor</h3>
                     
-                    <div class="space-y-6">
+                    <div class="space-y-4 sm:space-y-6">
 
                         <!-- Info Box -->
-                        <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-info-circle text-teal-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-teal-800 font-semibold mb-1">Informasi Lokasi</p>
-                                    <ul class="text-xs text-teal-700 space-y-1">
+                        <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 sm:p-4">
+                            <div class="flex items-start gap-2 sm:gap-3">
+                                <i class="fas fa-info-circle text-teal-600 mt-0.5 sm:mt-1 flex-shrink-0 text-sm sm:text-base"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm text-teal-800 font-semibold mb-1">Informasi Lokasi</p>
+                                    <ul class="text-xs text-teal-700 space-y-0.5 sm:space-y-1">
                                         <li>• Lokasi kantor digunakan untuk validasi absensi berbasis GPS</li>
                                         <li>• Radius menentukan jarak maksimal karyawan boleh absen</li>
+                                        <li>• Nonaktifkan validasi radius untuk mendukung WFH (Work From Home)</li>
                                         <li>• Gunakan Google Maps untuk mendapatkan koordinat yang akurat</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Toggle Validasi Radius GPS -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-lg p-3 sm:p-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                                <div class="flex-1">
+                                    <label class="flex items-start sm:items-center cursor-pointer">
+                                        <div class="relative flex-shrink-0">
+                                            <input type="checkbox" name="validasi_radius_aktif" id="validasi_radius_aktif" 
+                                                   value="1" 
+                                                   {{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'checked' : '' }}
+                                                   class="sr-only peer">
+                                            <div class="w-11 h-6 sm:w-14 sm:h-7 bg-gray-300 rounded-full peer peer-checked:bg-teal-600 peer-focus:ring-4 peer-focus:ring-teal-300 transition-all"></div>
+                                            <div class="absolute left-0.5 top-0.5 sm:left-1 sm:top-1 bg-white w-5 h-5 rounded-full transition-all peer-checked:translate-x-5 sm:peer-checked:translate-x-7 shadow-md"></div>
+                                        </div>
+                                        <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                            <span class="text-xs sm:text-sm md:text-base font-bold text-gray-900 block">
+                                                <i class="fas fa-shield-alt mr-1 sm:mr-2 text-teal-600"></i>Validasi Radius GPS
+                                            </span>
+                                            <p class="text-xs text-gray-600 mt-0.5 sm:mt-1">
+                                                <span id="status-text">
+                                                    {{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'Aktif - Karyawan harus berada dalam radius kantor' : 'Nonaktif - Karyawan bisa absen dari mana saja (WFH)' }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="flex-shrink-0 self-start sm:self-auto">
+                                    <span id="status-badge" class="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold {{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
+                                        <i class="fas fa-{{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'check-circle' : 'times-circle' }} mr-1"></i>
+                                        <span id="status-badge-text">{{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'Aktif' : 'Nonaktif' }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                             
                             <!-- Left Column -->
-                            <div class="space-y-6">
+                            <div class="space-y-4 sm:space-y-6">
                                 
                                 <!-- Nama Lokasi -->
                                 <div>
-                                    <label for="nama_lokasi" class="form-label">
-                                        <i class="fas fa-tag mr-2 text-teal-600"></i>Nama Lokasi <span class="text-red-500">*</span>
+                                    <label for="nama_lokasi" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        <i class="fas fa-tag mr-1 sm:mr-2 text-teal-600"></i>Nama Lokasi <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="nama_lokasi" id="nama_lokasi" 
                                            value="{{ old('nama_lokasi', $lokasiKantor['nama']) }}" 
-                                           class="form-input @error('nama_lokasi') border-red-500 @enderror" 
+                                           class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('nama_lokasi') border-red-500 @enderror" 
                                            placeholder="Contoh: Kantor Pusat" required>
                                     @error('nama_lokasi')
-                                        <p class="form-error">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <!-- Alamat -->
                                 <div>
-                                    <label for="alamat" class="form-label">
-                                        <i class="fas fa-map-marked-alt mr-2 text-teal-600"></i>Alamat Lengkap <span class="text-red-500">*</span>
+                                    <label for="alamat" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        <i class="fas fa-map-marked-alt mr-1 sm:mr-2 text-teal-600"></i>Alamat Lengkap <span class="text-red-500">*</span>
                                     </label>
                                     <textarea name="alamat" id="alamat" rows="3" 
-                                              class="form-input @error('alamat') border-red-500 @enderror" 
+                                              class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('alamat') border-red-500 @enderror" 
                                               placeholder="Masukkan alamat lengkap kantor" required>{{ old('alamat', $lokasiKantor['alamat']) }}</textarea>
                                     @error('alamat')
-                                        <p class="form-error">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <!-- Radius -->
                                 <div>
-                                    <label for="radius" class="form-label">
-                                        <i class="fas fa-circle-notch mr-2 text-teal-600"></i>Radius Absensi (Meter) <span class="text-red-500">*</span>
+                                    <label for="radius" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        <i class="fas fa-circle-notch mr-1 sm:mr-2 text-teal-600"></i>Radius Absensi (Meter) <span class="text-red-500">*</span>
                                     </label>
                                     <input type="number" name="radius" id="radius" 
                                            value="{{ old('radius', $lokasiKantor['radius']) }}" 
-                                           class="form-input @error('radius') border-red-500 @enderror" 
+                                           class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('radius') border-red-500 @enderror" 
                                            min="10" max="1000" required>
                                     @error('radius')
-                                        <p class="form-error">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                     <p class="text-xs text-gray-500 mt-1">Jarak maksimal untuk absensi (10-1000 meter)</p>
                                 </div>
@@ -215,42 +250,42 @@
                             </div>
 
                             <!-- Right Column -->
-                            <div class="space-y-6">
+                            <div class="space-y-4 sm:space-y-6">
                                 
                                 <!-- Latitude -->
                                 <div>
-                                    <label for="latitude" class="form-label">
-                                        <i class="fas fa-location-arrow mr-2 text-teal-600"></i>Latitude <span class="text-red-500">*</span>
+                                    <label for="latitude" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        <i class="fas fa-location-arrow mr-1 sm:mr-2 text-teal-600"></i>Latitude <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="latitude" id="latitude" 
                                            value="{{ old('latitude', $lokasiKantor['latitude']) }}" 
-                                           class="form-input @error('latitude') border-red-500 @enderror" 
+                                           class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('latitude') border-red-500 @enderror" 
                                            placeholder="Contoh: -6.200000" required>
                                     @error('latitude')
-                                        <p class="form-error">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <!-- Longitude -->
                                 <div>
-                                    <label for="longitude" class="form-label">
-                                        <i class="fas fa-location-arrow mr-2 text-teal-600"></i>Longitude <span class="text-red-500">*</span>
+                                    <label for="longitude" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        <i class="fas fa-location-arrow mr-1 sm:mr-2 text-teal-600"></i>Longitude <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="longitude" id="longitude" 
                                            value="{{ old('longitude', $lokasiKantor['longitude']) }}" 
-                                           class="form-input @error('longitude') border-red-500 @enderror" 
+                                           class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('longitude') border-red-500 @enderror" 
                                            placeholder="Contoh: 106.816666" required>
                                     @error('longitude')
-                                        <p class="form-error">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <!-- Get Location Button -->
                                 <div>
-                                    <button type="button" onclick="getMyLocation()" class="bg-teal-100 text-teal-700 hover:bg-teal-200 font-semibold rounded-lg px-4 py-2 transition w-full">
+                                    <button type="button" onclick="getMyLocation()" class="w-full bg-teal-100 text-teal-700 hover:bg-teal-200 font-semibold rounded-lg px-4 py-2.5 transition text-sm sm:text-base">
                                         <i class="fas fa-crosshairs mr-2"></i>Gunakan Lokasi Saat Ini
                                     </button>
-                                    <p class="text-xs text-gray-500 mt-2">
+                                    <p class="text-xs text-gray-500 mt-2 text-center sm:text-left">
                                         <i class="fas fa-lightbulb mr-1"></i>
                                         Atau cari di <a href="https://www.google.com/maps" target="_blank" class="text-teal-600 hover:underline">Google Maps</a>
                                     </p>
@@ -261,22 +296,23 @@
                         </div>
 
                         <!-- Map Preview -->
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <h4 class="text-sm font-bold text-gray-700 mb-2">Preview Lokasi</h4>
-                            <div class="flex items-center justify-center space-x-4 text-sm text-gray-700">
-                                <div>
-                                    <i class="fas fa-map-marker-alt text-teal-600 mr-2"></i>
-                                    <strong id="preview-nama">{{ $lokasiKantor['nama'] }}</strong>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">Preview Lokasi</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-700">
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-map-marker-alt text-teal-600 flex-shrink-0"></i>
+                                    <strong id="preview-nama" class="truncate">{{ $lokasiKantor['nama'] }}</strong>
                                 </div>
-                                <div>
-                                    <i class="fas fa-circle-notch text-cyan-600 mr-2"></i>
-                                    Radius: <strong id="preview-radius">{{ $lokasiKantor['radius'] }}</strong>m
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-circle-notch text-cyan-600 flex-shrink-0"></i>
+                                    <span class="truncate">Radius: <strong id="preview-radius">{{ $lokasiKantor['radius'] }}</strong>m</span>
                                 </div>
                                 <a href="https://www.google.com/maps?q={{ $lokasiKantor['latitude'] }},{{ $lokasiKantor['longitude'] }}" 
                                    target="_blank" 
                                    id="preview-maps"
-                                   class="text-teal-600 hover:text-teal-800">
-                                    <i class="fas fa-external-link-alt mr-1"></i>Lihat di Maps
+                                   class="flex items-center justify-center gap-2 bg-teal-50 text-teal-600 hover:bg-teal-100 p-2 rounded transition">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>Lihat di Maps</span>
                                 </a>
                             </div>
                         </div>
@@ -284,8 +320,8 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex justify-end mt-8 pt-6 border-t border-gray-200">
-                        <button type="submit" class="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg px-4 py-2 transition shadow-md">
+                    <div class="flex justify-end mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
+                        <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg px-4 sm:px-6 py-2.5 sm:py-3 transition shadow-md text-sm sm:text-base">
                             <i class="fas fa-save mr-2"></i>Simpan Pengaturan
                         </button>
                     </div>
@@ -295,72 +331,72 @@
         </div>
 
         <!-- Tab Content: Info Perusahaan -->
-        <div id="content-general" class="tab-content hidden p-6">
+        <div id="content-general" class="tab-content hidden p-4 sm:p-6 lg:p-8">
             <form action="{{ route('superadmin.pengaturan.general') }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <div class="max-w-2xl">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Informasi Perusahaan</h3>
+                <div class="max-w-3xl mx-auto">
+                    <h3 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Informasi Perusahaan</h3>
                     
-                    <div class="space-y-6">
+                    <div class="space-y-4 sm:space-y-6">
 
                         <!-- Nama Perusahaan -->
                         <div>
-                            <label for="nama_perusahaan" class="form-label">
-                                <i class="fas fa-building mr-2 text-teal-600"></i>Nama Perusahaan <span class="text-red-500">*</span>
+                            <label for="nama_perusahaan" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-building mr-1 sm:mr-2 text-teal-600"></i>Nama Perusahaan <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="nama_perusahaan" id="nama_perusahaan" 
                                    value="{{ old('nama_perusahaan', $namaPerusahaan) }}" 
-                                   class="form-input @error('nama_perusahaan') border-red-500 @enderror" 
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('nama_perusahaan') border-red-500 @enderror" 
                                    placeholder="Contoh: PT. Portal Internal" required>
                             @error('nama_perusahaan')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Email Perusahaan -->
                         <div>
-                            <label for="email_perusahaan" class="form-label">
-                                <i class="fas fa-envelope mr-2 text-teal-600"></i>Email Perusahaan <span class="text-red-500">*</span>
+                            <label for="email_perusahaan" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-envelope mr-1 sm:mr-2 text-teal-600"></i>Email Perusahaan <span class="text-red-500">*</span>
                             </label>
                             <input type="email" name="email_perusahaan" id="email_perusahaan" 
                                    value="{{ old('email_perusahaan', $emailPerusahaan) }}" 
-                                   class="form-input @error('email_perusahaan') border-red-500 @enderror" 
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('email_perusahaan') border-red-500 @enderror" 
                                    placeholder="info@perusahaan.com" required>
                             @error('email_perusahaan')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Telepon Perusahaan -->
                         <div>
-                            <label for="telepon_perusahaan" class="form-label">
-                                <i class="fas fa-phone mr-2 text-teal-600"></i>Telepon Perusahaan <span class="text-red-500">*</span>
+                            <label for="telepon_perusahaan" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-phone mr-1 sm:mr-2 text-teal-600"></i>Telepon Perusahaan <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="telepon_perusahaan" id="telepon_perusahaan" 
                                    value="{{ old('telepon_perusahaan', $teleponPerusahaan) }}" 
-                                   class="form-input @error('telepon_perusahaan') border-red-500 @enderror" 
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('telepon_perusahaan') border-red-500 @enderror" 
                                    placeholder="021-12345678" required>
                             @error('telepon_perusahaan')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Preview -->
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <h4 class="text-sm font-bold text-gray-700 mb-3">Preview Informasi</h4>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <div class="flex items-center">
-                                    <i class="fas fa-building w-5 mr-2 text-teal-600"></i>
-                                    <strong id="preview-nama-perusahaan">{{ $namaPerusahaan }}</strong>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">Preview Informasi</h4>
+                            <div class="space-y-2 text-xs sm:text-sm text-gray-700">
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-building w-5 text-teal-600 flex-shrink-0"></i>
+                                    <strong id="preview-nama-perusahaan" class="truncate">{{ $namaPerusahaan }}</strong>
                                 </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-envelope w-5 mr-2 text-cyan-600"></i>
-                                    <span id="preview-email-perusahaan">{{ $emailPerusahaan }}</span>
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-envelope w-5 text-cyan-600 flex-shrink-0"></i>
+                                    <span id="preview-email-perusahaan" class="break-all">{{ $emailPerusahaan }}</span>
                                 </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-phone w-5 mr-2 text-teal-500"></i>
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-phone w-5 text-teal-500 flex-shrink-0"></i>
                                     <span id="preview-telepon-perusahaan">{{ $teleponPerusahaan }}</span>
                                 </div>
                             </div>
@@ -369,8 +405,8 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex justify-end mt-8 pt-6 border-t border-gray-200">
-                        <button type="submit" class="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg px-4 py-2 transition shadow-md">
+                    <div class="flex justify-end mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
+                        <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg px-4 sm:px-6 py-2.5 sm:py-3 transition shadow-md text-sm sm:text-base">
                             <i class="fas fa-save mr-2"></i>Simpan Pengaturan
                         </button>
                     </div>
@@ -406,6 +442,26 @@
         const activeButton = document.getElementById('tab-' + tabName);
         activeButton.classList.add('active', 'text-teal-600', 'border-teal-600');
         activeButton.classList.remove('text-gray-500', 'border-transparent');
+    }
+
+    // Toggle Validasi Radius GPS
+    const toggleValidasiRadius = document.getElementById('validasi_radius_aktif');
+    const statusText = document.getElementById('status-text');
+    const statusBadge = document.getElementById('status-badge');
+    const statusBadgeText = document.getElementById('status-badge-text');
+
+    if (toggleValidasiRadius) {
+        toggleValidasiRadius.addEventListener('change', function() {
+            if (this.checked) {
+                statusText.textContent = 'Aktif - Karyawan harus berada dalam radius kantor';
+                statusBadge.className = 'inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700';
+                statusBadgeText.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Aktif';
+            } else {
+                statusText.textContent = 'Nonaktif - Karyawan bisa absen dari mana saja (WFH)';
+                statusBadge.className = 'inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700';
+                statusBadgeText.innerHTML = '<i class="fas fa-times-circle mr-1"></i>Nonaktif';
+            }
+        });
     }
 
     // Live Preview Jam Kerja
@@ -444,13 +500,36 @@
     // Get Current Location
     function getMyLocation() {
         if (navigator.geolocation) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengambil lokasi...';
+            button.disabled = true;
+            
             navigator.geolocation.getCurrentPosition(function(position) {
                 document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
                 document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
                 updateMapsLink();
-                alert('Lokasi berhasil diambil!');
+                button.innerHTML = '<i class="fas fa-check mr-2"></i>Lokasi berhasil diambil!';
+                button.classList.add('bg-green-100', 'text-green-700');
+                button.classList.remove('bg-teal-100', 'text-teal-700');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    button.classList.remove('bg-green-100', 'text-green-700');
+                    button.classList.add('bg-teal-100', 'text-teal-700');
+                }, 2000);
             }, function(error) {
-                alert('Gagal mendapatkan lokasi: ' + error.message);
+                button.innerHTML = '<i class="fas fa-times mr-2"></i>Gagal mendapatkan lokasi';
+                button.classList.add('bg-red-100', 'text-red-700');
+                button.classList.remove('bg-teal-100', 'text-teal-700');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    button.classList.remove('bg-red-100', 'text-red-700');
+                    button.classList.add('bg-teal-100', 'text-teal-700');
+                }, 2000);
             });
         } else {
             alert('Browser tidak mendukung geolocation');
@@ -475,6 +554,7 @@
 </script>
 
 <style>
+    /* Tab Button Styles */
     .tab-button {
         transition: all 0.3s ease;
     }
@@ -492,6 +572,62 @@
     .tab-button:hover:not(.active) {
         color: #374151;
         background-color: #f3f4f6;
+    }
+
+    /* Custom Toggle Switch */
+    input[type="checkbox"]:checked + div {
+        background-color: #0d9488;
+    }
+
+    input[type="checkbox"]:focus + div {
+        box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.2);
+    }
+
+    /* Hide Scrollbar */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Responsive breakpoint for extra small devices */
+    @media (min-width: 375px) {
+        .xs\:inline {
+            display: inline;
+        }
+        .xs\:hidden {
+            display: none;
+        }
+    }
+
+    /* Focus visible styles for accessibility */
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+        outline: 2px solid #0d9488;
+        outline-offset: 2px;
+    }
+
+    /* Smooth transitions */
+    * {
+        transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 640px) {
+        input[type="time"],
+        input[type="number"],
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            font-size: 16px !important; /* Prevent zoom on iOS */
+        }
     }
 </style>
 @endpush

@@ -25,6 +25,9 @@ class PengaturanController extends Controller
             'radius' => 100, // meter
         ]);
 
+        // Ambil status validasi radius (default: aktif/true)
+        $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
+
         $namaPerusahaan = Cache::get('nama_perusahaan', 'Portal Internal');
         $emailPerusahaan = Cache::get('email_perusahaan', 'info@portal.com');
         $teleponPerusahaan = Cache::get('telepon_perusahaan', '021-12345678');
@@ -34,6 +37,7 @@ class PengaturanController extends Controller
             'jamKeluar',
             'toleransiKeterlambatan',
             'lokasiKantor',
+            'validasiRadiusAktif',
             'namaPerusahaan',
             'emailPerusahaan',
             'teleponPerusahaan'
@@ -107,14 +111,19 @@ class PengaturanController extends Controller
             'radius' => $request->radius,
         ];
 
-        // Simpan ke cache
+        // Simpan lokasi ke cache
         Cache::forever('lokasi_kantor', $lokasiKantor);
 
+        // Simpan status validasi radius GPS (true jika checkbox dicentang, false jika tidak)
+        $validasiRadiusAktif = $request->has('validasi_radius_aktif') ? true : false;
+        Cache::forever('validasi_radius_aktif', $validasiRadiusAktif);
+
         // Log aktivitas
+        $statusValidasi = $validasiRadiusAktif ? 'Aktif' : 'Nonaktif';
         LogAktivitas::create([
             'user_id' => auth()->id(),
             'aktivitas' => 'Update Lokasi Kantor',
-            'deskripsi' => "Mengubah lokasi kantor: {$request->nama_lokasi} (Radius: {$request->radius}m)",
+            'deskripsi' => "Mengubah lokasi kantor: {$request->nama_lokasi} (Radius: {$request->radius}m, Validasi GPS: {$statusValidasi})",
         ]);
 
         return redirect()->route('superadmin.pengaturan.index')
@@ -149,5 +158,23 @@ class PengaturanController extends Controller
 
         return redirect()->route('superadmin.pengaturan.index')
             ->with('success', 'Informasi perusahaan berhasil diperbarui');
+    }
+
+    // Method helper untuk mengecek apakah validasi radius aktif (bisa dipanggil dari controller lain)
+    public static function isValidasiRadiusAktif()
+    {
+        return Cache::get('validasi_radius_aktif', true);
+    }
+
+    // Method helper untuk mendapatkan lokasi kantor (bisa dipanggil dari controller lain)
+    public static function getLokasiKantor()
+    {
+        return Cache::get('lokasi_kantor', [
+            'nama' => 'Kantor Pusat',
+            'alamat' => 'Jl. Contoh No. 123, Jakarta',
+            'latitude' => '-6.200000',
+            'longitude' => '106.816666',
+            'radius' => 100,
+        ]);
     }
 }

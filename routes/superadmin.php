@@ -104,4 +104,30 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
         Route::put('/general', [PengaturanController::class, 'updateGeneral'])->name('general');
     });
 
+    // routes/web.php - Tambahkan di dalam group superadmin
+
+    Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function () {
+        
+        // ... routes lain ...
+        
+        // Laporan Routes
+        Route::get('/laporan', [LaporanController::class, 'index'])->name('superadmin.laporan.index');
+        
+        // Laporan Absensi
+        Route::get('/laporan/absensi', [LaporanController::class, 'absensi'])->name('superadmin.laporan.absensi');
+        Route::get('/laporan/absensi/pdf', [LaporanController::class, 'exportAbsensiPDF'])->name('superadmin.laporan.absensi.pdf');
+        Route::get('/laporan/absensi/excel', [LaporanController::class, 'exportAbsensiExcel'])->name('superadmin.laporan.absensi.excel');
+        
+        // Laporan Cuti/Izin
+        Route::get('/laporan/cuti-izin', [LaporanController::class, 'cutiIzin'])->name('superadmin.laporan.cutiizin');
+        Route::get('/laporan/cuti-izin/pdf', [LaporanController::class, 'exportCutiIzinPDF'])->name('superadmin.laporan.cutiizin.pdf');
+        Route::get('/laporan/cuti-izin/excel', [LaporanController::class, 'exportCutiIzinExcel'])->name('superadmin.laporan.cutiizin.excel');
+        
+        // Laporan Karyawan
+        Route::get('/laporan/karyawan', [LaporanController::class, 'karyawan'])->name('superadmin.laporan.karyawan');
+        Route::get('/laporan/karyawan/pdf', [LaporanController::class, 'exportKaryawanPDF'])->name('superadmin.laporan.karyawan.pdf');
+        Route::get('/laporan/karyawan/excel', [LaporanController::class, 'exportKaryawanExcel'])->name('superadmin.laporan.karyawan.excel');
+        
+    });
+
 });
