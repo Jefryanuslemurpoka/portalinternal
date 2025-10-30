@@ -13,11 +13,11 @@
                 <h2 class="text-2xl font-bold mb-2">
                     <i class="fas fa-clipboard-check mr-2"></i>Absensi Hari Ini
                 </h2>
-                <p class="text-purple-100">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+                <p class="text-purple-100">{{ now('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
             </div>
             <div class="hidden md:block">
                 <div class="text-5xl font-bold">
-                    <span id="currentTime">{{ now()->format('H:i') }}</span>
+                    <span id="currentTime">{{ now('Asia/Jakarta')->format('H:i') }}</span>
                 </div>
             </div>
         </div>
@@ -52,7 +52,13 @@
                         </div>
                     </div>
                     @if($absensiHariIni)
-                        @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($jamMasuk))
+                        @php
+                            // Hitung batas keterlambatan
+                            $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+                                ->addMinutes($toleransi)
+                                ->format('H:i:s');
+                        @endphp
+                        @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
                             <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Tepat Waktu</span>
                         @else
                             <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Terlambat</span>
@@ -210,13 +216,17 @@
         radius: {{ $lokasiKantor['radius'] }}
     };
 
-    // Update current time
-    setInterval(() => {
+    // Update current time (with WIB timezone)
+    function updateClock() {
         const now = new Date();
-        document.getElementById('currentTime').textContent = 
-            now.getHours().toString().padStart(2, '0') + ':' + 
-            now.getMinutes().toString().padStart(2, '0');
-    }, 1000);
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('currentTime').textContent = hours + ':' + minutes;
+    }
+    
+    // Update setiap detik
+    setInterval(updateClock, 1000);
+    updateClock(); // Panggil sekali saat load
 
     // Check-in Process
     function doCheckIn() {

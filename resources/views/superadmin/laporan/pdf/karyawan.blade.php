@@ -1,245 +1,492 @@
-@extends('layouts.app')
-
-@section('title', 'Laporan Karyawan')
-@section('page-title', 'Laporan Karyawan')
-
-@section('content')
-<div class="space-y-4 sm:space-y-6">
-
-    <!-- Header & Action Buttons -->
-    <div class="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 no-print">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2">
-                    <i class="fas fa-users text-teal-600 mr-2"></i>
-                    Laporan Data Karyawan
-                </h1>
-                <p class="text-xs sm:text-sm text-gray-600">
-                    @if($divisi)
-                        Divisi: <span class="font-semibold">{{ $divisi }}</span>
-                    @else
-                        Semua Divisi
-                    @endif
-                    @if($status)
-                        | Status: <span class="font-semibold">{{ ucfirst($status) }}</span>
-                    @endif
-                </p>
-            </div>
-            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                <form action="{{ route('superadmin.laporan.karyawan.pdf') }}" method="GET" class="inline">
-                    <input type="hidden" name="divisi" value="{{ $divisi }}">
-                    <input type="hidden" name="status" value="{{ $status }}">
-                    <button type="submit" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
-                        <i class="fas fa-file-pdf mr-1 sm:mr-2"></i>Export PDF
-                    </button>
-                </form>
-                <form action="{{ route('superadmin.laporan.karyawan.excel') }}" method="GET" class="inline">
-                    <input type="hidden" name="divisi" value="{{ $divisi }}">
-                    <input type="hidden" name="status" value="{{ $status }}">
-                    <button type="submit" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
-                        <i class="fas fa-file-excel mr-1 sm:mr-2"></i>Export Excel
-                    </button>
-                </form>
-                <a href="{{ route('superadmin.laporan.index') }}" class="flex-1 sm:flex-none bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm text-center">
-                    <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Print Header -->
-    <div class="hidden print:block mb-6">
-        <div class="text-center border-b-2 border-gray-800 pb-4 mb-4">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">LAPORAN DATA KARYAWAN</h1>
-            <p class="text-sm text-gray-600">
-                @if($divisi) Divisi: {{ $divisi }} @else Semua Divisi @endif
-                @if($status) | Status: {{ ucfirst($status) }} @endif
-            </p>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Total Karyawan</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $karyawan->count() }}</h3>
-                </div>
-                <i class="fas fa-users text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Aktif</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $karyawan->where('status', 'aktif')->count() }}</h3>
-                </div>
-                <i class="fas fa-user-check text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Non-Aktif</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $karyawan->where('status', 'nonaktif')->count() }}</h3>
-                </div>
-                <i class="fas fa-user-times text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Divisi</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $karyawan->pluck('divisi')->unique()->count() }}</h3>
-                </div>
-                <i class="fas fa-building text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-    </div>
-
-    <!-- Table -->
-    <div class="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Laporan Data Karyawan - PT Puri Digital Output</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 12mm 15mm;
+        }
         
-        <!-- Mobile Card View -->
-        <div class="block lg:hidden">
-            @forelse($karyawan as $key => $item)
-            <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="flex-1">
-                        <p class="font-bold text-gray-900 text-sm mb-1">{{ $item->name }}</p>
-                        <p class="text-xs text-gray-600">{{ $item->email }}</p>
-                    </div>
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold
-                        {{ $item->status == 'aktif' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                        {{ ucfirst($item->status) }}
-                    </span>
-                </div>
-                <div class="space-y-1 text-xs">
-                    <p><span class="text-gray-600">NIK:</span> <span class="font-semibold">{{ $item->nik }}</span></p>
-                    <p><span class="text-gray-600">Divisi:</span> <span class="font-semibold">{{ $item->divisi }}</span></p>
-                    <p><span class="text-gray-600">Jabatan:</span> <span class="font-semibold">{{ $item->jabatan }}</span></p>
-                    <p><span class="text-gray-600">No. HP:</span> <span class="font-semibold">{{ $item->no_hp ?? '-' }}</span></p>
-                </div>
-            </div>
-            @empty
-            <div class="p-8 text-center">
-                <i class="fas fa-inbox text-4xl text-gray-400 mb-3"></i>
-                <p class="text-gray-600">Tidak ada data karyawan</p>
-            </div>
-            @endforelse
-        </div>
-
-        <!-- Desktop Table View -->
-        <div class="hidden lg:block overflow-x-auto">
-            <table class="w-full" id="laporanTable">
-                <thead class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">No</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">NIK</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Nama</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Email</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Divisi</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Jabatan</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">No. HP</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @forelse($karyawan as $key => $item)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm">{{ $key + 1 }}</td>
-                        <td class="px-4 py-3 text-sm font-semibold">{{ $item->nik }}</td>
-                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ $item->name }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $item->email }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $item->divisi }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $item->jabatan }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $item->no_hp ?? '-' }}</td>
-                        <td class="px-4 py-3">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                {{ $item->status == 'aktif' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                {{ ucfirst($item->status) }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="px-4 py-8 text-center text-gray-600">
-                            <i class="fas fa-inbox text-4xl mb-3 block"></i>
-                            Tidak ada data karyawan
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Print Footer -->
-    <div class="hidden print:block mt-8 text-sm">
-        <div class="flex justify-between">
-            <div></div>
-            <div class="text-center">
-                <p class="mb-16">Mengetahui,</p>
-                <p class="font-bold border-t-2 border-gray-800 pt-1 inline-block px-8">HRD Manager</p>
-            </div>
-        </div>
-    </div>
-
-</div>
-@endsection
-
-@push('styles')
-<style>
-    @media print {
-        .no-print, .sidebar, .navbar, nav, header, footer { 
-            display: none !important; 
-        }
-        body { 
-            print-color-adjust: exact; 
-            -webkit-print-color-adjust: exact; 
-        }
-        .container, .main-content {
-            margin: 0 !important;
-            padding: 0 !important;
-            max-width: 100% !important;
-        }
-    }
-</style>
-@endpush
-
-@push('scripts')
-<script>
-    function exportExcel() {
-        const table = document.getElementById('laporanTable');
-        if (!table) {
-            alert('Tidak ada data untuk di-export');
-            return;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        
-        for (let i = 0; i < rows.length; i++) {
-            const row = [];
-            const cols = rows[i].querySelectorAll('td, th');
-            
-            for (let j = 0; j < cols.length; j++) {
-                let text = cols[j].innerText.replace(/"/g, '""');
-                row.push('"' + text + '"');
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 9pt;
+            line-height: 1.3;
+            color: #1a1a1a;
+            background: #fff;
+        }
+
+        /* === KOP SURAT === */
+        .kop-surat {
+            border-bottom: 3px solid #0d9488;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            display: table;
+            width: 100%;
+        }
+
+        .kop-logo {
+            display: table-cell;
+            width: 60px;
+            vertical-align: middle;
+        }
+
+        .logo-box {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #0d9488, #06b6d4);
+            border-radius: 6px;
+            text-align: center;
+            line-height: 55px;
+            color: white;
+            font-size: 24pt;
+            font-weight: bold;
+        }
+
+        .kop-info {
+            display: table-cell;
+            vertical-align: middle;
+            padding-left: 15px;
+        }
+
+        .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #0d9488;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+        }
+
+        .company-tagline {
+            font-size: 8pt;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 4px;
+        }
+
+        .company-address {
+            font-size: 7.5pt;
+            color: #555;
+            line-height: 1.3;
+        }
+
+        .company-contact {
+            font-size: 7.5pt;
+            color: #0d9488;
+            margin-top: 2px;
+        }
+
+        /* === NOMOR SURAT === */
+        .nomor-surat {
+            text-align: right;
+            margin: 8px 0;
+            font-size: 8pt;
+            color: #666;
+        }
+
+        /* === JUDUL === */
+        .judul-dokumen {
+            text-align: center;
+            margin: 12px 0 10px 0;
+            padding: 10px 0;
+            background: linear-gradient(to bottom, #f0fdfa, #ffffff);
+            border-left: 3px solid #0d9488;
+            border-right: 3px solid #06b6d4;
+        }
+
+        .judul-dokumen h1 {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #0d9488;
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
+        }
+
+        .judul-dokumen .periode {
+            font-size: 8.5pt;
+            color: #555;
+        }
+
+        /* === INFO BOX === */
+        .info-box {
+            background: #f0fdfa;
+            border-left: 4px solid #0d9488;
+            padding: 8px 12px;
+            margin: 10px 0;
+            font-size: 8pt;
+            display: table;
+            width: 100%;
+        }
+
+        .info-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-box td {
+            padding: 2px 0;
+        }
+
+        .info-box .label {
+            width: 140px;
+            font-weight: 600;
+            color: #0d9488;
+        }
+
+        /* === SUMMARY === */
+        .summary-box {
+            margin: 10px 0;
+            padding: 10px;
+            background: linear-gradient(to right, #f0fdfa, #ecfeff);
+            border-radius: 6px;
+            border: 2px solid #0d9488;
+            display: table;
+            width: 100%;
+        }
+
+        .summary-item {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .summary-value {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #0d9488;
+            display: block;
+        }
+
+        .summary-label {
+            font-size: 7pt;
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* === TABLE === */
+        .table-container {
+            margin: 12px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.5pt;
+        }
+
+        table.data-table thead {
+            background: linear-gradient(to right, #0d9488, #06b6d4);
+            color: white;
+        }
+
+        table.data-table thead th {
+            padding: 8px 5px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+
+        table.data-table thead th:last-child {
+            border-right: none;
+        }
+
+        table.data-table tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table.data-table tbody tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        table.data-table tbody td {
+            padding: 6px 5px;
+            color: #374151;
+            vertical-align: middle;
+        }
+
+        table.data-table tbody td:first-child {
+            text-align: center;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        /* === BADGE === */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 6.5pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-aktif {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+
+        .status-nonaktif {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #dc2626;
+        }
+
+        /* === SIGNATURE === */
+        .signature-section {
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+
+        .signature-container {
+            width: 220px;
+            float: right;
+            text-align: center;
+            padding: 10px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+
+        .signature-location {
+            font-size: 8pt;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .signature-title {
+            font-size: 8.5pt;
+            font-weight: 600;
+            color: #0d9488;
+            margin-bottom: 35px;
+        }
+
+        .signature-line {
+            border-top: 2px solid #0d9488;
+            padding-top: 6px;
+            margin: 0 15px;
+        }
+
+        .signature-name {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .signature-nik {
+            font-size: 7pt;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* === FOOTER === */
+        .document-footer {
+            margin-top: 35px;
+            padding-top: 10px;
+            border-top: 1.5px solid #e5e7eb;
+            text-align: center;
+            clear: both;
+            font-size: 6.5pt;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+
+        .footer-watermark {
+            margin-top: 5px;
+            font-size: 6pt;
+            color: #d1d5db;
+        }
+
+        /* === NO DATA === */
+        .no-data {
+            text-align: center;
+            padding: 30px 15px;
+            color: #9ca3af;
+            font-size: 8pt;
+        }
+
+        .text-bold {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
             }
-            
-            csv.push(row.join(','));
+            .no-print {
+                display: none !important;
+            }
         }
-        
-        const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-        const downloadLink = document.createElement('a');
-        downloadLink.download = 'Laporan_Karyawan_{{ date("Y-m-d") }}.csv';
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = 'none';
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
-</script>
-@endpush
+    </style>
+</head>
+<body>
+
+    <!-- Button Print & Close -->
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" class="no-print">
+        <button onclick="window.print()" style="background: linear-gradient(to right, #0d9488, #06b6d4); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-weight: 600;">
+            🖨️ Cetak PDF
+        </button>
+        <button onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            ✖️ Tutup
+        </button>
+    </div>
+
+    <!-- KOP SURAT -->
+    <div class="kop-surat">
+        <div class="kop-logo">
+            <div class="logo-box">P</div>
+        </div>
+        <div class="kop-info">
+            <div class="company-name">PT PURI DIGITAL OUTPUT</div>
+            <div class="company-tagline">Excellence in Human Resources Management</div>
+            <div class="company-address">
+                Jl. Raya Serpong No. 123, Tangerang Selatan, Banten 15310, Indonesia
+            </div>
+            <div class="company-contact">
+                ☎ (021) 5588-9900 | ✉ hrd@puridigitaloutput.com | 🌐 www.puridigitaloutput.com
+            </div>
+        </div>
+    </div>
+
+    <!-- NOMOR SURAT -->
+    <div class="nomor-surat">
+        <strong>No:</strong> {{ sprintf('%03d', rand(1, 999)) }}/HRD-LPR/PDO/{{ date('m/Y') }}
+    </div>
+
+    <!-- JUDUL -->
+    <div class="judul-dokumen">
+        <h1>LAPORAN DATA KARYAWAN</h1>
+        <div class="periode">
+            @if($divisi) Divisi: {{ $divisi }} @else Semua Divisi @endif
+            @if($status) | Status: {{ ucfirst($status) }} @endif
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-box">
+        <table>
+            <tr>
+                <td class="label">🏢 Filter Divisi</td>
+                <td>: @if($divisi) {{ $divisi }} @else Semua Divisi @endif</td>
+                @if($status)
+                <td class="label" style="padding-left: 20px;">📋 Status</td>
+                <td>: {{ ucfirst($status) }}</td>
+                @endif
+            </tr>
+            <tr>
+                <td class="label">👥 Total Karyawan</td>
+                <td>: {{ $karyawan->count() }} karyawan</td>
+                <td class="label" style="padding-left: 20px;">🖨️ Dicetak</td>
+                <td>: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y - HH:mm') }} WIB</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-box">
+        <div class="summary-item">
+            <span class="summary-value">{{ $karyawan->count() }}</span>
+            <span class="summary-label">Total Karyawan</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-value">{{ $karyawan->where('status', 'aktif')->count() }}</span>
+            <span class="summary-label">Aktif</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-value">{{ $karyawan->where('status', 'nonaktif')->count() }}</span>
+            <span class="summary-label">Non-Aktif</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-value">{{ $karyawan->pluck('divisi')->unique()->count() }}</span>
+            <span class="summary-label">Divisi</span>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="3%">No</th>
+                    <th width="10%">NIK</th>
+                    <th width="21%">Nama Karyawan</th>
+                    <th width="23%">Email</th>
+                    <th width="11%">Divisi</th>
+                    <th width="14%">Jabatan</th>
+                    <th width="11%">No. HP</th>
+                    <th width="10%">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($karyawan as $key => $item)
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td class="text-bold">{{ $item->nik ?? '-' }}</td>
+                    <td class="text-bold">{{ $item->name }}</td>
+                    <td>{{ $item->email }}</td>
+                    <td>{{ $item->divisi }}</td>
+                    <td>{{ $item->jabatan }}</td>
+                    <td>{{ $item->no_hp ?? '-' }}</td>
+                    <td>
+                        <span class="status-badge status-{{ $item->status }}">
+                            {{ strtoupper($item->status) }}
+                        </span>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="no-data">
+                        📭 Tidak ada data karyawan
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="signature-section">
+        <div class="signature-container">
+            <div class="signature-location">Tangerang Selatan, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
+            <div class="signature-title">HRD Manager</div>
+            <div class="signature-line">
+                <div class="signature-name">Euis Nurjanah, SE</div>
+                <div class="signature-nik">NIK: 1234567890</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="document-footer">
+        Dokumen ini digenerate secara otomatis oleh Sistem HRMS PT Puri Digital Output<br>
+        dan merupakan dokumen sah tanpa memerlukan tanda tangan basah
+        <div class="footer-watermark">
+            © {{ date('Y') }} PT Puri Digital Output. All Rights Reserved. | Confidential Document
+        </div>
+    </div>
+
+</body>
+</html>

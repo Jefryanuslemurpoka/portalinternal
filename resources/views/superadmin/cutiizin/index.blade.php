@@ -169,6 +169,16 @@
                                         title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </button>
+                                <a href="{{ route('superadmin.cutiizin.edit', $ci->id) }}" 
+                                   class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                   title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="confirmDelete({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
+                                        class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition"
+                                        title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                             @else
                             <div class="flex items-center space-x-2">
@@ -177,7 +187,17 @@
                                         title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <div class="text-xs text-gray-500">
+                                <a href="{{ route('superadmin.cutiizin.edit', $ci->id) }}" 
+                                   class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                   title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="confirmDelete({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
+                                        class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition"
+                                        title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <div class="text-xs text-gray-500 ml-2">
                                     <p class="truncate max-w-[100px]">oleh {{ $ci->approver->name ?? '-' }}</p>
                                     <p>{{ $ci->updated_at->format('d M Y') }}</p>
                                 </div>
@@ -248,29 +268,49 @@
                 </div>
 
                 @if($ci->status == 'pending')
-                <div class="flex gap-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
                     <button onclick="openApproveModal({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
-                            class="flex-1 py-2 px-3 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition text-sm font-semibold">
+                            class="py-2 px-3 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition text-sm font-semibold">
                         <i class="fas fa-check mr-1"></i> Setujui
                     </button>
                     <button onclick="openRejectModal({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
-                            class="flex-1 py-2 px-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-semibold">
+                            class="py-2 px-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-semibold">
                         <i class="fas fa-times mr-1"></i> Tolak
                     </button>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
                     <button onclick="openDetailModal({{ json_encode($ci) }})" 
-                            class="py-2 px-3 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition text-sm">
+                            class="py-2 px-3 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition text-sm font-semibold">
                         <i class="fas fa-eye"></i>
+                    </button>
+                    <a href="{{ route('superadmin.cutiizin.edit', $ci->id) }}" 
+                       class="py-2 px-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-semibold text-center flex items-center justify-center">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button onclick="confirmDelete({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
+                            class="py-2 px-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-semibold">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
                 @else
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-2">
                     <div class="text-xs text-gray-500">
                         <p>Diproses oleh: <span class="font-semibold">{{ $ci->approver->name ?? '-' }}</span></p>
                         <p>{{ $ci->updated_at->format('d M Y, H:i') }}</p>
                     </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
                     <button onclick="openDetailModal({{ json_encode($ci) }})" 
-                            class="py-2 px-4 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition text-sm font-semibold">
-                        <i class="fas fa-eye mr-1"></i> Detail
+                            class="py-2 px-3 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition text-sm font-semibold">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <a href="{{ route('superadmin.cutiizin.edit', $ci->id) }}" 
+                       class="py-2 px-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-semibold text-center flex items-center justify-center">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button onclick="confirmDelete({{ $ci->id }}, '{{ $ci->user->name }}', '{{ $ci->jenis }}')" 
+                            class="py-2 px-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-semibold">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
                 @endif
@@ -438,6 +478,40 @@
     </div>
 </div>
 
+<!-- Modal Konfirmasi Hapus -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900">
+                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                Konfirmasi Hapus
+            </h3>
+        </div>
+        <form id="deleteForm" method="POST">
+            @csrf
+            @method('DELETE')
+            <div class="px-4 sm:px-6 py-4 sm:py-6">
+                <div class="text-center mb-4 sm:mb-6">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <p class="text-sm sm:text-base text-gray-700 mb-2">Apakah Anda yakin ingin menghapus pengajuan <span id="deleteJenis" class="font-semibold"></span> dari:</p>
+                    <p class="text-base sm:text-lg font-bold text-gray-900" id="deleteKaryawanName"></p>
+                    <p class="text-xs sm:text-sm text-red-600 mt-2">Data yang dihapus tidak dapat dikembalikan!</p>
+                </div>
+            </div>
+            <div class="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 rounded-b-xl sm:rounded-b-2xl flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                <button type="button" onclick="closeModal('deleteModal')" class="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition text-sm sm:text-base">
+                    Batal
+                </button>
+                <button type="submit" class="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold rounded-lg hover:from-red-700 hover:to-pink-700 transition shadow-md text-sm sm:text-base">
+                    <i class="fas fa-trash mr-2"></i>Hapus
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -519,7 +593,7 @@
     // Close modal on ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            const modals = ['approveModal', 'rejectModal', 'detailModal'];
+            const modals = ['approveModal', 'rejectModal', 'detailModal', 'deleteModal'];
             modals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && !modal.classList.contains('hidden')) {
@@ -582,6 +656,14 @@
         }
         
         openModal('detailModal');
+    }
+
+    // Confirm Delete
+    function confirmDelete(id, name, jenis) {
+        document.getElementById('deleteKaryawanName').textContent = name;
+        document.getElementById('deleteJenis').textContent = jenis;
+        document.getElementById('deleteForm').action = `/superadmin/cuti-izin/${id}`;
+        openModal('deleteModal');
     }
 </script>
 @endpush

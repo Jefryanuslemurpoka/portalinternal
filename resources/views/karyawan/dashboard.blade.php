@@ -13,10 +13,6 @@
                 <h2 class="text-2xl font-bold mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h2>
                 <p class="text-teal-50">{{ Auth::user()->divisi }} - {{ now()->format('l, d F Y') }}</p>
             </div>
-            <div class="hidden md:block">
-                <img src="{{ Auth::user()->foto ? asset('storage/' . Auth::user()->foto) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=14b8a6&color=fff&size=100' }}" 
-                     class="w-20 h-20 rounded-full border-4 border-white/30 object-cover shadow-md">
-            </div>
         </div>
     </div>
 

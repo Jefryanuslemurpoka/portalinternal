@@ -48,6 +48,50 @@
         </div>
     </div>
 
+    @php
+    // Hitung batas keterlambatan (jam masuk + toleransi)
+    $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+        ->addMinutes($toleransi)
+        ->format('H:i:s');
+    @endphp
+
+    <!-- Update bagian Mobile Card View -->
+    <div class="flex justify-between">
+        <span class="text-gray-600">Jam Masuk:</span>
+        @if($a->jam_masuk)
+            <div class="flex items-center gap-2">
+                <span class="font-semibold {{ strtotime($a->jam_masuk) <= strtotime($batasKeterlambatan) ? 'text-teal-600' : 'text-red-600' }}">
+                    {{ date('H:i', strtotime($a->jam_masuk)) }}
+                </span>
+                @if(strtotime($a->jam_masuk) > strtotime($batasKeterlambatan))
+                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">
+                        Terlambat
+                    </span>
+                @endif
+            </div>
+        @else
+            <span class="text-xs text-gray-400">-</span>
+        @endif
+    </div>
+
+    <!-- Update bagian Desktop Table View - Jam Masuk column -->
+    <td class="px-4 xl:px-6 py-3 xl:py-4">
+        <div class="flex items-center space-x-2">
+            @if($a->jam_masuk)
+                <span class="text-xs xl:text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime($batasKeterlambatan) ? 'text-teal-600' : 'text-red-600' }}">
+                    {{ date('H:i', strtotime($a->jam_masuk)) }}
+                </span>
+                @if(strtotime($a->jam_masuk) > strtotime($batasKeterlambatan))
+                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
+                        Terlambat
+                    </span>
+                @endif
+            @else
+                <span class="text-xs text-gray-400">-</span>
+            @endif
+        </div>
+    </td>
+
     <!-- Filter Section -->
     <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
         <form method="GET" action="{{ route('superadmin.absensi.index') }}" class="space-y-4">

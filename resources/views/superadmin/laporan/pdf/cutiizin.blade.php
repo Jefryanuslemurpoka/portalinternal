@@ -1,258 +1,537 @@
-@extends('layouts.app')
-
-@section('title', 'Laporan Cuti/Izin')
-@section('page-title', 'Laporan Cuti/Izin')
-
-@section('content')
-<div class="space-y-4 sm:space-y-6">
-
-    <!-- Header & Action Buttons -->
-    <div class="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 no-print">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2">
-                    <i class="fas fa-calendar-check text-teal-600 mr-2"></i>
-                    Laporan Cuti/Izin Karyawan
-                </h1>
-                <p class="text-xs sm:text-sm text-gray-600">
-                    Periode: <span class="font-semibold">{{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }}</span> 
-                    s/d <span class="font-semibold">{{ \Carbon\Carbon::parse($tanggalSelesai)->format('d M Y') }}</span>
-                    @if($status)
-                        | Status: <span class="font-semibold">{{ ucfirst($status) }}</span>
-                    @endif
-                </p>
-            </div>
-            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                <form action="{{ route('superadmin.laporan.cutiizin.pdf') }}" method="GET" class="inline">
-                    <input type="hidden" name="tanggal_mulai" value="{{ $tanggalMulai }}">
-                    <input type="hidden" name="tanggal_selesai" value="{{ $tanggalSelesai }}">
-                    <input type="hidden" name="status" value="{{ $status }}">
-                    <button type="submit" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
-                        <i class="fas fa-file-pdf mr-1 sm:mr-2"></i>Export PDF
-                    </button>
-                </form>
-                <form action="{{ route('superadmin.laporan.cutiizin.excel') }}" method="GET" class="inline">
-                    <input type="hidden" name="tanggal_mulai" value="{{ $tanggalMulai }}">
-                    <input type="hidden" name="tanggal_selesai" value="{{ $tanggalSelesai }}">
-                    <input type="hidden" name="status" value="{{ $status }}">
-                    <button type="submit" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
-                        <i class="fas fa-file-excel mr-1 sm:mr-2"></i>Export Excel
-                    </button>
-                </form>
-                <a href="{{ route('superadmin.laporan.index') }}" class="flex-1 sm:flex-none bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm text-center">
-                    <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Print Header -->
-    <div class="hidden print:block mb-6">
-        <div class="text-center border-b-2 border-gray-800 pb-4 mb-4">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">LAPORAN CUTI/IZIN KARYAWAN</h1>
-            <p class="text-sm text-gray-600">
-                Periode: {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} s/d {{ \Carbon\Carbon::parse($tanggalSelesai)->format('d M Y') }}
-                @if($status) | Status: {{ ucfirst($status) }} @endif
-            </p>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Total Pengajuan</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $cutiIzin->count() }}</h3>
-                </div>
-                <i class="fas fa-calendar-alt text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-        <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Pending</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $cutiIzin->where('status', 'pending')->count() }}</h3>
-                </div>
-                <i class="fas fa-clock text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Disetujui</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $cutiIzin->where('status', 'disetujui')->count() }}</h3>
-                </div>
-                <i class="fas fa-check-circle text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs opacity-90 mb-1">Ditolak</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $cutiIzin->where('status', 'ditolak')->count() }}</h3>
-                </div>
-                <i class="fas fa-times-circle text-2xl sm:text-3xl opacity-20"></i>
-            </div>
-        </div>
-    </div>
-
-    <!-- Table -->
-    <div class="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Laporan Cuti dan Izin Karyawan - PT Puri Digital Output</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 15mm 12mm;
+        }
         
-        <!-- Mobile Card View -->
-        <div class="block lg:hidden">
-            @forelse($cutiIzin as $key => $item)
-            <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="flex-1">
-                        <p class="font-bold text-gray-900 text-sm mb-1">{{ $item->user->name }}</p>
-                        <p class="text-xs text-gray-600">{{ $item->user->divisi }} - {{ $item->user->jabatan }}</p>
-                    </div>
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold
-                        @if($item->status == 'disetujui') bg-green-100 text-green-700
-                        @elseif($item->status == 'pending') bg-yellow-100 text-yellow-700
-                        @else bg-red-100 text-red-700
-                        @endif">
-                        {{ ucfirst($item->status) }}
-                    </span>
-                </div>
-                <div class="space-y-1 text-xs">
-                    <p><span class="text-gray-600">Jenis:</span> <span class="font-semibold">{{ ucfirst($item->jenis) }}</span></p>
-                    <p><span class="text-gray-600">Tanggal:</span> <span class="font-semibold">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d M Y') }}</span></p>
-                    <p><span class="text-gray-600">Durasi:</span> <span class="font-semibold">{{ $item->durasi }} hari</span></p>
-                    @if($item->keterangan)
-                    <p><span class="text-gray-600">Keterangan:</span> <span class="text-gray-800">{{ Str::limit($item->keterangan, 50) }}</span></p>
-                    @endif
-                </div>
-            </div>
-            @empty
-            <div class="p-8 text-center">
-                <i class="fas fa-inbox text-4xl text-gray-400 mb-3"></i>
-                <p class="text-gray-600">Tidak ada data cuti/izin</p>
-            </div>
-            @endforelse
-        </div>
-
-        <!-- Desktop Table View -->
-        <div class="hidden lg:block overflow-x-auto">
-            <table class="w-full" id="laporanTable">
-                <thead class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">No</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Nama Karyawan</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Divisi</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Jenis</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Tanggal Mulai</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Tanggal Selesai</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Durasi</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @forelse($cutiIzin as $key => $item)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm">{{ $key + 1 }}</td>
-                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ $item->user->name }}</td>
-                        <td class="px-4 py-3 text-sm">{{ $item->user->divisi }}</td>
-                        <td class="px-4 py-3 text-sm">
-                            <span class="px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs font-semibold">
-                                {{ ucfirst($item->jenis) }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-sm">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }}</td>
-                        <td class="px-4 py-3 text-sm">{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d M Y') }}</td>
-                        <td class="px-4 py-3 text-sm font-semibold">{{ $item->durasi }} hari</td>
-                        <td class="px-4 py-3">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                @if($item->status == 'disetujui') bg-green-100 text-green-700
-                                @elseif($item->status == 'pending') bg-yellow-100 text-yellow-700
-                                @else bg-red-100 text-red-700
-                                @endif">
-                                {{ ucfirst($item->status) }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-sm">{{ Str::limit($item->keterangan, 40) ?? '-' }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="px-4 py-8 text-center text-gray-600">
-                            <i class="fas fa-inbox text-4xl mb-3 block"></i>
-                            Tidak ada data cuti/izin
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Print Footer -->
-    <div class="hidden print:block mt-8 text-sm">
-        <div class="flex justify-between">
-            <div></div>
-            <div class="text-center">
-                <p class="mb-16">Mengetahui,</p>
-                <p class="font-bold border-t-2 border-gray-800 pt-1 inline-block px-8">HRD Manager</p>
-            </div>
-        </div>
-    </div>
-
-</div>
-@endsection
-
-@push('styles')
-<style>
-    @media print {
-        .no-print, .sidebar, .navbar, nav, header, footer { 
-            display: none !important; 
-        }
-        body { 
-            print-color-adjust: exact; 
-            -webkit-print-color-adjust: exact; 
-        }
-        .container, .main-content {
-            margin: 0 !important;
-            padding: 0 !important;
-            max-width: 100% !important;
-        }
-    }
-</style>
-@endpush
-
-@push('scripts')
-<script>
-    function exportExcel() {
-        const table = document.getElementById('laporanTable');
-        if (!table) {
-            alert('Tidak ada data untuk di-export');
-            return;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        
-        for (let i = 0; i < rows.length; i++) {
-            const row = [];
-            const cols = rows[i].querySelectorAll('td, th');
-            
-            for (let j = 0; j < cols.length; j++) {
-                let text = cols[j].innerText.replace(/"/g, '""');
-                row.push('"' + text + '"');
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
+            color: #1a1a1a;
+            background: #fff;
+        }
+
+        /* === KOP SURAT === */
+        .kop-surat {
+            border-bottom: 3px solid #0d9488;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .kop-content {
+            display: table;
+            width: 100%;
+        }
+
+        .kop-logo {
+            display: table-cell;
+            width: 65px;
+            vertical-align: middle;
+        }
+
+        .logo-box {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0d9488, #06b6d4);
+            border-radius: 8px;
+            text-align: center;
+            line-height: 60px;
+            color: white;
+            font-size: 26pt;
+            font-weight: bold;
+        }
+
+        .kop-info {
+            display: table-cell;
+            vertical-align: middle;
+            padding-left: 15px;
+        }
+
+        .company-name {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0d9488;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .company-tagline {
+            font-size: 8.5pt;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .company-address {
+            font-size: 8pt;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .company-contact {
+            font-size: 8pt;
+            color: #0d9488;
+            margin-top: 3px;
+        }
+
+        /* === NOMOR SURAT === */
+        .nomor-surat {
+            text-align: right;
+            margin: 10px 0;
+            font-size: 8.5pt;
+            color: #666;
+        }
+
+        /* === JUDUL === */
+        .judul-dokumen {
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px 0;
+            background: linear-gradient(to bottom, #f0fdfa, #ffffff);
+            border-left: 4px solid #0d9488;
+            border-right: 4px solid #06b6d4;
+        }
+
+        .judul-dokumen h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #0d9488;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .judul-dokumen .periode {
+            font-size: 9pt;
+            color: #555;
+        }
+
+        /* === INFO BOX === */
+        .info-section {
+            margin: 15px 0;
+        }
+
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .info-item {
+            display: table-cell;
+            width: 50%;
+            padding: 8px 12px;
+            background: #f0fdfa;
+            border-left: 4px solid #0d9488;
+            font-size: 8.5pt;
+        }
+
+        .info-item:last-child {
+            padding-left: 20px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #0d9488;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        /* === SUMMARY === */
+        .summary-box {
+            margin: 15px 0;
+            padding: 12px;
+            background: linear-gradient(to right, #f0fdfa, #ecfeff);
+            border-radius: 8px;
+            border: 2px solid #0d9488;
+        }
+
+        .summary-grid {
+            display: table;
+            width: 100%;
+        }
+
+        .summary-item {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .summary-value {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #0d9488;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 7.5pt;
+            color: #666;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        /* === TABLE === */
+        .table-container {
+            margin: 15px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.5pt;
+        }
+
+        table.data-table thead {
+            background: linear-gradient(to right, #0d9488, #06b6d4);
+            color: white;
+        }
+
+        table.data-table thead th {
+            padding: 10px 5px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 7pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        table.data-table tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table.data-table tbody tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        table.data-table tbody td {
+            padding: 8px 5px;
+            color: #374151;
+            vertical-align: middle;
+        }
+
+        table.data-table tbody td:first-child {
+            text-align: center;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        /* === BADGE === */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 6.5pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-disetujui {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+
+        .status-ditolak {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #dc2626;
+        }
+
+        .jenis-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 6.5pt;
+            font-weight: 600;
+            background: #cffafe;
+            color: #155e75;
+            border: 1px solid #06b6d4;
+        }
+
+        /* === SIGNATURE === */
+        .signature-section {
+            margin-top: 30px;
+            page-break-inside: avoid;
+        }
+
+        .signature-container {
+            width: 250px;
+            float: right;
+            text-align: center;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .signature-location {
+            font-size: 9pt;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .signature-title {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #0d9488;
+            margin-bottom: 45px;
+        }
+
+        .signature-line {
+            border-top: 2px solid #0d9488;
+            padding-top: 8px;
+            margin: 0 20px;
+        }
+
+        .signature-name {
+            font-size: 10pt;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .signature-nik {
+            font-size: 8pt;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        /* === FOOTER === */
+        .document-footer {
+            margin-top: 50px;
+            padding-top: 12px;
+            border-top: 2px solid #e5e7eb;
+            text-align: center;
+            clear: both;
+            font-size: 7pt;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        .footer-watermark {
+            margin-top: 6px;
+            font-size: 6.5pt;
+            color: #d1d5db;
+        }
+
+        /* === NO DATA === */
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+            font-size: 9pt;
+        }
+
+        .text-bold {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .keterangan-text {
+            font-size: 7pt;
+            line-height: 1.3;
+            word-wrap: break-word;
+        }
+
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
             }
-            
-            csv.push(row.join(','));
         }
-        
-        const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-        const downloadLink = document.createElement('a');
-        downloadLink.download = 'Laporan_Cuti_Izin_{{ date("Y-m-d") }}.csv';
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = 'none';
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
-</script>
-@endpush
+    </style>
+</head>
+<body>
+
+    <!-- KOP SURAT -->
+    <div class="kop-surat">
+        <div class="kop-content">
+            <div class="kop-logo">
+                <div class="logo-box">P</div>
+            </div>
+            <div class="kop-info">
+                <div class="company-name">PT PURI DIGITAL OUTPUT</div>
+                <div class="company-tagline">Excellence in Human Resources Management</div>
+                <div class="company-address">
+                    Jl. Raya Serpong No. 123, Tangerang Selatan, Banten 15310, Indonesia
+                </div>
+                <div class="company-contact">
+                    ☎ (021) 5588-9900 | ✉ hrd@puridigitaloutput.com | 🌐 www.puridigitaloutput.com
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOMOR SURAT -->
+    <div class="nomor-surat">
+        <strong>No:</strong> {{ sprintf('%03d', rand(1, 999)) }}/HRD-LPR/PDO/{{ date('m/Y') }}
+    </div>
+
+    <!-- JUDUL -->
+    <div class="judul-dokumen">
+        <h1>LAPORAN CUTI DAN IZIN KARYAWAN</h1>
+        <div class="periode">
+            Periode: {{ \Carbon\Carbon::parse($tanggalMulai)->locale('id')->isoFormat('D MMMM Y') }} 
+            s/d {{ \Carbon\Carbon::parse($tanggalSelesai)->locale('id')->isoFormat('D MMMM Y') }}
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-section">
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Periode Laporan</span>
+                <span class="info-value">: {{ \Carbon\Carbon::parse($tanggalMulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($tanggalSelesai)->format('d/m/Y') }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Pengajuan</span>
+                <span class="info-value">: {{ $cutiIzin->count() }} pengajuan</span>
+            </div>
+        </div>
+        <div class="info-row">
+            @if($status)
+            <div class="info-item">
+                <span class="info-label">Status</span>
+                <span class="info-value">: {{ ucfirst($status) }}</span>
+            </div>
+            @endif
+            <div class="info-item">
+                <span class="info-label">Dicetak</span>
+                <span class="info-value">: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y - HH:mm') }} WIB</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-box">
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="summary-value">{{ $cutiIzin->count() }}</span>
+                <span class="summary-label">Total Pengajuan</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-value">{{ $cutiIzin->where('status', 'pending')->count() }}</span>
+                <span class="summary-label">Pending</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-value">{{ $cutiIzin->where('status', 'disetujui')->count() }}</span>
+                <span class="summary-label">Disetujui</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-value">{{ $cutiIzin->where('status', 'ditolak')->count() }}</span>
+                <span class="summary-label">Ditolak</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="4%">No</th>
+                    <th width="22%">Nama Karyawan</th>
+                    <th width="12%">Divisi</th>
+                    <th width="10%">Jenis</th>
+                    <th width="11%">Tgl Mulai</th>
+                    <th width="11%">Tgl Selesai</th>
+                    <th width="8%">Durasi</th>
+                    <th width="12%">Status</th>
+                    <th width="10%">Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($cutiIzin as $key => $item)
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td class="text-bold">{{ $item->user->name }}</td>
+                    <td>{{ $item->user->divisi }}</td>
+                    <td>
+                        <span class="jenis-badge">{{ strtoupper($item->jenis) }}</span>
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d/m/Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d/m/Y') }}</td>
+                    <td class="text-center text-bold">{{ $item->durasi }} hari</td>
+                    <td>
+                        <span class="status-badge status-{{ $item->status }}">
+                            {{ strtoupper($item->status) }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="keterangan-text">{{ Str::limit($item->keterangan, 40) ?? '-' }}</div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="9" class="no-data">
+                        Tidak ada data cuti/izin untuk periode yang dipilih
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="signature-section">
+        <div class="signature-container">
+            <div class="signature-location">Tangerang Selatan, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
+            <div class="signature-title">HRD Manager</div>
+            <div class="signature-line">
+                <div class="signature-name">Euis Nurjanah, SE</div>
+                <div class="signature-nik">NIK: 1234567890</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="document-footer">
+        Dokumen ini digenerate secara otomatis oleh Sistem HRMS PT Puri Digital Output<br>
+        dan merupakan dokumen sah tanpa memerlukan tanda tangan basah
+        <div class="footer-watermark">
+            © {{ date('Y') }} PT Puri Digital Output. All Rights Reserved. | Confidential Document
+        </div>
+    </div>
+
+    <!-- Auto Print Script -->
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
+
+</body>
+</html>

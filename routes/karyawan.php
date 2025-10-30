@@ -7,6 +7,8 @@ use App\Http\Controllers\Karyawan\RekapController;
 use App\Http\Controllers\Karyawan\CutiIzinController;
 use App\Http\Controllers\Karyawan\PengumumanController;
 use App\Http\Controllers\Karyawan\ProfilController;
+use App\Http\Controllers\Karyawan\SuratController;
+use App\Http\Controllers\Karyawan\ServerLogController;
 
 // Karyawan Routes - dengan middleware karyawan
 Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
@@ -37,6 +39,21 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::post('/', [CutiIzinController::class, 'store'])->name('store');
         Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
         Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
+    });
+
+    // Surat/Dokumen
+    Route::prefix('surat')->name('karyawan.surat.')->group(function () {
+        Route::get('/', [SuratController::class, 'index'])->name('index');
+        Route::get('/create', [SuratController::class, 'create'])->name('create');
+        Route::post('/', [SuratController::class, 'store'])->name('store');
+        Route::get('/{id}', [SuratController::class, 'show'])->name('show');
+        Route::delete('/{id}', [SuratController::class, 'destroy'])->name('destroy');
+    });
+
+    // Server Log
+    Route::prefix('serverlog')->name('karyawan.serverlog.')->group(function () {
+        Route::get('/', [ServerLogController::class, 'index'])->name('index');
+        Route::get('/{id}', [ServerLogController::class, 'show'])->name('show');
     });
 
     // Pengumuman

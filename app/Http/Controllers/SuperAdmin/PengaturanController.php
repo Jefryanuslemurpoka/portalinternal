@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 use App\Models\LogAktivitas;
 
 class PengaturanController extends Controller
@@ -12,22 +13,24 @@ class PengaturanController extends Controller
     // Tampilkan halaman pengaturan
     public function index()
     {
-        // Ambil pengaturan dari cache atau default
+        // Jam Kerja
         $jamMasuk = Cache::get('jam_masuk', '08:00');
         $jamKeluar = Cache::get('jam_keluar', '17:00');
-        $toleransiKeterlambatan = Cache::get('toleransi_keterlambatan', 15); // menit
-        
+        $toleransiKeterlambatan = (int) Cache::get('toleransi_keterlambatan', 15); // Cast ke integer
+
+        // Lokasi Kantor
         $lokasiKantor = Cache::get('lokasi_kantor', [
             'nama' => 'Kantor Pusat',
             'alamat' => 'Jl. Contoh No. 123, Jakarta',
             'latitude' => '-6.200000',
             'longitude' => '106.816666',
-            'radius' => 100, // meter
+            'radius' => 100,
         ]);
 
-        // Ambil status validasi radius (default: aktif/true)
+        // Validasi Radius GPS (default: true/aktif)
         $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
 
+        // Info Perusahaan
         $namaPerusahaan = Cache::get('nama_perusahaan', 'Portal Internal');
         $emailPerusahaan = Cache::get('email_perusahaan', 'info@portal.com');
         $teleponPerusahaan = Cache::get('telepon_perusahaan', '021-12345678');
@@ -47,7 +50,7 @@ class PengaturanController extends Controller
     // Update Jam Kerja
     public function updateJamKerja(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'jam_masuk' => 'required|date_format:H:i',
             'jam_keluar' => 'required|date_format:H:i|after:jam_masuk',
             'toleransi_keterlambatan' => 'required|integer|min:0|max:60',
@@ -56,17 +59,23 @@ class PengaturanController extends Controller
             'jam_masuk.date_format' => 'Format jam masuk tidak valid',
             'jam_keluar.required' => 'Jam keluar harus diisi',
             'jam_keluar.date_format' => 'Format jam keluar tidak valid',
-            'jam_keluar.after' => 'Jam keluar harus setelah jam masuk',
+            'jam_keluar.after' => 'Jam keluar harus lebih besar dari jam masuk',
             'toleransi_keterlambatan.required' => 'Toleransi keterlambatan harus diisi',
             'toleransi_keterlambatan.integer' => 'Toleransi harus berupa angka',
             'toleransi_keterlambatan.min' => 'Toleransi minimal 0 menit',
             'toleransi_keterlambatan.max' => 'Toleransi maksimal 60 menit',
         ]);
 
-        // Simpan ke cache (permanent)
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Simpan ke cache (permanent) - pastikan toleransi dalam format integer
         Cache::forever('jam_masuk', $request->jam_masuk);
         Cache::forever('jam_keluar', $request->jam_keluar);
-        Cache::forever('toleransi_keterlambatan', $request->toleransi_keterlambatan);
+        Cache::forever('toleransi_keterlambatan', (int) $request->toleransi_keterlambatan); // Cast ke integer
 
         // Log aktivitas
         LogAktivitas::create([
@@ -76,21 +85,23 @@ class PengaturanController extends Controller
         ]);
 
         return redirect()->route('superadmin.pengaturan.index')
-            ->with('success', 'Pengaturan jam kerja berhasil diperbarui');
+            ->with('success', 'Pengaturan jam kerja berhasil disimpan!');
     }
 
     // Update Lokasi Kantor
     public function updateLokasi(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'nama_lokasi' => 'required|string|max:255',
-            'alamat' => 'required|string',
+            'alamat' => 'required|string|max:500',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'radius' => 'required|integer|min:10|max:1000',
         ], [
             'nama_lokasi.required' => 'Nama lokasi harus diisi',
+            'nama_lokasi.max' => 'Nama lokasi maksimal 255 karakter',
             'alamat.required' => 'Alamat harus diisi',
+            'alamat.max' => 'Alamat maksimal 500 karakter',
             'latitude.required' => 'Latitude harus diisi',
             'latitude.numeric' => 'Latitude harus berupa angka',
             'latitude.between' => 'Latitude harus antara -90 sampai 90',
@@ -103,18 +114,24 @@ class PengaturanController extends Controller
             'radius.max' => 'Radius maksimal 1000 meter',
         ]);
 
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Simpan lokasi kantor
         $lokasiKantor = [
             'nama' => $request->nama_lokasi,
             'alamat' => $request->alamat,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
-            'radius' => $request->radius,
+            'radius' => (int) $request->radius, // Cast ke integer
         ];
 
-        // Simpan lokasi ke cache
         Cache::forever('lokasi_kantor', $lokasiKantor);
 
-        // Simpan status validasi radius GPS (true jika checkbox dicentang, false jika tidak)
+        // Simpan status validasi radius (true jika checkbox dicentang, false jika tidak)
         $validasiRadiusAktif = $request->has('validasi_radius_aktif') ? true : false;
         Cache::forever('validasi_radius_aktif', $validasiRadiusAktif);
 
@@ -126,23 +143,34 @@ class PengaturanController extends Controller
             'deskripsi' => "Mengubah lokasi kantor: {$request->nama_lokasi} (Radius: {$request->radius}m, Validasi GPS: {$statusValidasi})",
         ]);
 
+        $message = "Pengaturan lokasi berhasil disimpan! Validasi radius GPS: {$statusValidasi}.";
+        
         return redirect()->route('superadmin.pengaturan.index')
-            ->with('success', 'Pengaturan lokasi kantor berhasil diperbarui');
+            ->with('success', $message);
     }
 
-    // Update Informasi Umum
+    // Update Info Perusahaan
     public function updateGeneral(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'nama_perusahaan' => 'required|string|max:255',
-            'email_perusahaan' => 'required|email',
+            'email_perusahaan' => 'required|email|max:255',
             'telepon_perusahaan' => 'required|string|max:20',
         ], [
             'nama_perusahaan.required' => 'Nama perusahaan harus diisi',
+            'nama_perusahaan.max' => 'Nama perusahaan maksimal 255 karakter',
             'email_perusahaan.required' => 'Email perusahaan harus diisi',
             'email_perusahaan.email' => 'Format email tidak valid',
+            'email_perusahaan.max' => 'Email maksimal 255 karakter',
             'telepon_perusahaan.required' => 'Telepon perusahaan harus diisi',
+            'telepon_perusahaan.max' => 'Telepon maksimal 20 karakter',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         // Simpan ke cache
         Cache::forever('nama_perusahaan', $request->nama_perusahaan);
@@ -157,16 +185,16 @@ class PengaturanController extends Controller
         ]);
 
         return redirect()->route('superadmin.pengaturan.index')
-            ->with('success', 'Informasi perusahaan berhasil diperbarui');
+            ->with('success', 'Informasi perusahaan berhasil disimpan!');
     }
 
-    // Method helper untuk mengecek apakah validasi radius aktif (bisa dipanggil dari controller lain)
+    // Helper method untuk cek validasi radius (bisa dipanggil dari controller lain)
     public static function isValidasiRadiusAktif()
     {
         return Cache::get('validasi_radius_aktif', true);
     }
 
-    // Method helper untuk mendapatkan lokasi kantor (bisa dipanggil dari controller lain)
+    // Helper method untuk get lokasi kantor (bisa dipanggil dari controller lain)
     public static function getLokasiKantor()
     {
         return Cache::get('lokasi_kantor', [

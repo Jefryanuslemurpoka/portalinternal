@@ -5,7 +5,8 @@
     <title>Laporan Absensi Karyawan - PT Puri Digital Output</title>
     <style>
         @page {
-            margin: 15mm 15mm 20mm 15mm;
+            size: A4 portrait;
+            margin: 15mm 12mm;
         }
         
         * {
@@ -15,67 +16,62 @@
         }
 
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 10pt;
-            line-height: 1.5;
+            font-family: 'Arial', sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
             color: #1a1a1a;
             background: #fff;
         }
 
-        /* === KOP SURAT PROFESIONAL === */
+        /* === KOP SURAT === */
         .kop-surat {
-            position: relative;
-            padding: 20px 0;
+            border-bottom: 3px solid #0d9488;
+            padding-bottom: 10px;
             margin-bottom: 15px;
         }
 
-        .kop-header {
+        .kop-content {
             display: table;
             width: 100%;
-            border-bottom: 4px solid;
-            border-image: linear-gradient(to right, #0d9488, #06b6d4) 1;
-            padding-bottom: 15px;
         }
 
         .kop-logo {
             display: table-cell;
-            width: 80px;
+            width: 65px;
             vertical-align: middle;
         }
 
         .logo-box {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, #0d9488, #06b6d4);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            line-height: 60px;
             color: white;
-            font-size: 28pt;
+            font-size: 26pt;
             font-weight: bold;
         }
 
         .kop-info {
             display: table-cell;
             vertical-align: middle;
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         .company-name {
-            font-size: 20pt;
+            font-size: 18pt;
             font-weight: bold;
             color: #0d9488;
             letter-spacing: 0.5px;
-            margin-bottom: 5px;
-            text-transform: uppercase;
+            margin-bottom: 3px;
         }
 
         .company-tagline {
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #666;
             font-style: italic;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         .company-address {
@@ -93,77 +89,108 @@
         /* === NOMOR SURAT === */
         .nomor-surat {
             text-align: right;
-            margin: 15px 0;
-            font-size: 9pt;
+            margin: 10px 0;
+            font-size: 8.5pt;
             color: #666;
         }
 
-        .nomor-surat strong {
-            color: #0d9488;
-        }
-
-        /* === JUDUL DOKUMEN === */
+        /* === JUDUL === */
         .judul-dokumen {
             text-align: center;
-            margin: 25px 0 20px 0;
-            padding: 15px 0;
+            margin: 15px 0;
+            padding: 12px 0;
             background: linear-gradient(to bottom, #f0fdfa, #ffffff);
             border-left: 4px solid #0d9488;
             border-right: 4px solid #06b6d4;
         }
 
         .judul-dokumen h1 {
-            font-size: 16pt;
+            font-size: 14pt;
             font-weight: bold;
             color: #0d9488;
             letter-spacing: 2px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
+            margin-bottom: 6px;
         }
 
         .judul-dokumen .periode {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #555;
-            font-weight: normal;
         }
 
         /* === INFO BOX === */
-        .info-container {
-            margin: 20px 0;
-            background: #f0fdfa;
-            border-left: 5px solid #0d9488;
-            padding: 15px 20px;
-            border-radius: 0 8px 8px 0;
+        .info-section {
+            margin: 15px 0;
         }
 
-        .info-grid {
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .info-item {
+            display: table-cell;
+            width: 50%;
+            padding: 8px 12px;
+            background: #f0fdfa;
+            border-left: 4px solid #0d9488;
+            font-size: 8.5pt;
+        }
+
+        .info-item:last-child {
+            padding-left: 20px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #0d9488;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        /* === SUMMARY === */
+        .summary-box {
+            margin: 15px 0;
+            padding: 12px;
+            background: linear-gradient(to right, #f0fdfa, #ecfeff);
+            border-radius: 8px;
+            border: 2px solid #0d9488;
+        }
+
+        .summary-grid {
             display: table;
             width: 100%;
         }
 
-        .info-row {
-            display: table-row;
+        .summary-item {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 8px;
         }
 
-        .info-label {
-            display: table-cell;
-            width: 180px;
-            padding: 5px 0;
-            font-weight: 600;
+        .summary-value {
+            font-size: 20pt;
+            font-weight: bold;
             color: #0d9488;
-            font-size: 9pt;
+            display: block;
+            margin-bottom: 5px;
         }
 
-        .info-value {
-            display: table-cell;
-            padding: 5px 0;
-            color: #333;
-            font-size: 9pt;
+        .summary-label {
+            font-size: 7.5pt;
+            color: #666;
+            text-transform: uppercase;
+            display: block;
         }
 
-        /* === TABEL DATA === */
+        /* === TABLE === */
         .table-container {
-            margin: 20px 0;
+            margin: 15px 0;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             overflow: hidden;
@@ -172,7 +199,7 @@
         table.data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8.5pt;
+            font-size: 8pt;
         }
 
         table.data-table thead {
@@ -181,17 +208,12 @@
         }
 
         table.data-table thead th {
-            padding: 12px 8px;
+            padding: 10px 6px;
             text-align: left;
             font-weight: 600;
-            font-size: 8pt;
+            font-size: 7.5pt;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-right: 1px solid rgba(255,255,255,0.2);
-        }
-
-        table.data-table thead th:last-child {
-            border-right: none;
+            letter-spacing: 0.3px;
         }
 
         table.data-table tbody tr {
@@ -202,12 +224,8 @@
             background-color: #f9fafb;
         }
 
-        table.data-table tbody tr:hover {
-            background-color: #f0fdfa;
-        }
-
         table.data-table tbody td {
-            padding: 10px 8px;
+            padding: 8px 6px;
             color: #374151;
             vertical-align: middle;
         }
@@ -218,15 +236,15 @@
             color: #6b7280;
         }
 
-        /* === STATUS BADGE === */
+        /* === BADGE === */
         .status-badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 7.5pt;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 7pt;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .status-hadir {
@@ -247,53 +265,17 @@
             border: 1px solid #dc2626;
         }
 
-        /* === RINGKASAN === */
-        .summary-box {
-            margin: 20px 0;
-            padding: 15px;
-            background: linear-gradient(to right, #f0fdfa, #ecfeff);
-            border-radius: 8px;
-            border: 2px solid #0d9488;
-        }
-
-        .summary-grid {
-            display: table;
-            width: 100%;
-        }
-
-        .summary-item {
-            display: table-cell;
-            width: 25%;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .summary-value {
-            font-size: 20pt;
-            font-weight: bold;
-            color: #0d9488;
-            display: block;
-        }
-
-        .summary-label {
-            font-size: 8pt;
-            color: #666;
-            text-transform: uppercase;
-            margin-top: 5px;
-            display: block;
-        }
-
-        /* === TANDA TANGAN === */
+        /* === SIGNATURE === */
         .signature-section {
-            margin-top: 40px;
+            margin-top: 30px;
             page-break-inside: avoid;
         }
 
         .signature-container {
-            width: 280px;
+            width: 250px;
             float: right;
             text-align: center;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             background: #fafafa;
@@ -309,17 +291,17 @@
             font-size: 10pt;
             font-weight: 600;
             color: #0d9488;
-            margin-bottom: 50px;
+            margin-bottom: 45px;
         }
 
         .signature-line {
             border-top: 2px solid #0d9488;
-            padding-top: 10px;
+            padding-top: 8px;
             margin: 0 20px;
         }
 
         .signature-name {
-            font-size: 11pt;
+            font-size: 10pt;
             font-weight: bold;
             color: #1a1a1a;
         }
@@ -332,22 +314,19 @@
 
         /* === FOOTER === */
         .document-footer {
-            margin-top: 60px;
-            padding-top: 15px;
+            margin-top: 50px;
+            padding-top: 12px;
             border-top: 2px solid #e5e7eb;
             text-align: center;
             clear: both;
-        }
-
-        .footer-text {
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #9ca3af;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .footer-watermark {
-            margin-top: 8px;
-            font-size: 7pt;
+            margin-top: 6px;
+            font-size: 6.5pt;
             color: #d1d5db;
         }
 
@@ -356,15 +335,9 @@
             text-align: center;
             padding: 40px 20px;
             color: #9ca3af;
+            font-size: 9pt;
         }
 
-        .no-data-icon {
-            font-size: 48pt;
-            margin-bottom: 15px;
-            opacity: 0.3;
-        }
-
-        /* === UTILITIES === */
         .text-bold {
             font-weight: 600;
             color: #1a1a1a;
@@ -386,12 +359,12 @@
 
     <!-- KOP SURAT -->
     <div class="kop-surat">
-        <div class="kop-header">
+        <div class="kop-content">
             <div class="kop-logo">
                 <div class="logo-box">P</div>
             </div>
             <div class="kop-info">
-                <div class="company-name">PT Puri Digital Output</div>
+                <div class="company-name">PT PURI DIGITAL OUTPUT</div>
                 <div class="company-tagline">Excellence in Human Resources Management</div>
                 <div class="company-address">
                     Jl. Raya Serpong No. 123, Tangerang Selatan, Banten 15310, Indonesia
@@ -408,40 +381,42 @@
         <strong>No:</strong> {{ sprintf('%03d', rand(1, 999)) }}/HRD-LPR/PDO/{{ date('m/Y') }}
     </div>
 
-    <!-- JUDUL DOKUMEN -->
+    <!-- JUDUL -->
     <div class="judul-dokumen">
-        <h1>Laporan Absensi Karyawan</h1>
+        <h1>LAPORAN ABSENSI KARYAWAN</h1>
         <div class="periode">
             Periode: {{ \Carbon\Carbon::parse($tanggalMulai)->locale('id')->isoFormat('D MMMM Y') }} 
             s/d {{ \Carbon\Carbon::parse($tanggalSelesai)->locale('id')->isoFormat('D MMMM Y') }}
         </div>
     </div>
 
-    <!-- INFO DOKUMEN -->
-    <div class="info-container">
-        <div class="info-grid">
-            <div class="info-row">
-                <div class="info-label">📅 Periode Laporan</div>
-                <div class="info-value">: {{ \Carbon\Carbon::parse($tanggalMulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($tanggalSelesai)->format('d/m/Y') }}</div>
+    <!-- INFO -->
+    <div class="info-section">
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Periode Laporan</span>
+                <span class="info-value">: {{ \Carbon\Carbon::parse($tanggalMulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($tanggalSelesai)->format('d/m/Y') }}</span>
             </div>
+            <div class="info-item">
+                <span class="info-label">Total Data</span>
+                <span class="info-value">: {{ $absensi->count() }} record</span>
+            </div>
+        </div>
+        <div class="info-row">
             @if($divisi)
-            <div class="info-row">
-                <div class="info-label">🏢 Divisi</div>
-                <div class="info-value">: {{ $divisi }}</div>
+            <div class="info-item">
+                <span class="info-label">Divisi</span>
+                <span class="info-value">: {{ $divisi }}</span>
             </div>
             @endif
-            <div class="info-row">
-                <div class="info-label">📊 Total Data</div>
-                <div class="info-value">: {{ $absensi->count() }} record absensi</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">🖨️ Dicetak Tanggal</div>
-                <div class="info-value">: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y - HH:mm') }} WIB</div>
+            <div class="info-item">
+                <span class="info-label">Dicetak</span>
+                <span class="info-value">: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y - HH:mm') }} WIB</span>
             </div>
         </div>
     </div>
 
-    <!-- RINGKASAN STATISTIK -->
+    <!-- SUMMARY -->
     <div class="summary-box">
         <div class="summary-grid">
             <div class="summary-item">
@@ -463,19 +438,18 @@
         </div>
     </div>
 
-    <!-- TABEL DATA -->
+    <!-- TABLE -->
     <div class="table-container">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th width="4%">No</th>
-                    <th width="11%">Tanggal</th>
-                    <th width="20%">Nama Karyawan</th>
-                    <th width="12%">Divisi</th>
-                    <th width="15%">Jabatan</th>
-                    <th width="10%">Status</th>
-                    <th width="11%">Jam Masuk</th>
-                    <th width="12%">Jam Keluar</th>
+                    <th width="5%">No</th>
+                    <th width="12%">Tanggal</th>
+                    <th width="25%">Nama Karyawan</th>
+                    <th width="15%">Divisi</th>
+                    <th width="15%">Status</th>
+                    <th width="14%">Jam Masuk</th>
+                    <th width="14%">Jam Keluar</th>
                 </tr>
             </thead>
             <tbody>
@@ -485,7 +459,6 @@
                     <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
                     <td class="text-bold">{{ $item->user->name }}</td>
                     <td>{{ $item->user->divisi }}</td>
-                    <td>{{ $item->user->jabatan }}</td>
                     <td>
                         <span class="status-badge status-{{ $item->status }}">
                             {{ strtoupper($item->status) }}
@@ -496,11 +469,8 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8">
-                        <div class="no-data">
-                            <div class="no-data-icon">📭</div>
-                            <div>Tidak ada data absensi untuk periode yang dipilih</div>
-                        </div>
+                    <td colspan="7" class="no-data">
+                        Tidak ada data absensi untuk periode yang dipilih
                     </td>
                 </tr>
                 @endforelse
@@ -508,7 +478,7 @@
         </table>
     </div>
 
-    <!-- TANDA TANGAN -->
+    <!-- SIGNATURE -->
     <div class="signature-section">
         <div class="signature-container">
             <div class="signature-location">Tangerang Selatan, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
@@ -522,14 +492,21 @@
 
     <!-- FOOTER -->
     <div class="document-footer">
-        <div class="footer-text">
-            Dokumen ini digenerate secara otomatis oleh Sistem HRMS PT Puri Digital Output<br>
-            dan merupakan dokumen sah tanpa memerlukan tanda tangan basah
-        </div>
+        Dokumen ini digenerate secara otomatis oleh Sistem HRMS PT Puri Digital Output<br>
+        dan merupakan dokumen sah tanpa memerlukan tanda tangan basah
         <div class="footer-watermark">
             © {{ date('Y') }} PT Puri Digital Output. All Rights Reserved. | Confidential Document
         </div>
     </div>
+
+    <!-- Auto Print Script -->
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
 
 </body>
 </html>

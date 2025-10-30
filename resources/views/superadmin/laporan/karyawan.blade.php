@@ -26,12 +26,28 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                <button onclick="window.print()" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
-                    <i class="fas fa-file-pdf mr-1 sm:mr-2"></i>Export PDF
-                </button>
-                <button onclick="exportExcel()" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
-                    <i class="fas fa-file-excel mr-1 sm:mr-2"></i>Export Excel
-                </button>
+                <form action="{{ route('superadmin.laporan.karyawan.pdf') }}" method="GET" class="inline">
+                    @if($divisi)
+                    <input type="hidden" name="divisi" value="{{ $divisi }}">
+                    @endif
+                    @if($status)
+                    <input type="hidden" name="status" value="{{ $status }}">
+                    @endif
+                    <button type="submit" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
+                        <i class="fas fa-file-pdf mr-1 sm:mr-2"></i>Export PDF
+                    </button>
+                </form>
+                <form action="{{ route('superadmin.laporan.karyawan.excel') }}" method="GET" class="inline">
+                    @if($divisi)
+                    <input type="hidden" name="divisi" value="{{ $divisi }}">
+                    @endif
+                    @if($status)
+                    <input type="hidden" name="status" value="{{ $status }}">
+                    @endif
+                    <button type="submit" class="flex-1 sm:flex-none bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm shadow-md">
+                        <i class="fas fa-file-excel mr-1 sm:mr-2"></i>Export Excel
+                    </button>
+                </form>
                 <a href="{{ route('superadmin.laporan.index') }}" class="flex-1 sm:flex-none bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm text-center">
                     <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali
                 </a>
@@ -198,40 +214,4 @@
         }
     }
 </style>
-@endpush
-
-@push('scripts')
-<script>
-    function exportExcel() {
-        const table = document.getElementById('laporanTable');
-        if (!table) {
-            alert('Tidak ada data untuk di-export');
-            return;
-        }
-
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        
-        for (let i = 0; i < rows.length; i++) {
-            const row = [];
-            const cols = rows[i].querySelectorAll('td, th');
-            
-            for (let j = 0; j < cols.length; j++) {
-                let text = cols[j].innerText.replace(/"/g, '""');
-                row.push('"' + text + '"');
-            }
-            
-            csv.push(row.join(','));
-        }
-        
-        const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-        const downloadLink = document.createElement('a');
-        downloadLink.download = 'Laporan_Karyawan_{{ date("Y-m-d") }}.csv';
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = 'none';
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
-</script>
 @endpush

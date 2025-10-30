@@ -14,7 +14,10 @@ class AbsensiController extends Controller
     // Tampilkan halaman absensi
     public function index()
     {
-        $today = Carbon::today();
+        // Set timezone ke Asia/Jakarta
+        date_default_timezone_set('Asia/Jakarta');
+        
+        $today = Carbon::today('Asia/Jakarta');
         $user = Auth::user();
 
         // Cek absensi hari ini
@@ -47,13 +50,17 @@ class AbsensiController extends Controller
     // Check-in
     public function checkIn(Request $request)
     {
+        // Set timezone ke Asia/Jakarta
+        date_default_timezone_set('Asia/Jakarta');
+        
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
 
         $user = Auth::user();
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
 
         // Cek apakah sudah check-in hari ini
         $existingAbsensi = Absensi::where('user_id', $user->id)
@@ -67,13 +74,17 @@ class AbsensiController extends Controller
             ], 400);
         }
 
-        // Validasi lokasi (radius)
+        // Ambil pengaturan lokasi
         $lokasiKantor = Cache::get('lokasi_kantor', [
             'latitude' => '-6.200000',
             'longitude' => '106.816666',
             'radius' => 100,
         ]);
-        
+
+        // Cek apakah validasi radius aktif
+        $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
+
+        // Hitung jarak
         $distance = $this->calculateDistance(
             $request->latitude,
             $request->longitude,
@@ -81,7 +92,8 @@ class AbsensiController extends Controller
             $lokasiKantor['longitude']
         );
 
-        if ($distance > $lokasiKantor['radius']) {
+        // Validasi radius hanya jika fitur aktif
+        if ($validasiRadiusAktif && $distance > $lokasiKantor['radius']) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda berada di luar radius kantor (' . round($distance) . 'm). Radius maksimal: ' . $lokasiKantor['radius'] . 'm'
@@ -91,15 +103,20 @@ class AbsensiController extends Controller
         // Buat absensi
         $absensi = Absensi::create([
             'user_id' => $user->id,
-            'tanggal' => $today,
-            'jam_masuk' => Carbon::now()->format('H:i:s'),
+            'tanggal' => $today->format('Y-m-d'),
+            'jam_masuk' => $now->format('H:i:s'),
             'lokasi' => $request->latitude . ', ' . $request->longitude,
             'status' => 'Hadir',
         ]);
 
+        $message = 'Check-in berhasil pada ' . $now->format('H:i:s');
+        if (!$validasiRadiusAktif) {
+            $message .= ' (Mode WFH - validasi lokasi nonaktif)';
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Check-in berhasil pada ' . Carbon::now()->format('H:i:s'),
+            'message' => $message,
             'data' => $absensi
         ]);
     }
@@ -107,13 +124,17 @@ class AbsensiController extends Controller
     // Check-out
     public function checkOut(Request $request)
     {
+        // Set timezone ke Asia/Jakarta
+        date_default_timezone_set('Asia/Jakarta');
+        
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
 
         $user = Auth::user();
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
 
         // Cek absensi hari ini
         $absensi = Absensi::where('user_id', $user->id)
@@ -134,13 +155,17 @@ class AbsensiController extends Controller
             ], 400);
         }
 
-        // Validasi lokasi (radius)
+        // Ambil pengaturan lokasi
         $lokasiKantor = Cache::get('lokasi_kantor', [
             'latitude' => '-6.200000',
             'longitude' => '106.816666',
             'radius' => 100,
         ]);
-        
+
+        // Cek apakah validasi radius aktif
+        $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
+
+        // Hitung jarak
         $distance = $this->calculateDistance(
             $request->latitude,
             $request->longitude,
@@ -148,7 +173,8 @@ class AbsensiController extends Controller
             $lokasiKantor['longitude']
         );
 
-        if ($distance > $lokasiKantor['radius']) {
+        // Validasi radius hanya jika fitur aktif
+        if ($validasiRadiusAktif && $distance > $lokasiKantor['radius']) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda berada di luar radius kantor (' . round($distance) . 'm). Radius maksimal: ' . $lokasiKantor['radius'] . 'm'
@@ -157,12 +183,17 @@ class AbsensiController extends Controller
 
         // Update jam keluar
         $absensi->update([
-            'jam_keluar' => Carbon::now()->format('H:i:s'),
+            'jam_keluar' => $now->format('H:i:s'),
         ]);
+
+        $message = 'Check-out berhasil pada ' . $now->format('H:i:s');
+        if (!$validasiRadiusAktif) {
+            $message .= ' (Mode WFH - validasi lokasi nonaktif)';
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Check-out berhasil pada ' . Carbon::now()->format('H:i:s'),
+            'message' => $message,
             'data' => $absensi
         ]);
     }
@@ -189,7 +220,7 @@ class AbsensiController extends Controller
     // Get absensi today (untuk AJAX)
     public function today()
     {
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Jakarta');
         $user = Auth::user();
 
         $absensi = Absensi::where('user_id', $user->id)

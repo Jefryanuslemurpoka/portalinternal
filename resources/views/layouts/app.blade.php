@@ -159,5 +159,51 @@
     
     @stack('scripts')
 
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Flash Messages Handler -->
+    @if(session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#10b981',
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    </script>
+    @endif
+
+    @if(session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#ef4444',
+        });
+    </script>
+    @endif
+
+    @if($errors->any())
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Terjadi Kesalahan',
+            html: '<ul class="text-left text-sm">' +
+                @foreach($errors->all() as $error)
+                    '<li class="mb-1">• {{ $error }}</li>' +
+                @endforeach
+                '</ul>',
+            confirmButtonColor: '#ef4444',
+        });
+    </script>
+    @endif
+
+    @stack('scripts')
+
 </body>
 </html>
