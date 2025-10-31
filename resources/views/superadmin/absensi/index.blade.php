@@ -6,6 +6,17 @@
 @section('content')
 <div class="space-y-4 sm:space-y-6">
 
+    @php
+    // Hitung batas keterlambatan (jam masuk + toleransi)
+    $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+        ->addMinutes($toleransi)
+        ->format('H:i:s');
+    
+    // Format untuk tampilan di card
+    $jamMasukFormatted = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)->format('H:i');
+    $batasKetelambatanFormatted = \Carbon\Carbon::createFromFormat('H:i:s', $batasKeterlambatan)->format('H:i');
+    @endphp
+
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 text-white">
@@ -26,7 +37,7 @@
                 <div>
                     <p class="text-xs sm:text-sm font-medium text-white/80 mb-1">Tepat Waktu</p>
                     <h3 class="text-2xl sm:text-3xl font-bold">{{ $tepatWaktu }}</h3>
-                    <p class="text-xs text-white/70 mt-1">≤ 08:00</p>
+                    <p class="text-xs text-white/70 mt-1">≤ {{ $batasKetelambatanFormatted }}</p>
                 </div>
                 <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center">
                     <i class="fas fa-check-circle text-2xl sm:text-3xl"></i>
@@ -39,7 +50,7 @@
                 <div>
                     <p class="text-xs sm:text-sm font-medium text-white/80 mb-1">Terlambat</p>
                     <h3 class="text-2xl sm:text-3xl font-bold">{{ $terlambat }}</h3>
-                    <p class="text-xs text-white/70 mt-1">> 08:00</p>
+                    <p class="text-xs text-white/70 mt-1">> {{ $batasKetelambatanFormatted }}</p>
                 </div>
                 <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center">
                     <i class="fas fa-exclamation-circle text-2xl sm:text-3xl"></i>
@@ -47,50 +58,6 @@
             </div>
         </div>
     </div>
-
-    @php
-    // Hitung batas keterlambatan (jam masuk + toleransi)
-    $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
-        ->addMinutes($toleransi)
-        ->format('H:i:s');
-    @endphp
-
-    <!-- Update bagian Mobile Card View -->
-    <div class="flex justify-between">
-        <span class="text-gray-600">Jam Masuk:</span>
-        @if($a->jam_masuk)
-            <div class="flex items-center gap-2">
-                <span class="font-semibold {{ strtotime($a->jam_masuk) <= strtotime($batasKeterlambatan) ? 'text-teal-600' : 'text-red-600' }}">
-                    {{ date('H:i', strtotime($a->jam_masuk)) }}
-                </span>
-                @if(strtotime($a->jam_masuk) > strtotime($batasKeterlambatan))
-                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">
-                        Terlambat
-                    </span>
-                @endif
-            </div>
-        @else
-            <span class="text-xs text-gray-400">-</span>
-        @endif
-    </div>
-
-    <!-- Update bagian Desktop Table View - Jam Masuk column -->
-    <td class="px-4 xl:px-6 py-3 xl:py-4">
-        <div class="flex items-center space-x-2">
-            @if($a->jam_masuk)
-                <span class="text-xs xl:text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime($batasKeterlambatan) ? 'text-teal-600' : 'text-red-600' }}">
-                    {{ date('H:i', strtotime($a->jam_masuk)) }}
-                </span>
-                @if(strtotime($a->jam_masuk) > strtotime($batasKeterlambatan))
-                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
-                        Terlambat
-                    </span>
-                @endif
-            @else
-                <span class="text-xs text-gray-400">-</span>
-            @endif
-        </div>
-    </td>
 
     <!-- Filter Section -->
     <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
@@ -187,37 +154,29 @@
 
     <!-- Table Absensi -->
     <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
-        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h3 class="text-base sm:text-lg font-bold text-gray-800">
                 <i class="fas fa-clipboard-list mr-2 text-teal-600"></i>Rekap Absensi
             </h3>
-        </div>
-        <!-- Table Absensi -->
-        <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <h3 class="text-base sm:text-lg font-bold text-gray-800">
-                    <i class="fas fa-clipboard-list mr-2 text-teal-600"></i>Rekap Absensi
-                </h3>
+            
+            <!-- Export Button -->
+            @if($absensi->total() > 0)
+            <form action="{{ route('superadmin.absensi.export') }}" method="POST" class="inline-block">
+                @csrf
+                <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
+                <input type="hidden" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}">
+                <input type="hidden" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}">
+                <input type="hidden" name="user_id" value="{{ request('user_id') }}">
+                <input type="hidden" name="divisi" value="{{ request('divisi') }}">
                 
-                <!-- Export Button -->
-                @if($absensi->total() > 0)
-                <form action="{{ route('superadmin.absensi.export') }}" method="POST" class="inline-block">
-                    @csrf
-                    <!-- Pass filter params -->
-                    <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
-                    <input type="hidden" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}">
-                    <input type="hidden" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}">
-                    <input type="hidden" name="user_id" value="{{ request('user_id') }}">
-                    <input type="hidden" name="divisi" value="{{ request('divisi') }}">
-                    
-                    <button type="submit" class="inline-flex items-center justify-center px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition shadow-md text-xs sm:text-sm whitespace-nowrap">
-                        <i class="fas fa-file-excel mr-1 sm:mr-2"></i>
-                        <span class="hidden sm:inline">Export Excel</span>
-                        <span class="sm:hidden">Export</span>
-                    </button>
-                </form>
-                @endif
-            </div>
+                <button type="submit" class="inline-flex items-center justify-center px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition shadow-md text-xs sm:text-sm whitespace-nowrap">
+                    <i class="fas fa-file-excel mr-1 sm:mr-2"></i>
+                    <span class="hidden sm:inline">Export Excel</span>
+                    <span class="sm:hidden">Export</span>
+                </button>
+            </form>
+            @endif
+        </div>
             
         <!-- Mobile Card View -->
         <div class="block lg:hidden divide-y divide-gray-100">
@@ -247,10 +206,10 @@
                         <span class="text-gray-600">Jam Masuk:</span>
                         @if($a->jam_masuk)
                             <div class="flex items-center gap-2">
-                                <span class="font-semibold {{ strtotime($a->jam_masuk) <= strtotime('08:00:00') ? 'text-teal-600' : 'text-red-600' }}">
+                                <span class="font-semibold {{ strtotime($a->jam_masuk) <= strtotime($batasKeterlambatan) ? 'text-teal-600' : 'text-red-600' }}">
                                     {{ date('H:i', strtotime($a->jam_masuk)) }}
                                 </span>
-                                @if(strtotime($a->jam_masuk) > strtotime('08:00:00'))
+                                @if(strtotime($a->jam_masuk) > strtotime($batasKeterlambatan))
                                     <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">
                                         Terlambat
                                     </span>
@@ -276,9 +235,9 @@
                         <span class="text-gray-600">Status:</span>
                         @if($a->jam_masuk && $a->jam_keluar)
                             @php
-                                $jamMasuk = \Carbon\Carbon::parse($a->jam_masuk);
-                                $jamKeluar = \Carbon\Carbon::parse($a->jam_keluar);
-                                $durasi = $jamMasuk->diff($jamKeluar);
+                                $jamMasukParse = \Carbon\Carbon::parse($a->jam_masuk);
+                                $jamKeluarParse = \Carbon\Carbon::parse($a->jam_keluar);
+                                $durasi = $jamMasukParse->diff($jamKeluarParse);
                             @endphp
                             <span class="badge badge-success text-xs">
                                 Lengkap ({{ $durasi->h }}j {{ $durasi->i }}m)
@@ -378,10 +337,10 @@
                         <td class="px-4 xl:px-6 py-3 xl:py-4">
                             <div class="flex items-center space-x-2">
                                 @if($a->jam_masuk)
-                                    <span class="text-xs xl:text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime('08:00:00') ? 'text-teal-600' : 'text-red-600' }}">
+                                    <span class="text-xs xl:text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime($batasKeterlambatan) ? 'text-teal-600' : 'text-red-600' }}">
                                         {{ date('H:i', strtotime($a->jam_masuk)) }}
                                     </span>
-                                    @if(strtotime($a->jam_masuk) > strtotime('08:00:00'))
+                                    @if(strtotime($a->jam_masuk) > strtotime($batasKeterlambatan))
                                         <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
                                             Terlambat
                                         </span>
@@ -414,9 +373,9 @@
                         <td class="px-4 xl:px-6 py-3 xl:py-4">
                             @if($a->jam_masuk && $a->jam_keluar)
                                 @php
-                                    $jamMasuk = \Carbon\Carbon::parse($a->jam_masuk);
-                                    $jamKeluar = \Carbon\Carbon::parse($a->jam_keluar);
-                                    $durasi = $jamMasuk->diff($jamKeluar);
+                                    $jamMasukParse = \Carbon\Carbon::parse($a->jam_masuk);
+                                    $jamKeluarParse = \Carbon\Carbon::parse($a->jam_keluar);
+                                    $durasi = $jamMasukParse->diff($jamKeluarParse);
                                 @endphp
                                 <span class="badge badge-success text-xs">
                                     Lengkap ({{ $durasi->h }}j {{ $durasi->i }}m)

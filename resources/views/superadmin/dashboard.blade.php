@@ -7,11 +7,11 @@
 <div class="space-y-6">
 
     <!-- Welcome Section -->
-    <div class="bg-[#6fbfad] rounded-2xl shadow-lg p-6 text-white">
+    <div class="bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl shadow-lg p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h2>
-                <p class="text-teal-50">Kelola sistem absensi dan karyawan dengan mudah</p>
+                <p class="text-white/80">Kelola sistem absensi dan karyawan dengan mudah</p>
             </div>
             <div class="hidden md:block">
                 <i class="fas fa-chart-line text-6xl text-white/20"></i>
@@ -23,7 +23,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <!-- Total Karyawan -->
-        <div class="bg-gradient-to-br from-[#6fbfad] to-[#5aa594] rounded-2xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Karyawan</p>
@@ -42,7 +42,7 @@
         </div>
 
         <!-- Absensi Hari Ini -->
-        <div class="bg-gradient-to-br from-[#6fbfad] to-[#5aa594] rounded-2xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Absensi Hari Ini</p>
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Pengumuman -->
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-emerald-500 rounded-2xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Pengumuman</p>
@@ -110,8 +110,8 @@
                     <h3 class="text-lg font-bold text-gray-800">Statistik Kehadiran</h3>
                     <p class="text-sm text-gray-500">7 Hari Terakhir</p>
                 </div>
-                <div class="w-12 h-12 bg-[#e1f2ed] rounded-full flex items-center justify-center">
-                    <i class="fas fa-chart-bar text-[#6fbfad] text-xl"></i>
+                <div class="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-teal-600 text-xl"></i>
                 </div>
             </div>
             <div class="chart-container">
@@ -126,8 +126,8 @@
                     <h3 class="text-lg font-bold text-gray-800">Karyawan per Divisi</h3>
                     <p class="text-sm text-gray-500">Distribusi Karyawan</p>
                 </div>
-                <div class="w-12 h-12 bg-[#e1f2ed] rounded-full flex items-center justify-center">
-                    <i class="fas fa-chart-pie text-[#6fbfad] text-xl"></i>
+                <div class="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-teal-600 text-xl"></i>
                 </div>
             </div>
             <div class="chart-container">
@@ -142,23 +142,23 @@
 
         <!-- Pengajuan Cuti/Izin Terbaru -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="bg-[#6fbfad] px-6 py-4">
+            <div class="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4">
                 <h3 class="text-lg font-bold text-white">Pengajuan Cuti/Izin Pending</h3>
             </div>
             <div class="p-6">
                 @if($cutiTerbaru->count() > 0)
                     <div class="space-y-4">
                         @foreach($cutiTerbaru as $cuti)
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-[#f0f9f6] transition">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-teal-50 transition">
                             <div class="flex items-center space-x-3">
-                                <img src="{{ $cuti->user->foto ? asset('storage/' . $cuti->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($cuti->user->name) . '&background=6fbfad&color=fff' }}" 
-                                     class="w-10 h-10 rounded-full object-cover border-2 border-[#6fbfad]/30">
+                                <img src="{{ $cuti->user->foto ? asset('storage/' . $cuti->user->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($cuti->user->name) . '&background=14b8a6&color=fff' }}" 
+                                     class="w-10 h-10 rounded-full object-cover border-2 border-teal-200">
                                 <div>
                                     <p class="font-semibold text-gray-800">{{ $cuti->user->name }}</p>
                                     <p class="text-xs text-gray-500">{{ ucfirst($cuti->jenis) }} - {{ $cuti->tanggal_mulai->format('d M Y') }}</p>
                                 </div>
                             </div>
-                            <a href="{{ route('superadmin.cutiizin.index') }}" class="text-[#6fbfad] hover:text-[#5aa594] transition">
+                            <a href="{{ route('superadmin.cutiizin.index') }}" class="text-teal-600 hover:text-teal-700 transition">
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
@@ -175,23 +175,23 @@
 
         <!-- Karyawan Terbaru -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="bg-[#6fbfad] px-6 py-4">
+            <div class="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4">
                 <h3 class="text-lg font-bold text-white">Karyawan Terbaru</h3>
             </div>
             <div class="p-6">
                 @if($karyawanTerbaru->count() > 0)
                     <div class="space-y-4">
                         @foreach($karyawanTerbaru as $karyawan)
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-[#f0f9f6] transition">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-teal-50 transition">
                             <div class="flex items-center space-x-3">
-                                <img src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) . '&background=6fbfad&color=fff' }}" 
-                                     class="w-10 h-10 rounded-full object-cover border-2 border-[#6fbfad]/30">
+                                <img src="{{ $karyawan->foto ? asset('storage/' . $karyawan->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->name) . '&background=14b8a6&color=fff' }}" 
+                                     class="w-10 h-10 rounded-full object-cover border-2 border-teal-200">
                                 <div>
                                     <p class="font-semibold text-gray-800">{{ $karyawan->name }}</p>
                                     <p class="text-xs text-gray-500">{{ $karyawan->divisi }} - {{ $karyawan->created_at->diffForHumans() }}</p>
                                 </div>
                             </div>
-                            <span class="px-3 py-1 text-xs rounded-full font-semibold {{ $karyawan->status == 'aktif' ? 'bg-[#e1f2ed] text-[#5aa594]' : 'bg-red-100 text-red-600' }}">
+                            <span class="px-3 py-1 text-xs rounded-full font-semibold {{ $karyawan->status == 'aktif' ? 'bg-teal-100 text-teal-700' : 'bg-red-100 text-red-600' }}">
                                 {{ ucfirst($karyawan->status) }}
                             </span>
                         </div>
@@ -210,7 +210,7 @@
 
     <!-- Pengumuman Terbaru -->
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div class="bg-[#6fbfad] px-6 py-4">
+        <div class="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-white">Pengumuman Terbaru</h3>
                 <a href="{{ route('superadmin.pengumuman.index') }}" class="text-sm text-white hover:text-gray-100 transition">
@@ -222,14 +222,14 @@
             @if($pengumumanTerbaru->count() > 0)
                 <div class="space-y-4">
                     @foreach($pengumumanTerbaru as $pengumuman)
-                    <div class="border-l-4 border-[#6fbfad] pl-4 py-2 hover:bg-[#f0f9f6] transition rounded-r-lg">
+                    <div class="border-l-4 border-teal-500 pl-4 py-2 hover:bg-teal-50 transition rounded-r-lg">
                         <h4 class="font-semibold text-gray-800 mb-1">{{ $pengumuman->judul }}</h4>
                         <p class="text-sm text-gray-600 mb-2">{{ Str::limit($pengumuman->konten, 150) }}</p>
                         <div class="flex items-center text-xs text-gray-500">
-                            <i class="fas fa-calendar mr-2 text-[#6fbfad]"></i>
+                            <i class="fas fa-calendar mr-2 text-teal-600"></i>
                             <span>{{ $pengumuman->tanggal->format('d M Y') }}</span>
                             <span class="mx-2">•</span>
-                            <i class="fas fa-user mr-2 text-[#6fbfad]"></i>
+                            <i class="fas fa-user mr-2 text-teal-600"></i>
                             <span>{{ $pengumuman->creator->name }}</span>
                         </div>
                     </div>
@@ -258,8 +258,8 @@
                 {
                     label: 'Hadir',
                     data: @json($dataHadir),
-                    borderColor: '#6fbfad',
-                    backgroundColor: 'rgba(111, 191, 173, 0.15)',
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.15)',
                     tension: 0.4,
                     fill: true
                 },
@@ -289,12 +289,12 @@
             datasets: [{
                 data: @json($divisiValues),
                 backgroundColor: [
-                    '#6fbfad',  // Hijau telur asin
-                    '#f59e0b',  // Amber
-                    '#a855f7',  // Purple
-                    '#ef4444',  // Red
+                    '#14b8a6',  // Teal
+                    '#06b6d4',  // Cyan
                     '#3b82f6',  // Blue
-                    '#ec4899'   // Pink
+                    '#f59e0b',  // Amber
+                    '#10b981',  // Emerald
+                    '#8b5cf6'   // Violet
                 ],
                 borderWidth: 2,
                 borderColor: '#fff'

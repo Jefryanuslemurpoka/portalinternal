@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Portal Internal')</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vite CSS & JS -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -83,31 +83,6 @@
 
             <!-- Content Area -->
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-teal-50 to-cyan-50 p-3 sm:p-4 md:p-6">
-                
-                <!-- Alert Messages -->
-                @if(session('success'))
-                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-teal-50 border border-teal-200 text-teal-700 rounded-xl flex items-center justify-between shadow-sm">
-                    <div class="flex items-center">
-                        <i class="fas fa-check-circle mr-2 text-teal-500"></i>
-                        <span class="text-xs sm:text-sm font-medium">{{ session('success') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-teal-600 hover:text-teal-800 transition">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                @endif
-
-                @if(session('error'))
-                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center justify-between shadow-sm">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle mr-2 text-red-500"></i>
-                        <span class="text-xs sm:text-sm font-medium">{{ session('error') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-600 hover:text-red-800 transition">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                @endif
 
                 <!-- Page Content -->
                 @yield('content')
@@ -123,6 +98,9 @@
     
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         // Sidebar Toggle for Mobile
@@ -156,12 +134,6 @@
             });
         });
     </script>
-    
-    @stack('scripts')
-
-
-    <!-- SweetAlert2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Flash Messages Handler -->
     @if(session('success'))

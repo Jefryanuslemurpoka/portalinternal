@@ -81,7 +81,7 @@ class ProfilController extends Controller
         
         // Cek password lama
         if (!Hash::check($validated['current_password'], $user->password)) {
-            return redirect()->back()
+            return redirect()->route('karyawan.profil.index')
                 ->with('error', 'Password lama tidak sesuai!');
         }
         
@@ -110,11 +110,11 @@ class ProfilController extends Controller
                     'foto' => null
                 ]);
                 
-                return redirect()->back()
+                return redirect()->route('karyawan.profil.index')
                     ->with('success', 'Foto profil berhasil dihapus!');
             }
             
-            return redirect()->back()
+            return redirect()->route('karyawan.p    rofil.index')
                 ->with('error', 'Foto profil tidak ditemukan!');
         }
         

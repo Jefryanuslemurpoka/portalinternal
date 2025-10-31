@@ -7,13 +7,13 @@
 <div class="space-y-6">
 
     <!-- Info Box -->
-    <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-lg p-6 text-white">
+    <div class="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold mb-2">
                     <i class="fas fa-clipboard-check mr-2"></i>Absensi Hari Ini
                 </h2>
-                <p class="text-purple-100">{{ now('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+                <p class="text-teal-100">{{ now('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
             </div>
             <div class="hidden md:block">
                 <div class="text-5xl font-bold">
@@ -35,10 +35,10 @@
             <div class="space-y-4">
                 
                 <!-- Check-in Status -->
-                <div class="flex items-center justify-between p-4 {{ $absensiHariIni ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
+                <div class="flex items-center justify-between p-4 {{ $absensiHariIni ? 'bg-teal-50 border-teal-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
                     <div class="flex items-center space-x-3">
                         @if($absensiHariIni)
-                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                            <i class="fas fa-check-circle text-teal-600 text-2xl"></i>
                         @else
                             <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
                         @endif
@@ -59,7 +59,7 @@
                                 ->format('H:i:s');
                         @endphp
                         @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
-                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Tepat Waktu</span>
+                            <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full">Tepat Waktu</span>
                         @else
                             <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Terlambat</span>
                         @endif
@@ -67,10 +67,10 @@
                 </div>
 
                 <!-- Check-out Status -->
-                <div class="flex items-center justify-between p-4 {{ $absensiHariIni && $absensiHariIni->jam_keluar ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
+                <div class="flex items-center justify-between p-4 {{ $absensiHariIni && $absensiHariIni->jam_keluar ? 'bg-cyan-50 border-cyan-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
                     <div class="flex items-center space-x-3">
                         @if($absensiHariIni && $absensiHariIni->jam_keluar)
-                            <i class="fas fa-check-circle text-blue-600 text-2xl"></i>
+                            <i class="fas fa-check-circle text-cyan-600 text-2xl"></i>
                         @else
                             <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
                         @endif
@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     @if($absensiHariIni && $absensiHariIni->jam_keluar)
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Selesai</span>
+                        <span class="px-3 py-1 bg-cyan-100 text-cyan-800 text-xs font-semibold rounded-full">Selesai</span>
                     @endif
                 </div>
 
@@ -99,9 +99,9 @@
 
             <div class="space-y-4">
                 
-                <div class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-center justify-between p-4 bg-teal-50 border border-teal-200 rounded-lg">
                     <div class="flex items-center space-x-3">
-                        <i class="fas fa-sign-in-alt text-blue-600 text-xl"></i>
+                        <i class="fas fa-sign-in-alt text-teal-600 text-xl"></i>
                         <div>
                             <p class="text-sm text-gray-600">Jam Masuk</p>
                             <p class="font-bold text-gray-900">{{ $jamMasuk }}</p>
@@ -109,9 +109,9 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-center justify-between p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
                     <div class="flex items-center space-x-3">
-                        <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
+                        <i class="fas fa-sign-out-alt text-cyan-600 text-xl"></i>
                         <div>
                             <p class="text-sm text-gray-600">Jam Keluar</p>
                             <p class="font-bold text-gray-900">{{ $jamKeluar }}</p>
@@ -140,14 +140,14 @@
             
             <!-- Location Info -->
             <div id="locationInfo" class="mb-6 hidden">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
                     <div class="flex items-start">
-                        <i class="fas fa-map-marker-alt text-blue-600 text-xl mt-1 mr-3"></i>
+                        <i class="fas fa-map-marker-alt text-teal-600 text-xl mt-1 mr-3"></i>
                         <div class="flex-1">
-                            <p class="text-sm font-semibold text-blue-900 mb-1">Lokasi Terdeteksi</p>
-                            <p class="text-xs text-blue-700">Latitude: <span id="userLat">-</span></p>
-                            <p class="text-xs text-blue-700">Longitude: <span id="userLng">-</span></p>
-                            <p class="text-xs text-blue-700 mt-1">Jarak dari kantor: <span id="distance">-</span> meter</p>
+                            <p class="text-sm font-semibold text-teal-900 mb-1">Lokasi Terdeteksi</p>
+                            <p class="text-xs text-teal-700">Latitude: <span id="userLat">-</span></p>
+                            <p class="text-xs text-teal-700">Longitude: <span id="userLng">-</span></p>
+                            <p class="text-xs text-teal-700 mt-1">Jarak dari kantor: <span id="distance">-</span> meter</p>
                         </div>
                         <span id="locationStatus" class="px-3 py-1 text-xs font-semibold rounded-full"></span>
                     </div>
@@ -157,17 +157,17 @@
             <!-- Action Buttons -->
             <div class="flex justify-center space-x-4">
                 @if(!$absensiHariIni)
-                    <button type="button" onclick="doCheckIn()" id="checkInBtn" class="px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
+                    <button type="button" onclick="doCheckIn()" id="checkInBtn" class="px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
                         <i class="fas fa-sign-in-alt mr-2"></i>Check-in Sekarang
                     </button>
                 @elseif(!$absensiHariIni->jam_keluar)
-                    <button type="button" onclick="doCheckOut()" id="checkOutBtn" class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
+                    <button type="button" onclick="doCheckOut()" id="checkOutBtn" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
                         <i class="fas fa-sign-out-alt mr-2"></i>Check-out Sekarang
                     </button>
                 @else
                     <div class="text-center">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-check text-green-600 text-3xl"></i>
+                        <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-check text-teal-600 text-3xl"></i>
                         </div>
                         <p class="text-lg font-bold text-gray-900">Absensi Hari Ini Selesai</p>
                         <p class="text-sm text-gray-600">Terima kasih sudah melakukan absensi</p>
@@ -195,7 +195,7 @@
             <div class="md:col-span-2">
                 <a href="https://www.google.com/maps?q={{ $lokasiKantor['latitude'] }},{{ $lokasiKantor['longitude'] }}" 
                    target="_blank" 
-                   class="block w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-center rounded-lg transition duration-200">
+                   class="block w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-center rounded-lg transition duration-200">
                     <i class="fas fa-map-marked-alt mr-2"></i>Lihat di Google Maps
                 </a>
             </div>
@@ -251,13 +251,13 @@
                     html: `
                         <p>Lokasi Anda terdeteksi</p>
                         <p class="text-sm text-gray-600 mt-2">Jarak dari kantor: <strong>${Math.round(location.distance)}m</strong></p>
-                        <p class="text-sm ${location.inRadius ? 'text-green-600' : 'text-red-600'}">
+                        <p class="text-sm ${location.inRadius ? 'text-teal-600' : 'text-red-600'}">
                             ${location.inRadius ? '✓ Dalam radius kantor' : '✗ Diluar radius kantor'}
                         </p>
                     `,
                     icon: location.inRadius ? 'question' : 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#10b981',
+                    confirmButtonColor: '#0d9488',
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Check-in',
                     cancelButtonText: 'Batal'
@@ -293,13 +293,13 @@
                     html: `
                         <p>Lokasi Anda terdeteksi</p>
                         <p class="text-sm text-gray-600 mt-2">Jarak dari kantor: <strong>${Math.round(location.distance)}m</strong></p>
-                        <p class="text-sm ${location.inRadius ? 'text-green-600' : 'text-red-600'}">
+                        <p class="text-sm ${location.inRadius ? 'text-teal-600' : 'text-red-600'}">
                             ${location.inRadius ? '✓ Dalam radius kantor' : '✗ Diluar radius kantor'}
                         </p>
                     `,
                     icon: location.inRadius ? 'question' : 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
+                    confirmButtonColor: '#06b6d4',
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Check-out',
                     cancelButtonText: 'Batal'
@@ -341,7 +341,7 @@
                     const locationStatus = document.getElementById('locationStatus');
                     if (location.inRadius) {
                         locationStatus.textContent = 'Dalam Radius';
-                        locationStatus.className = 'px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full';
+                        locationStatus.className = 'px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full';
                     } else {
                         locationStatus.textContent = 'Diluar Radius';
                         locationStatus.className = 'px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full';
@@ -403,7 +403,7 @@
                     icon: 'success',
                     title: 'Check-in Berhasil!',
                     text: data.message,
-                    confirmButtonColor: '#10b981'
+                    confirmButtonColor: '#0d9488'
                 }).then(() => {
                     window.location.reload();
                 });
@@ -458,7 +458,7 @@
                     icon: 'success',
                     title: 'Check-out Berhasil!',
                     text: data.message,
-                    confirmButtonColor: '#10b981'
+                    confirmButtonColor: '#0d9488'
                 }).then(() => {
                     window.location.reload();
                 });

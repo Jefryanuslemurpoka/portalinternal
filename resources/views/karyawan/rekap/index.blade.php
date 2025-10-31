@@ -7,13 +7,13 @@
 <div class="space-y-6">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-lg p-6 text-white">
+    <div class="bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl shadow-lg p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold mb-2">
                     <i class="fas fa-chart-bar mr-2"></i>Rekap Absensi
                 </h2>
-                <p class="text-purple-100">Riwayat kehadiran Anda</p>
+                <p class="text-white/80">Riwayat kehadiran Anda</p>
             </div>
             <div class="hidden md:block">
                 <i class="fas fa-calendar-alt text-6xl text-white/20"></i>
@@ -29,15 +29,15 @@
             </h3>
             <div class="flex space-x-2">
                 <a href="{{ route('karyawan.rekap.index', ['periode' => 'harian']) }}" 
-                   class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'harian' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                   class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'harian' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                     <i class="fas fa-calendar-day mr-2"></i>Harian
                 </a>
                 <a href="{{ route('karyawan.rekap.index', ['periode' => 'mingguan']) }}" 
-                   class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'mingguan' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                   class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'mingguan' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                     <i class="fas fa-calendar-week mr-2"></i>Mingguan
                 </a>
                 <a href="{{ route('karyawan.rekap.index', ['periode' => 'bulanan']) }}" 
-                   class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'bulanan' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                   class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'bulanan' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                     <i class="fas fa-calendar-alt mr-2"></i>Bulanan
                 </a>
             </div>
@@ -47,7 +47,7 @@
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-white/80 mb-1">Total Hadir</p>
@@ -149,7 +149,7 @@
                         </td>
                         <td class="px-6 py-4">
                             @if($a->jam_keluar)
-                                <p class="text-sm font-semibold text-blue-600">
+                                <p class="text-sm font-semibold text-teal-600">
                                     {{ date('H:i', strtotime($a->jam_keluar)) }}
                                 </p>
                             @else
@@ -200,12 +200,12 @@
     </div>
 
     <!-- Summary Info -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+    <div class="bg-teal-50 border border-teal-200 rounded-lg p-6">
         <div class="flex items-start">
-            <i class="fas fa-info-circle text-blue-600 text-xl mt-1 mr-3"></i>
+            <i class="fas fa-info-circle text-teal-600 text-xl mt-1 mr-3"></i>
             <div>
-                <h4 class="text-sm font-bold text-blue-900 mb-2">Keterangan</h4>
-                <ul class="text-sm text-blue-800 space-y-1">
+                <h4 class="text-sm font-bold text-teal-900 mb-2">Keterangan</h4>
+                <ul class="text-sm text-teal-800 space-y-1">
                     <li class="flex items-center">
                         <span class="badge badge-success mr-2">Tepat Waktu</span>
                         Check-in sebelum atau pada jam {{ $jamMasuk }}

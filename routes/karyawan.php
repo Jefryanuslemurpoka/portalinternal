@@ -41,13 +41,16 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
     });
 
-    // Surat/Dokumen
+    // Surat/Dokumen - LENGKAP dengan semua route yang dibutuhkan
     Route::prefix('surat')->name('karyawan.surat.')->group(function () {
         Route::get('/', [SuratController::class, 'index'])->name('index');
         Route::get('/create', [SuratController::class, 'create'])->name('create');
         Route::post('/', [SuratController::class, 'store'])->name('store');
-        Route::get('/{id}', [SuratController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [SuratController::class, 'edit'])->name('edit'); // TAMBAHKAN INI
+        Route::put('/{id}', [SuratController::class, 'update'])->name('update'); // TAMBAHKAN INI
+        Route::get('/{id}/download', [SuratController::class, 'download'])->name('download'); // TAMBAHKAN INI
         Route::delete('/{id}', [SuratController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [SuratController::class, 'show'])->name('show'); // Pindahkan ke paling bawah
     });
 
     // Server Log

@@ -44,13 +44,6 @@
             <span class="font-medium text-sm sm:text-base truncate">Log Book Surat</span>
         </a>
 
-        <!-- Log Book Server -->
-        <a href="{{ route('karyawan.serverlog.index') }}" 
-           class="flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('karyawan.serverlog.*') ? 'bg-white/20 shadow-md' : '' }}">
-            <i class="fas fa-server text-base sm:text-lg w-5 flex-shrink-0"></i>
-            <span class="font-medium text-sm sm:text-base truncate">Log Book Server</span>
-        </a>
-
         <!-- Pengumuman -->
         <a href="{{ route('karyawan.pengumuman.index') }}" 
            class="flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('karyawan.pengumuman.*') ? 'bg-white/20 shadow-md' : '' }}">

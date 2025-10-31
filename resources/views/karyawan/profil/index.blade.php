@@ -40,7 +40,7 @@
                                  class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-gray-200 shadow-lg"
                                  id="previewFoto">
                         @else
-                            <div class="w-40 h-40 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center mx-auto text-5xl font-bold shadow-lg"
+                            <div class="w-40 h-40 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 text-white flex items-center justify-center mx-auto text-5xl font-bold shadow-lg"
                                  id="previewFoto">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
@@ -58,7 +58,7 @@
                         @if($user->foto)
                             <form action="{{ route('karyawan.profil.foto') }}" 
                                   method="POST" 
-                                  onsubmit="return confirm('Yakin ingin menghapus foto profil?')">
+                                  id="deletePhotoForm">
                                 @csrf
                                 <input type="hidden" name="_method" value="DELETE">
                                 <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition">
@@ -72,7 +72,7 @@
 
             <!-- Info Card -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-cyan-600">
                     <h3 class="text-lg font-bold text-white">
                         <i class="fas fa-info-circle mr-2"></i>Informasi Akun
                     </h3>
@@ -81,7 +81,7 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                             <span class="text-sm font-semibold text-gray-600">Role</span>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700">
                                 {{ ucfirst($user->role) }}
                             </span>
                         </div>
@@ -115,7 +115,7 @@
             
             <!-- Edit Profile Form -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-cyan-600">
                     <h3 class="text-lg font-bold text-white">
                         <i class="fas fa-user-edit mr-2"></i>Edit Profil
                     </h3>
@@ -236,12 +236,12 @@
                         @csrf
                         @method('PUT')
 
-                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+                        <div class="bg-teal-50 border-l-4 border-teal-500 p-4 rounded-lg mb-6">
                             <div class="flex">
-                                <i class="fas fa-info-circle text-blue-600 text-xl mr-3 mt-0.5"></i>
+                                <i class="fas fa-info-circle text-teal-600 text-xl mr-3 mt-0.5"></i>
                                 <div>
-                                    <p class="text-blue-800 font-semibold">Tips Keamanan:</p>
-                                    <p class="text-blue-700 text-sm">Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol. Minimal 8 karakter.</p>
+                                    <p class="text-teal-800 font-semibold">Tips Keamanan:</p>
+                                    <p class="text-teal-700 text-sm">Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol. Minimal 8 karakter.</p>
                                 </div>
                             </div>
                         </div>
@@ -377,7 +377,7 @@
         <button type="button" onclick="closeModal('modalUploadFoto')" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
             Batal
         </button>
-        <button type="submit" form="formUploadFoto" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition shadow-md">
+        <button type="submit" form="formUploadFoto" class="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition shadow-md">
             <i class="fas fa-upload mr-2"></i> Upload
         </button>
     </x-slot>
@@ -387,97 +387,125 @@
 
 @push('scripts')
 <script>
-// Toggle Password Visibility
-function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const icon = document.getElementById('icon' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1));
+(function() {
+    'use strict';
     
-    if (field.type === 'password') {
-        field.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        field.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-
-// Password Strength Checker
-document.getElementById('newPassword').addEventListener('input', function() {
-    const password = this.value;
-    const strengthBar = document.getElementById('passwordStrength');
-    const strengthText = document.getElementById('passwordStrengthText');
-    
-    let strength = 0;
-    
-    if (password.length >= 8) strength += 25;
-    if (password.match(/[a-z]+/)) strength += 25;
-    if (password.match(/[A-Z]+/)) strength += 25;
-    if (password.match(/[0-9]+/)) strength += 25;
-    
-    strengthBar.style.width = strength + '%';
-    
-    if (strength <= 25) {
-        strengthBar.className = 'h-full transition-all duration-300 bg-red-500';
-        strengthText.textContent = 'Lemah';
-        strengthText.className = 'text-xs text-red-600 mt-1';
-    } else if (strength <= 50) {
-        strengthBar.className = 'h-full transition-all duration-300 bg-yellow-500';
-        strengthText.textContent = 'Cukup';
-        strengthText.className = 'text-xs text-yellow-600 mt-1';
-    } else if (strength <= 75) {
-        strengthBar.className = 'h-full transition-all duration-300 bg-blue-500';
-        strengthText.textContent = 'Baik';
-        strengthText.className = 'text-xs text-blue-600 mt-1';
-    } else {
-        strengthBar.className = 'h-full transition-all duration-300 bg-green-500';
-        strengthText.textContent = 'Kuat';
-        strengthText.className = 'text-xs text-green-600 mt-1';
-    }
-});
-
-// Image Preview
-document.getElementById('fotoInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        // Check file size
-        if (file.size > 2048000) { // 2MB
-            alert('Ukuran file maksimal 2MB!');
-            this.value = '';
-            return;
-        }
+    // Toggle Password Visibility
+    window.togglePassword = function(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById('icon' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1));
         
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            document.getElementById('imagePreview').src = event.target.result;
-            document.getElementById('imagePreview').classList.remove('hidden');
-            document.getElementById('placeholderPreview').classList.add('hidden');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
         }
-        reader.readAsDataURL(file);
-    }
-});
+    };
 
-// Auto dismiss alerts
-setTimeout(function() {
-    const alerts = document.querySelectorAll('.bg-green-50, .bg-red-50');
-    alerts.forEach(function(alert) {
-        alert.style.transition = 'opacity 0.5s';
-        alert.style.opacity = '0';
-        setTimeout(() => alert.remove(), 500);
-    });
-}, 5000);
-
-// Confirm password match validation
-document.getElementById('formPassword').addEventListener('submit', function(e) {
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        e.preventDefault();
-        alert('Konfirmasi password tidak cocok!');
-        return false;
+    // Password Strength Checker
+    const newPasswordField = document.getElementById('newPassword');
+    if (newPasswordField && !newPasswordField.dataset.listenerAdded) {
+        newPasswordField.dataset.listenerAdded = 'true';
+        newPasswordField.addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('passwordStrengthText');
+            
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]+/)) strength += 25;
+            if (password.match(/[A-Z]+/)) strength += 25;
+            if (password.match(/[0-9]+/)) strength += 25;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength <= 25) {
+                strengthBar.className = 'h-full transition-all duration-300 bg-red-500';
+                strengthText.textContent = 'Lemah';
+                strengthText.className = 'text-xs text-red-600 mt-1';
+            } else if (strength <= 50) {
+                strengthBar.className = 'h-full transition-all duration-300 bg-yellow-500';
+                strengthText.textContent = 'Cukup';
+                strengthText.className = 'text-xs text-yellow-600 mt-1';
+            } else if (strength <= 75) {
+                strengthBar.className = 'h-full transition-all duration-300 bg-teal-500';
+                strengthText.textContent = 'Baik';
+                strengthText.className = 'text-xs text-teal-600 mt-1';
+            } else {
+                strengthBar.className = 'h-full transition-all duration-300 bg-green-500';
+                strengthText.textContent = 'Kuat';
+                strengthText.className = 'text-xs text-green-600 mt-1';
+            }
+        });
     }
-});
+
+    // Image Preview
+    const fotoInput = document.getElementById('fotoInput');
+    if (fotoInput && !fotoInput.dataset.listenerAdded) {
+        fotoInput.dataset.listenerAdded = 'true';
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size
+                if (file.size > 2048000) { // 2MB
+                    alert('Ukuran file maksimal 2MB!');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                    document.getElementById('placeholderPreview').classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Handle delete photo form submission
+    const deleteForm = document.getElementById('deletePhotoForm');
+    if (deleteForm && !deleteForm.dataset.listenerAdded) {
+        deleteForm.dataset.listenerAdded = 'true';
+        deleteForm.addEventListener('submit', function(e) {
+            if (!confirm('Yakin ingin menghapus foto profil?')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+
+    // Auto dismiss alerts (hanya untuk alert messages, bukan tombol!)
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.bg-green-50.border-l-4, .bg-red-50.border-l-4');
+        alerts.forEach(function(alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+
+    // Confirm password match validation
+    const formPassword = document.getElementById('formPassword');
+    if (formPassword && !formPassword.dataset.listenerAdded) {
+        formPassword.dataset.listenerAdded = 'true';
+        formPassword.addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('Konfirmasi password tidak cocok!');
+                return false;
+            }
+        });
+    }
+})();
 </script>
 @endpush

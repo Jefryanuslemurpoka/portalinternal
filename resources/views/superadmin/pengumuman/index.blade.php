@@ -8,8 +8,8 @@
 
     <!-- Statistics Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-        <!-- Card 1: Total Pengumuman - Teal Gradient (Original) -->
-        <div class="bg-gradient-to-br from-teal-700 to-teal-600 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
+        <!-- Card 1: Total Pengumuman - Teal to Cyan -->
+        <div class="bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs sm:text-sm font-medium text-white/80 mb-1">Total Pengumuman</p>
@@ -22,8 +22,8 @@
             </div>
         </div>
 
-        <!-- Card 2: Bulan Ini - Orange Gradient -->
-        <div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
+        <!-- Card 2: Bulan Ini - Cyan to Blue -->
+        <div class="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs sm:text-sm font-medium text-white/80 mb-1">Bulan Ini</p>
@@ -36,8 +36,8 @@
             </div>
         </div>
 
-        <!-- Card 3: Minggu Ini - Blue Gradient -->
-        <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
+        <!-- Card 3: Minggu Ini - Teal to Emerald -->
+        <div class="bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs sm:text-sm font-medium text-white/80 mb-1">Minggu Ini</p>
@@ -61,7 +61,7 @@
                     <i class="fas fa-list mr-2"></i>Daftar Pengumuman
                 </h3>
                 <a href="{{ route('superadmin.pengumuman.create') }}" 
-                   class="inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md text-sm whitespace-nowrap">
+                   class="inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition shadow-md text-sm whitespace-nowrap">
                     <i class="fas fa-plus mr-2"></i>Tambah
                 </a>
             </div>
@@ -75,7 +75,7 @@
                     <div class="flex-1">
                         <!-- Header -->
                         <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
                                 <i class="fas fa-bullhorn text-base sm:text-xl"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -141,7 +141,7 @@
             @forelse($pengumuman as $p)
             <div class="p-4 hover:bg-gray-50 transition">
                 <div class="flex items-start gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
                         <i class="fas fa-bullhorn text-base"></i>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -235,7 +235,7 @@
             <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Detail Pengumuman</h3>
             <div class="space-y-4">
                 <div class="flex items-center space-x-3 pb-4 border-b">
-                    <div class="w-12 h-12 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
                         <i class="fas fa-bullhorn text-xl"></i>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -254,7 +254,7 @@
             </div>
             <div class="mt-6">
                 <button type="button" onclick="closeModal('detailModal')" 
-                        class="w-full px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md text-sm">
+                        class="w-full px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition shadow-md text-sm">
                     Tutup
                 </button>
             </div>
