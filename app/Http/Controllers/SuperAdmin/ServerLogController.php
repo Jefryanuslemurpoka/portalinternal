@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ServerLog;
 use App\Models\LogAktivitas;
+use App\Models\User;
 use Carbon\Carbon;
 
 class ServerLogController extends Controller
@@ -13,6 +14,9 @@ class ServerLogController extends Controller
     // Tampilkan daftar log server
     public function index(Request $request)
     {
+        // ========================================
+        // QUERY SERVER LOG
+        // ========================================
         $query = ServerLog::query();
 
         // Filter status
@@ -29,7 +33,7 @@ class ServerLogController extends Controller
 
         $serverLog = $query->orderBy('tanggal', 'desc')
                           ->orderBy('created_at', 'desc')
-                          ->paginate(15);
+                          ->paginate(10);
 
         // Statistik
         $totalLog = ServerLog::count();
@@ -37,12 +41,48 @@ class ServerLogController extends Controller
         $statusWarning = ServerLog::where('status', 'warning')->count();
         $statusError = ServerLog::where('status', 'error')->count();
 
+        // ========================================
+        // QUERY LOG AKTIVITAS
+        // ========================================
+        $queryLogAktivitas = LogAktivitas::with('user');
+
+        // Filter tanggal log aktivitas
+        if ($request->filled('log_tanggal')) {
+            $queryLogAktivitas->whereDate('timestamp', $request->log_tanggal);
+        }
+
+        // Filter range tanggal log aktivitas
+        if ($request->filled('log_tanggal_mulai') && $request->filled('log_tanggal_selesai')) {
+            $queryLogAktivitas->whereBetween('timestamp', [$request->log_tanggal_mulai, $request->log_tanggal_selesai]);
+        }
+
+        // Filter user log aktivitas
+        if ($request->filled('log_user')) {
+            $queryLogAktivitas->where('user_id', $request->log_user);
+        }
+
+        // Filter pencarian aktivitas
+        if ($request->filled('log_search')) {
+            $queryLogAktivitas->where(function($q) use ($request) {
+                $q->where('aktivitas', 'like', '%' . $request->log_search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $request->log_search . '%');
+            });
+        }
+
+        $logAktivitas = $queryLogAktivitas->orderBy('timestamp', 'desc')
+                                          ->paginate(10, ['*'], 'log_page');
+
+        // Get all users untuk filter dropdown
+        $users = User::orderBy('name')->get();
+
         return view('superadmin.server.index', compact(
             'serverLog',
             'totalLog',
             'statusNormal',
             'statusWarning',
-            'statusError'
+            'statusError',
+            'logAktivitas',
+            'users'
         ));
     }
 
@@ -78,6 +118,7 @@ class ServerLogController extends Controller
             'user_id' => auth()->id(),
             'aktivitas' => 'Tambah Server Log',
             'deskripsi' => 'Menambahkan log server: ' . $serverLog->aktivitas,
+            'timestamp' => now(),
         ]);
 
         return redirect()->route('superadmin.serverlog.index')
@@ -119,6 +160,7 @@ class ServerLogController extends Controller
             'user_id' => auth()->id(),
             'aktivitas' => 'Update Server Log',
             'deskripsi' => 'Mengupdate log server: ' . $serverLog->aktivitas,
+            'timestamp' => now(),
         ]);
 
         return redirect()->route('superadmin.serverlog.index')
@@ -138,6 +180,7 @@ class ServerLogController extends Controller
             'user_id' => auth()->id(),
             'aktivitas' => 'Hapus Server Log',
             'deskripsi' => 'Menghapus log server: ' . $aktivitas,
+            'timestamp' => now(),
         ]);
 
         return redirect()->route('superadmin.serverlog.index')

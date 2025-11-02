@@ -290,6 +290,234 @@
         </div>
     </div>
 
+    <!-- ============================ -->
+    <!-- TABLE LOG AKTIVITAS USER -->
+    <!-- ============================ -->
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="p-4 sm:p-6 border-b border-gray-200">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800">
+                <i class="fas fa-history mr-2"></i>Log Aktivitas User
+            </h2>
+        </div>
+
+        <!-- Filter Log Aktivitas -->
+        <div class="p-4 sm:p-6 bg-gray-50 border-b border-gray-200">
+            <form method="GET" action="{{ route('superadmin.serverlog.index') }}" class="space-y-4">
+                
+                <!-- Keep existing server log filters as hidden inputs -->
+                @if(request('tanggal'))
+                    <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
+                @endif
+                @if(request('status'))
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                @if(request('tanggal_mulai'))
+                    <input type="hidden" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}">
+                @endif
+                @if(request('tanggal_selesai'))
+                    <input type="hidden" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}">
+                @endif
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <h3 class="text-sm sm:text-base font-semibold text-gray-700">
+                        <i class="fas fa-filter mr-2"></i>Filter Log Aktivitas
+                    </h3>
+                    <button type="button" onclick="resetLogFilter()" class="text-xs sm:text-sm text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-redo mr-1"></i>Reset Filter
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                    
+                    <!-- Filter Tanggal -->
+                    <div>
+                        <label class="form-label text-xs">Tanggal</label>
+                        <input type="date" name="log_tanggal" id="log_tanggal"
+                               value="{{ request('log_tanggal') }}" 
+                               class="form-input w-full text-sm">
+                    </div>
+
+                    <!-- Filter User -->
+                    <div>
+                        <label class="form-label text-xs">User</label>
+                        <select name="log_user" class="form-input w-full text-sm">
+                            <option value="">Semua User</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" {{ request('log_user') == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Pencarian -->
+                    <div>
+                        <label class="form-label text-xs">Cari Aktivitas</label>
+                        <input type="text" name="log_search" 
+                               value="{{ request('log_search') }}"
+                               placeholder="Cari..." 
+                               class="form-input w-full text-sm">
+                    </div>
+
+                    <!-- Button Filter -->
+                    <div class="flex items-end sm:col-span-2">
+                        <button type="submit" class="btn btn-primary w-full text-sm">
+                            <i class="fas fa-search mr-2"></i>Tampilkan
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Filter Range Tanggal (Collapsible) -->
+                <div id="logRangeFilter" class="hidden">
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div>
+                                <label class="form-label text-xs">Tanggal Mulai</label>
+                                <input type="date" name="log_tanggal_mulai" 
+                                       value="{{ request('log_tanggal_mulai') }}" 
+                                       class="form-input w-full text-sm">
+                            </div>
+                            <div>
+                                <label class="form-label text-xs">Tanggal Selesai</label>
+                                <input type="date" name="log_tanggal_selesai" 
+                                       value="{{ request('log_tanggal_selesai') }}" 
+                                       class="form-input w-full text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="toggleLogRangeFilter()" class="text-xs text-teal-600 hover:text-teal-800">
+                    <i class="fas fa-calendar-week mr-1"></i>
+                    <span id="logRangeToggleText">Gunakan Range Tanggal</span>
+                </button>
+
+            </form>
+        </div>
+
+        <!-- Table for Desktop/Tablet -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktivitas</th>
+                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($logAktivitas as $key => $logAkt)
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 lg:px-6 py-4 text-sm text-gray-900">
+                            {{ $logAktivitas->firstItem() + $key }}
+                        </td>
+                        <td class="px-4 lg:px-6 py-4">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ $logAkt->timestamp->format('d M Y') }}</p>
+                                <p class="text-xs text-gray-500">{{ $logAkt->timestamp->format('H:i:s') }}</p>
+                            </div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs mr-3">
+                                    {{ strtoupper(substr($logAkt->user->name ?? 'U', 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">{{ $logAkt->user->name ?? 'Unknown' }}</p>
+                                    <p class="text-xs text-gray-500">{{ $logAkt->user->email ?? '-' }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4">
+                            <p class="text-sm font-semibold text-gray-900">{{ $logAkt->aktivitas }}</p>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4">
+                            @if($logAkt->deskripsi)
+                                <div class="max-w-md">
+                                    <p class="text-sm text-gray-700 line-clamp-2" title="{{ $logAkt->deskripsi }}">
+                                        {{ $logAkt->deskripsi }}
+                                    </p>
+                                    @if(strlen($logAkt->deskripsi) > 100)
+                                        <button onclick="showLogDetail({{ json_encode($logAkt) }})" 
+                                                class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                                            Lihat lengkap
+                                        </button>
+                                    @endif
+                                </div>
+                            @else
+                                <span class="text-xs text-gray-400">-</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-4 lg:px-6 py-12 text-center">
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <p>Belum ada log aktivitas</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card View for Mobile -->
+        <div class="md:hidden divide-y divide-gray-200">
+            @forelse($logAktivitas as $key => $logAkt)
+            <div class="p-4 hover:bg-gray-50 transition">
+                <div class="flex items-start gap-3 mb-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                        {{ strtoupper(substr($logAkt->user->name ?? 'U', 0, 1)) }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-semibold text-gray-500">#{{ $logAktivitas->firstItem() + $key }}</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-900 mb-1">{{ $logAkt->user->name ?? 'Unknown' }}</p>
+                        <p class="text-xs text-gray-500">{{ $logAkt->timestamp->format('d M Y, H:i:s') }}</p>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <p class="text-xs text-gray-500 mb-1">Aktivitas:</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ $logAkt->aktivitas }}</p>
+                </div>
+
+                @if($logAkt->deskripsi)
+                <div>
+                    <p class="text-xs text-gray-500 mb-1">Deskripsi:</p>
+                    <p class="text-xs text-gray-700 line-clamp-2">{{ $logAkt->deskripsi }}</p>
+                    @if(strlen($logAkt->deskripsi) > 80)
+                        <button onclick="showLogDetail({{ json_encode($logAkt) }})" 
+                                class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                            Lihat lengkap
+                        </button>
+                    @endif
+                </div>
+                @endif
+            </div>
+            @empty
+            <div class="p-8 text-center">
+                <div class="empty-state">
+                    <i class="fas fa-history text-4xl"></i>
+                    <p class="text-sm">Belum ada log aktivitas</p>
+                </div>
+            </div>
+            @endforelse
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-4 py-3 sm:px-6 border-t border-gray-200">
+            {{ $logAktivitas->appends(request()->query())->links() }}
+        </div>
+    </div>
+
 </div>
 
 <!-- Modal Delete -->
@@ -323,7 +551,7 @@
     </div>
 </div>
 
-<!-- Modal Detail -->
+<!-- Modal Detail Server Log -->
 <div id="detailModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg sm:rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="p-4 sm:p-6">
@@ -358,11 +586,48 @@
     </div>
 </div>
 
+<!-- Modal Detail Log Aktivitas -->
+<div id="logDetailModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-4 sm:p-6">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Detail Log Aktivitas</h3>
+            <div class="space-y-4">
+                <div class="flex items-center gap-3 pb-4 border-b border-gray-200">
+                    <div id="logDetailAvatar" class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    </div>
+                    <div>
+                        <p id="logDetailUser" class="text-base font-bold text-gray-900"></p>
+                        <p id="logDetailEmail" class="text-sm text-gray-500"></p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 mb-1">Waktu</p>
+                    <p id="logDetailWaktu" class="text-sm font-semibold text-gray-900"></p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 mb-1">Aktivitas</p>
+                    <p id="logDetailAktivitas" class="text-sm font-semibold text-gray-900"></p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 mb-1">Deskripsi Lengkap</p>
+                    <div id="logDetailDeskripsi" class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700"></div>
+                </div>
+            </div>
+            <div class="mt-6">
+                <button type="button" onclick="closeModal('logDetailModal')" 
+                        class="w-full px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 transition shadow-md text-sm">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
-    // Toggle Range Filter
+    // Toggle Range Filter (Server Log)
     function toggleRangeFilter() {
         const rangeFilter = document.getElementById('rangeFilter');
         const toggleText = document.getElementById('rangeToggleText');
@@ -379,9 +644,38 @@
         }
     }
 
-    // Reset Filter
+    // Toggle Range Filter (Log Aktivitas)
+    function toggleLogRangeFilter() {
+        const logRangeFilter = document.getElementById('logRangeFilter');
+        const toggleText = document.getElementById('logRangeToggleText');
+        const tanggalInput = document.getElementById('log_tanggal');
+        
+        if (logRangeFilter.classList.contains('hidden')) {
+            logRangeFilter.classList.remove('hidden');
+            toggleText.textContent = 'Gunakan Tanggal Tunggal';
+            tanggalInput.disabled = true;
+        } else {
+            logRangeFilter.classList.add('hidden');
+            toggleText.textContent = 'Gunakan Range Tanggal';
+            tanggalInput.disabled = false;
+        }
+    }
+
+    // Reset Filter (Server Log)
     function resetFilter() {
         window.location.href = "{{ route('superadmin.serverlog.index') }}";
+    }
+
+    // Reset Filter (Log Aktivitas)
+    function resetLogFilter() {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('log_tanggal');
+        url.searchParams.delete('log_user');
+        url.searchParams.delete('log_search');
+        url.searchParams.delete('log_tanggal_mulai');
+        url.searchParams.delete('log_tanggal_selesai');
+        url.searchParams.delete('log_page');
+        window.location.href = url.toString();
     }
 
     // Open Modal
@@ -403,7 +697,7 @@
         openModal('deleteModal');
     }
 
-    // Show Detail
+    // Show Detail Server Log
     function showDetail(data) {
         const log = typeof data === 'string' ? JSON.parse(data) : data;
         
@@ -432,16 +726,47 @@
         openModal('detailModal');
     }
 
+    // Show Detail Log Aktivitas
+    function showLogDetail(data) {
+        const log = typeof data === 'string' ? JSON.parse(data) : data;
+        
+        const userName = log.user ? log.user.name : 'Unknown';
+        const userEmail = log.user ? log.user.email : '-';
+        const userInitial = userName.charAt(0).toUpperCase();
+        
+        document.getElementById('logDetailAvatar').textContent = userInitial;
+        document.getElementById('logDetailUser').textContent = userName;
+        document.getElementById('logDetailEmail').textContent = userEmail;
+        
+        document.getElementById('logDetailWaktu').textContent = new Date(log.timestamp).toLocaleString('id-ID', { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        
+        document.getElementById('logDetailAktivitas').textContent = log.aktivitas;
+        document.getElementById('logDetailDeskripsi').textContent = log.deskripsi || '-';
+        
+        openModal('logDetailModal');
+    }
+
     // Close modal when clicking outside
     document.addEventListener('click', function(event) {
         const deleteModal = document.getElementById('deleteModal');
         const detailModal = document.getElementById('detailModal');
+        const logDetailModal = document.getElementById('logDetailModal');
         
         if (event.target === deleteModal) {
             closeModal('deleteModal');
         }
         if (event.target === detailModal) {
             closeModal('detailModal');
+        }
+        if (event.target === logDetailModal) {
+            closeModal('logDetailModal');
         }
     });
 </script>

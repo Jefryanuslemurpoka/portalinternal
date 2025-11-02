@@ -97,226 +97,330 @@
 </audio>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (() => {
+        'use strict';
         
-        let notificationAudio = document.getElementById('notificationSound');
-        let audioUnlocked = false;
-        let lastNotificationCount = 0;
+        // Config
+        const CONFIG = {
+            CHECK_INTERVAL: 5000,
+            REFRESH_INTERVAL: 10000,
+            DEBOUNCE_DELAY: 150,
+            LOAD_DELAY: 100,
+            BATCH_SIZE: 10 // Process notifications in batches
+        };
         
-        // Unlock audio on first interaction
-        document.addEventListener('click', function() {
-            if (notificationAudio && !audioUnlocked) {
-                notificationAudio.play().then(() => {
-                    notificationAudio.pause();
-                    notificationAudio.currentTime = 0;
-                    audioUnlocked = true;
-                }).catch(e => {});
+        // State
+        const state = {
+            audio: null,
+            audioUnlocked: false,
+            lastCount: 0,
+            request: null,
+            isFirstLoad: true,
+            intervals: [],
+            timeouts: []
+        };
+        
+        // Cache
+        let elementsCache = null;
+        const getElements = () => {
+            if (!elementsCache) {
+                elementsCache = {
+                    notificationBtn: document.getElementById('notificationBtn'),
+                    profileBtn: document.getElementById('profileBtn'),
+                    notificationDropdown: document.getElementById('notificationDropdown'),
+                    profileDropdown: document.getElementById('profileDropdown'),
+                    notificationList: document.getElementById('notificationList'),
+                    notificationBadge: document.getElementById('notificationBadge')
+                };
             }
-        }, { once: true });
-
-        // Toggle Notification Dropdown
-        const notificationBtn = document.getElementById('notificationBtn');
-        if (notificationBtn) {
-            notificationBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const dropdown = document.getElementById('notificationDropdown');
-                const profileDropdown = document.getElementById('profileDropdown');
-                
-                if (dropdown) dropdown.classList.toggle('hidden');
-                if (profileDropdown) profileDropdown.classList.add('hidden');
-                
-                if (dropdown && !dropdown.classList.contains('hidden')) {
-                    loadNotifications();
-                }
-            });
-        }
-
-        // Toggle Profile Dropdown
-        const profileBtn = document.getElementById('profileBtn');
-        if (profileBtn) {
-            profileBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const profileDropdown = document.getElementById('profileDropdown');
-                const notificationDropdown = document.getElementById('notificationDropdown');
-                
-                if (profileDropdown) profileDropdown.classList.toggle('hidden');
-                if (notificationDropdown) notificationDropdown.classList.add('hidden');
-            });
-        }
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function() {
-            const notificationDropdown = document.getElementById('notificationDropdown');
-            const profileDropdown = document.getElementById('profileDropdown');
+            return elementsCache;
+        };
+        
+        // Utilities
+        const utils = {
+            debounce(func, wait) {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func(...args), wait);
+                    state.timeouts.push(timeout);
+                };
+            },
             
-            if (notificationDropdown) notificationDropdown.classList.add('hidden');
-            if (profileDropdown) profileDropdown.classList.add('hidden');
-        });
-
-        // Load notifications via AJAX
+            raf(callback) {
+                requestAnimationFrame(callback);
+            },
+            
+            abortRequest() {
+                if (state.request) {
+                    state.request.abort();
+                    state.request = null;
+                }
+            },
+            
+            clearTimeouts() {
+                state.timeouts.forEach(t => clearTimeout(t));
+                state.timeouts = [];
+            }
+        };
+        
+        // Icon config (cached)
+        const ICON_CONFIG = {
+            'cuti': { icon: 'fa-calendar-alt', color: 'text-amber-500' },
+            'approval': { icon: 'fa-check-circle', color: 'text-teal-500' },
+            'pengumuman': { icon: 'fa-info-circle', color: 'text-cyan-500' },
+            'absensi': { icon: 'fa-clock', color: 'text-teal-600' },
+            'default': { icon: 'fa-bell', color: 'text-gray-500' }
+        };
+        
+        // Time formatting
+        function formatTime(dateString) {
+            const seconds = Math.floor((Date.now() - new Date(dateString)) / 1000);
+            
+            if (seconds < 60) return 'Baru saja';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} menit yang lalu`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} jam yang lalu`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)} hari yang lalu`;
+            
+            return new Date(dateString).toLocaleDateString('id-ID', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric' 
+            });
+        }
+        
+        // Build notification HTML
+        function buildNotificationItem(notif) {
+            const icon = ICON_CONFIG[notif.type] || ICON_CONFIG.default;
+            const time = formatTime(notif.created_at);
+            const bgClass = notif.is_read ? '' : 'bg-teal-50';
+            const dot = notif.is_read ? '' : '<span class="inline-block w-2 h-2 bg-teal-500 rounded-full flex-shrink-0 mt-1.5"></span>';
+            
+            return `<a href="{{ url('/') }}/notifications/${notif.id}/read" class="block p-3 sm:p-4 hover:bg-gray-50 border-b border-gray-100 ${bgClass} transition"><div class="flex items-start gap-2 sm:gap-3"><div class="flex-shrink-0 mt-0.5"><i class="fas ${icon.icon} ${icon.color} text-base sm:text-lg"></i></div><div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><p class="text-xs sm:text-sm font-medium text-gray-800 line-clamp-2 flex-1">${notif.title}</p>${dot}</div><p class="text-xs text-gray-600 mt-1 line-clamp-2 break-words">${notif.message}</p><p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><i class="fas fa-clock text-[10px]"></i> <span class="truncate">${time}</span></p></div></div></a>`;
+        }
+        
+        // Render notifications in batches
+        function renderNotifications(notifications, list) {
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="p-6 sm:p-8 text-center"><i class="fas fa-bell-slash text-gray-300 text-3xl sm:text-4xl mb-2"></i><p class="text-xs sm:text-sm text-gray-500">Tidak ada notifikasi</p></div>';
+                return;
+            }
+            
+            // Build all HTML at once (faster than batching for small lists)
+            const html = notifications.map(buildNotificationItem).join('');
+            list.innerHTML = html;
+        }
+        
+        // Update badge
+        function updateBadge(badge, count) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+        
+        // Play sound
+        function playSound() {
+            if (!state.audio || !state.audioUnlocked) return;
+            
+            utils.raf(() => {
+                try {
+                    state.audio.currentTime = 0;
+                    state.audio.volume = 1.0;
+                    state.audio.play().catch(() => {});
+                } catch (e) {}
+            });
+        }
+        
+        // Load notifications
         function loadNotifications() {
-            fetch('{{ route("notifications.unread") }}')
-                .then(response => response.json())
-                .then(data => {
-                    const notificationList = document.getElementById('notificationList');
-                    const badge = document.getElementById('notificationBadge');
+            utils.abortRequest();
+            
+            const controller = new AbortController();
+            state.request = controller;
+            
+            fetch('{{ route("notifications.unread") }}', {
+                signal: controller.signal,
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => {
+                const els = getElements();
+                if (!els.notificationList || !els.notificationBadge) return;
+                
+                utils.raf(() => {
+                    updateBadge(els.notificationBadge, data.unread_count);
+                    renderNotifications(data.notifications, els.notificationList);
+                });
+                
+                state.request = null;
+            })
+            .catch(err => {
+                if (err.name === 'AbortError') return;
+                
+                const els = getElements();
+                if (els.notificationList) {
+                    utils.raf(() => {
+                        els.notificationList.innerHTML = '<div class="p-4 sm:p-6 text-center text-red-500"><i class="fas fa-exclamation-circle text-2xl sm:text-3xl"></i><p class="text-xs sm:text-sm mt-2">Gagal memuat notifikasi</p></div>';
+                    });
+                }
+                state.request = null;
+            });
+        }
+        
+        // Check new notifications
+        function checkNotifications() {
+            if (state.request) return;
+            
+            const controller = new AbortController();
+            state.request = controller;
+            
+            fetch('{{ route("notifications.unread") }}', {
+                signal: controller.signal,
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                const count = data.unread_count;
+                const els = getElements();
+                
+                if (!els.notificationBadge) return;
+                
+                const shouldPlaySound = !state.isFirstLoad && count > state.lastCount && count > 0;
+                
+                utils.raf(() => {
+                    updateBadge(els.notificationBadge, count);
                     
-                    if (!notificationList || !badge) return;
-                    
-                    badge.textContent = data.unread_count;
-                    if (data.unread_count === 0) {
-                        badge.style.display = 'none';
-                    } else {
-                        badge.style.display = 'inline-flex';
-                    }
-                    
-                    if (data.notifications.length === 0) {
-                        notificationList.innerHTML = `
-                            <div class="p-6 sm:p-8 text-center">
-                                <i class="fas fa-bell-slash text-gray-300 text-3xl sm:text-4xl mb-2"></i>
-                                <p class="text-xs sm:text-sm text-gray-500">Tidak ada notifikasi</p>
-                            </div>
-                        `;
-                    } else {
-                        let html = '';
-                        data.notifications.forEach(notif => {
-                            const iconConfig = getNotificationIcon(notif.type);
-                            const timeAgo = getTimeAgo(notif.created_at);
-                            const unreadBg = !notif.is_read ? 'bg-teal-50' : '';
-                            
-                            html += `
-                                <a href="{{ url('/') }}/notifications/${notif.id}/read" class="block p-3 sm:p-4 hover:bg-gray-50 border-b border-gray-100 ${unreadBg} transition">
-                                    <div class="flex items-start gap-2 sm:gap-3">
-                                        <div class="flex-shrink-0 mt-0.5">
-                                            <i class="fas ${iconConfig.icon} ${iconConfig.color} text-base sm:text-lg"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-start justify-between gap-2">
-                                                <p class="text-xs sm:text-sm font-medium text-gray-800 line-clamp-2 flex-1">${notif.title}</p>
-                                                ${!notif.is_read ? '<span class="inline-block w-2 h-2 bg-teal-500 rounded-full flex-shrink-0 mt-1.5"></span>' : ''}
-                                            </div>
-                                            <p class="text-xs text-gray-600 mt-1 line-clamp-2 break-words">${notif.message}</p>
-                                            <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                                                <i class="fas fa-clock text-[10px]"></i> 
-                                                <span class="truncate">${timeAgo}</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </a>
-                            `;
-                        });
-                        notificationList.innerHTML = html;
-                    }
-                })
-                .catch(error => {
-                    const notificationList = document.getElementById('notificationList');
-                    if (notificationList) {
-                        notificationList.innerHTML = `
-                            <div class="p-4 sm:p-6 text-center text-red-500">
-                                <i class="fas fa-exclamation-circle text-2xl sm:text-3xl"></i>
-                                <p class="text-xs sm:text-sm mt-2">Gagal memuat notifikasi</p>
-                            </div>
-                        `;
+                    if (shouldPlaySound) {
+                        playSound();
+                        els.notificationBadge.classList.add('animate-bounce');
+                        const timeout = setTimeout(() => {
+                            utils.raf(() => els.notificationBadge.classList.remove('animate-bounce'));
+                        }, 1000);
+                        state.timeouts.push(timeout);
                     }
                 });
+                
+                state.lastCount = count;
+                if (state.isFirstLoad) state.isFirstLoad = false;
+                state.request = null;
+            })
+            .catch(err => {
+                if (err.name !== 'AbortError') state.request = null;
+            });
         }
-
+        
         // Mark all as read
         window.markAllAsRead = function() {
             fetch('{{ route("notifications.markAllAsRead") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    loadNotifications();
-                    lastNotificationCount = 0;
+                    state.lastCount = 0;
+                    const timeout = setTimeout(loadNotifications, 50);
+                    state.timeouts.push(timeout);
                 }
             })
-            .catch(error => {});
-        }
-
-        // Play notification sound
-        function playNotificationSound() {
-            if (!notificationAudio) return;
-            
-            notificationAudio.currentTime = 0;
-            notificationAudio.volume = 1.0;
-            notificationAudio.play().catch(error => {});
-        }
-
-        // Check for new notifications
-        function checkNewNotifications() {
-            fetch('{{ route("notifications.unread") }}')
-                .then(response => response.json())
-                .then(data => {
-                    const currentCount = data.unread_count;
-                    const badge = document.getElementById('notificationBadge');
-                    
-                    if (!badge) return;
-                    
-                    // Update badge
-                    badge.textContent = currentCount;
-                    badge.style.display = currentCount === 0 ? 'none' : 'inline-flex';
-                    
-                    // Play sound ONLY if count increased AND greater than 0
-                    if (currentCount > lastNotificationCount && currentCount > 0) {
-                        playNotificationSound();
-                        
-                        // Bounce animation
-                        badge.classList.add('animate-bounce');
-                        setTimeout(() => badge.classList.remove('animate-bounce'), 1000);
-                    }
-                    
-                    // Update last count
-                    lastNotificationCount = currentCount;
-                    
-                })
-                .catch(error => {});
-        }
-
-        // Helper: Get notification icon config
-        function getNotificationIcon(type) {
-            const configs = {
-                'cuti': { icon: 'fa-calendar-alt', color: 'text-amber-500' },
-                'approval': { icon: 'fa-check-circle', color: 'text-teal-500' },
-                'pengumuman': { icon: 'fa-info-circle', color: 'text-cyan-500' },
-                'absensi': { icon: 'fa-clock', color: 'text-teal-600' }
-            };
-            return configs[type] || { icon: 'fa-bell', color: 'text-gray-500' };
-        }
-
-        // Helper: Time ago
-        function getTimeAgo(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const seconds = Math.floor((now - date) / 1000);
-            
-            if (seconds < 60) return 'Baru saja';
-            if (seconds < 3600) return Math.floor(seconds / 60) + ' menit yang lalu';
-            if (seconds < 86400) return Math.floor(seconds / 3600) + ' jam yang lalu';
-            if (seconds < 604800) return Math.floor(seconds / 86400) + ' hari yang lalu';
-            
-            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-        }
-
-        // Initial load
-        checkNewNotifications();
-
-        // Auto check every 2 seconds
-        setInterval(checkNewNotifications, 2000);
-
-        // Auto refresh dropdown every 5 seconds
-        setInterval(() => {
-            const dropdown = document.getElementById('notificationDropdown');
-            if (dropdown && !dropdown.classList.contains('hidden')) {
-                loadNotifications();
-            }
-        }, 5000);
+            .catch(() => {});
+        };
         
-    });
+        // Event handlers
+        function setupEventHandlers() {
+            const els = getElements();
+            
+            // Unlock audio
+            document.addEventListener('click', () => {
+                if (state.audio && !state.audioUnlocked) {
+                    state.audio.play().then(() => {
+                        state.audio.pause();
+                        state.audio.currentTime = 0;
+                        state.audioUnlocked = true;
+                    }).catch(() => {});
+                }
+            }, { once: true });
+            
+            // Notification button
+            if (els.notificationBtn) {
+                els.notificationBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    const isHidden = els.notificationDropdown?.classList.contains('hidden');
+                    
+                    utils.raf(() => {
+                        els.notificationDropdown?.classList.toggle('hidden');
+                        els.profileDropdown?.classList.add('hidden');
+                        
+                        if (isHidden) {
+                            const timeout = setTimeout(loadNotifications, CONFIG.LOAD_DELAY);
+                            state.timeouts.push(timeout);
+                        }
+                    });
+                });
+            }
+            
+            // Profile button
+            if (els.profileBtn) {
+                els.profileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    utils.raf(() => {
+                        els.profileDropdown?.classList.toggle('hidden');
+                        els.notificationDropdown?.classList.add('hidden');
+                    });
+                });
+            }
+            
+            // Close dropdowns (debounced)
+            document.addEventListener('click', utils.debounce(() => {
+                utils.raf(() => {
+                    els.notificationDropdown?.classList.add('hidden');
+                    els.profileDropdown?.classList.add('hidden');
+                });
+            }, CONFIG.DEBOUNCE_DELAY));
+        }
+        
+        // Initialize
+        function init() {
+            state.audio = document.getElementById('notificationSound');
+            
+            setupEventHandlers();
+            
+            // Initial check (delayed)
+            const initialTimeout = setTimeout(checkNotifications, CONFIG.LOAD_DELAY);
+            state.timeouts.push(initialTimeout);
+            
+            // Auto check interval
+            state.intervals.push(setInterval(checkNotifications, CONFIG.CHECK_INTERVAL));
+            
+            // Auto refresh dropdown interval
+            state.intervals.push(setInterval(() => {
+                const els = getElements();
+                if (els.notificationDropdown && !els.notificationDropdown.classList.contains('hidden')) {
+                    loadNotifications();
+                }
+            }, CONFIG.REFRESH_INTERVAL));
+        }
+        
+        // Cleanup
+        function cleanup() {
+            state.intervals.forEach(clearInterval);
+            utils.clearTimeouts();
+            utils.abortRequest();
+        }
+        
+        // Start when DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+        
+        // Cleanup on unload
+        window.addEventListener('beforeunload', cleanup);
+        
+    })();
 </script>

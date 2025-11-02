@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Internal - PT Puri Digital Output</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ✅ GUNAKAN VITE ASSET (BUKAN CDN) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -238,6 +241,7 @@
                                 type="email" 
                                 name="email" 
                                 id="email"
+                                autocomplete="email"
                                 value="{{ old('email') }}"
                                 class="input-premium w-full pl-14 pr-6 py-5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-0 focus:border-teal-500 bg-gray-50 text-gray-900 font-semibold placeholder-gray-400 text-base @error('email') border-red-400 @enderror"
                                 placeholder="yourname@company.com"
@@ -259,6 +263,7 @@
                                 type="password" 
                                 name="password" 
                                 id="password"
+                                autocomplete="current-password"
                                 class="input-premium w-full pl-14 pr-16 py-5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-0 focus:border-teal-500 bg-gray-50 text-gray-900 font-semibold placeholder-gray-400 text-base @error('password') border-red-400 @enderror"
                                 placeholder="Enter your password"
                                 required

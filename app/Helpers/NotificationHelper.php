@@ -5,11 +5,11 @@ namespace App\Helpers;
 use App\Models\Notification;
 use App\Models\User;
 
-    class NotificationHelper
-    {
-        /**
-         * Create notification untuk pengajuan cuti baru
-         */
+class NotificationHelper
+{
+    /**
+     * Create notification untuk pengajuan cuti baru
+     */
     public static function cutiDiajukan($cutiIzin)
     {
         // Notifikasi untuk admin DAN super_admin
@@ -23,7 +23,7 @@ use App\Models\User;
                 'message' => $cutiIzin->user->name . ' mengajukan ' . $cutiIzin->jenis . ' dari ' . 
                             date('d M Y', strtotime($cutiIzin->tanggal_mulai)) . ' s/d ' . 
                             date('d M Y', strtotime($cutiIzin->tanggal_selesai)),
-                'url' => route('superadmin.cutiizin.index') // ✅ Pastikan route ini benar
+                'url' => route('superadmin.cutiizin.index')
             ]);
         }
 

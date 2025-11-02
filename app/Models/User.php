@@ -103,6 +103,14 @@ class User extends Authenticatable
      */
     public function unreadNotificationsCount()
     {
-        return $this->notifications()->unread()->count();
+        return $this->notifications()->where('is_read', false)->count();
+    }
+
+    /**
+     * Get unread notifications (opsional, untuk kemudahan)
+     */
+    public function unreadNotifications()
+    {
+        return $this->notifications()->where('is_read', false);
     }
 }

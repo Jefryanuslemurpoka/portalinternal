@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -13,30 +14,55 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = Auth::user()
-            ->notifications()
-            ->paginate(20);
+        try {
+            $notifications = Auth::user()
+                ->notifications()
+                ->paginate(20);
 
-        return view('notifications.index', compact('notifications'));
+            return view('notifications.index', compact('notifications'));
+            
+        } catch (\Exception $e) {
+            Log::error('Notification Index Error: ' . $e->getMessage());
+            return view('notifications.index', ['notifications' => collect()]);
+        }
     }
 
     /**
-     * Get unread notifications (for AJAX)
+     * Get unread notifications (for AJAX polling)
      */
     public function getUnread()
     {
-        $notifications = Auth::user()
-            ->notifications()
-            ->unread()
-            ->limit(10)
-            ->get();
-
-        $unreadCount = Auth::user()->unreadNotificationsCount();
-
-        return response()->json([
-            'notifications' => $notifications,
-            'unread_count' => $unreadCount
-        ]);
+        try {
+            // ✅ CRITICAL: Release session immediately
+            if (session()->isStarted()) {
+                session()->save();
+            }
+            
+            // ✅ Gunakan scope unread() dari Model
+            $notifications = Auth::user()
+                ->notifications()
+                ->unread()
+                ->limit(10)
+                ->get();
+            
+            // ✅ Gunakan method dari User model
+            $unreadCount = Auth::user()->unreadNotificationsCount();
+            
+            return response()->json([
+                'notifications' => $notifications,
+                'unread_count' => $unreadCount
+            ], 200);
+            
+        } catch (\Exception $e) {
+            // ✅ Log error tapi tetap return valid response
+            Log::error('Notification getUnread Error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'notifications' => [],
+                'unread_count' => 0
+            ], 200);
+        }
     }
 
     /**
@@ -44,18 +70,25 @@ class NotificationController extends Controller
      */
     public function markAsRead($id)
     {
-        $notification = Notification::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+        try {
+            $notification = Notification::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
 
-        $notification->markAsRead();
+            // ✅ Gunakan method markAsRead() dari Model
+            $notification->markAsRead();
 
-        // Redirect ke URL jika ada
-        if ($notification->url) {
-            return redirect($notification->url);
+            // Redirect ke URL jika ada
+            if ($notification->url) {
+                return redirect($notification->url);
+            }
+
+            return redirect()->back()->with('success', 'Notifikasi ditandai sudah dibaca');
+            
+        } catch (\Exception $e) {
+            Log::error('Notification markAsRead Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menandai notifikasi');
         }
-
-        return redirect()->back()->with('success', 'Notifikasi ditandai sudah dibaca');
     }
 
     /**
@@ -63,18 +96,34 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        Auth::user()
-            ->notifications()
-            ->unread()
-            ->update([
-                'is_read' => true,
-                'read_at' => now()
-            ]);
+        try {
+            // ✅ Release session untuk AJAX
+            if (session()->isStarted()) {
+                session()->save();
+            }
+            
+            // ✅ Gunakan scope unread() dari Model
+            Auth::user()
+                ->notifications()
+                ->unread()
+                ->update([
+                    'is_read' => true,
+                    'read_at' => now()
+                ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Semua notifikasi ditandai sudah dibaca'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua notifikasi ditandai sudah dibaca'
+            ], 200);
+            
+        } catch (\Exception $e) {
+            Log::error('Notification markAllAsRead Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menandai notifikasi'
+            ], 200);
+        }
     }
 
     /**
@@ -82,13 +131,19 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        $notification = Notification::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+        try {
+            $notification = Notification::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
 
-        $notification->delete();
+            $notification->delete();
 
-        return redirect()->back()->with('success', 'Notifikasi berhasil dihapus');
+            return redirect()->back()->with('success', 'Notifikasi berhasil dihapus');
+            
+        } catch (\Exception $e) {
+            Log::error('Notification destroy Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus notifikasi');
+        }
     }
 
     /**
@@ -96,14 +151,30 @@ class NotificationController extends Controller
      */
     public function deleteAllRead()
     {
-        Auth::user()
-            ->notifications()
-            ->read()
-            ->delete();
+        try {
+            // ✅ Release session untuk AJAX
+            if (session()->isStarted()) {
+                session()->save();
+            }
+            
+            // ✅ Gunakan scope read() dari Model
+            Auth::user()
+                ->notifications()
+                ->read()
+                ->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Notifikasi yang sudah dibaca berhasil dihapus'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Notifikasi yang sudah dibaca berhasil dihapus'
+            ], 200);
+            
+        } catch (\Exception $e) {
+            Log::error('Notification deleteAllRead Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus notifikasi'
+            ], 200);
+        }
     }
 }
