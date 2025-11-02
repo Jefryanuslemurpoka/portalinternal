@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\CutiIzin;
 use App\Models\User;
 use App\Models\LogAktivitas;
+use App\Helpers\NotificationHelper; // ✅ TAMBAHAN
 
 class CutiIzinController extends Controller
 {
@@ -237,6 +238,9 @@ class CutiIzinController extends Controller
             'keterangan_approval' => $request->keterangan_approval,
         ]);
 
+        // ✅ TAMBAHAN: Kirim notifikasi ke karyawan
+        NotificationHelper::cutiDisetujui($cutiIzin);
+
         // Log aktivitas
         LogAktivitas::create([
             'user_id' => auth()->id(),
@@ -269,6 +273,9 @@ class CutiIzinController extends Controller
             'approved_by' => auth()->id(),
             'keterangan_approval' => $request->keterangan_approval,
         ]);
+
+        // ✅ TAMBAHAN: Kirim notifikasi ke karyawan
+        NotificationHelper::cutiDitolak($cutiIzin);
 
         // Log aktivitas
         LogAktivitas::create([

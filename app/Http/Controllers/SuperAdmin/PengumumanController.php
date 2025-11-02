@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pengumuman;
 use App\Models\LogAktivitas;
+use App\Helpers\NotificationHelper; // ✅ TAMBAHAN
 
 class PengumumanController extends Controller
 {
@@ -45,6 +46,9 @@ class PengumumanController extends Controller
             'created_by' => auth()->id(),
         ]);
 
+        // ✅ TAMBAHAN: Kirim notifikasi ke semua karyawan
+        NotificationHelper::pengumumanBaru($pengumuman);
+
         // Log aktivitas
         LogAktivitas::create([
             'user_id' => auth()->id(),
@@ -53,7 +57,7 @@ class PengumumanController extends Controller
         ]);
 
         return redirect()->route('superadmin.pengumuman.index')
-            ->with('success', 'Pengumuman berhasil ditambahkan');
+            ->with('success', 'Pengumuman berhasil ditambahkan dan notifikasi dikirim ke semua karyawan');
     }
 
     // Tampilkan form edit pengumuman

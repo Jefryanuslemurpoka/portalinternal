@@ -8,6 +8,7 @@ use App\Models\Absensi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use App\Helpers\NotificationHelper; // ✅ TAMBAHAN (OPSIONAL)
 
 class AbsensiController extends Controller
 {
@@ -109,6 +110,15 @@ class AbsensiController extends Controller
             'status' => 'Hadir',
         ]);
 
+        // ✅ TAMBAHAN (OPSIONAL): Kirim notifikasi konfirmasi ke karyawan sendiri
+        NotificationHelper::create(
+            auth()->id(),
+            'absensi',
+            'Check-in Berhasil',
+            'Anda telah check-in pada ' . $now->format('d M Y H:i'),
+            route('karyawan.absensi.index')
+        );
+
         $message = 'Check-in berhasil pada ' . $now->format('H:i:s');
         if (!$validasiRadiusAktif) {
             $message .= ' (Mode WFH - validasi lokasi nonaktif)';
@@ -185,6 +195,15 @@ class AbsensiController extends Controller
         $absensi->update([
             'jam_keluar' => $now->format('H:i:s'),
         ]);
+
+        // ✅ TAMBAHAN (OPSIONAL): Kirim notifikasi konfirmasi ke karyawan sendiri
+        NotificationHelper::create(
+            auth()->id(),
+            'absensi',
+            'Check-out Berhasil',
+            'Anda telah check-out pada ' . $now->format('d M Y H:i'),
+            route('karyawan.absensi.index')
+        );
 
         $message = 'Check-out berhasil pada ' . $now->format('H:i:s');
         if (!$validasiRadiusAktif) {

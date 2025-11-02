@@ -8,7 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // ✅ Tambahkan ini
+use Illuminate\Support\Facades\Storage;
+use App\Helpers\NotificationHelper; // ✅ TAMBAHAN
 
 class CutiIzinController extends Controller
 {
@@ -122,7 +123,7 @@ class CutiIzinController extends Controller
         }
         
         // Buat pengajuan baru
-        CutiIzin::create([
+        $cutiIzin = CutiIzin::create([
             'user_id' => Auth::id(),
             'jenis' => $validated['jenis'],
             'tanggal_mulai' => $validated['tanggal_mulai'],
@@ -133,6 +134,9 @@ class CutiIzinController extends Controller
             'status' => 'pending',
             'tanggal_pengajuan' => now()
         ]);
+        
+        // ✅ TAMBAHAN: Kirim notifikasi ke admin
+        NotificationHelper::cutiDiajukan($cutiIzin);
         
         return redirect()->route('karyawan.cutiizin.index')
             ->with('success', 'Pengajuan ' . ucfirst($validated['jenis']) . ' berhasil diajukan! Menunggu persetujuan.');
@@ -171,7 +175,7 @@ class CutiIzinController extends Controller
         
         // Hapus file jika ada
         if ($cutiIzin->file_pendukung) {
-            Storage::disk('public')->delete($cutiIzin->file_pendukung); // ✅ sekarang sudah di-import
+            Storage::disk('public')->delete($cutiIzin->file_pendukung);
         }
         
         $cutiIzin->delete();
