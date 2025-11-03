@@ -604,35 +604,70 @@
         }
     });
 
-    // Filter Status & Jenis - Desktop
+    // ✅ PERBAIKAN FILTER - Desktop
     document.getElementById('filterStatus')?.addEventListener('change', function() {
-        const status = this.value;
-        const jenis = document.getElementById('filterJenis').value;
-        window.location.href = `{{ route('karyawan.cutiizin.index') }}?status=${status}&jenis=${jenis}`;
+        applyFilter();
     });
 
     document.getElementById('filterJenis')?.addEventListener('change', function() {
-        const jenis = this.value;
-        const status = document.getElementById('filterStatus').value;
-        window.location.href = `{{ route('karyawan.cutiizin.index') }}?status=${status}&jenis=${jenis}`;
+        applyFilter();
     });
 
-    // Filter Status & Jenis - Mobile
+    // ✅ PERBAIKAN FILTER - Mobile
     document.getElementById('filterStatusMobile')?.addEventListener('change', function() {
-        const status = this.value;
-        const jenis = document.getElementById('filterJenisMobile').value;
-        window.location.href = `{{ route('karyawan.cutiizin.index') }}?status=${status}&jenis=${jenis}`;
+        applyFilterMobile();
     });
 
     document.getElementById('filterJenisMobile')?.addEventListener('change', function() {
-        const jenis = this.value;
-        const status = document.getElementById('filterStatusMobile').value;
-        window.location.href = `{{ route('karyawan.cutiizin.index') }}?status=${status}&jenis=${jenis}`;
+        applyFilterMobile();
     });
 
-    // Open Detail Modal
+    // ✅ Function untuk apply filter Desktop
+    function applyFilter() {
+        const status = document.getElementById('filterStatus').value;
+        const jenis = document.getElementById('filterJenis').value;
+        
+        // Build URL dengan parameter
+        let url = '{{ route('karyawan.cutiizin.index') }}?';
+        let params = [];
+        
+        if (status !== '') {
+            params.push('status=' + status);
+        }
+        if (jenis !== '') {
+            params.push('jenis=' + jenis);
+        }
+        
+        url += params.join('&');
+        window.location.href = url;
+    }
+
+    // ✅ Function untuk apply filter Mobile
+    function applyFilterMobile() {
+        const status = document.getElementById('filterStatusMobile').value;
+        const jenis = document.getElementById('filterJenisMobile').value;
+        
+        // Build URL dengan parameter
+        let url = '{{ route('karyawan.cutiizin.index') }}?';
+        let params = [];
+        
+        if (status !== '') {
+            params.push('status=' + status);
+        }
+        if (jenis !== '') {
+            params.push('jenis=' + jenis);
+        }
+        
+        url += params.join('&');
+        window.location.href = url;
+    }
+
+    // ✅ PERBAIKAN: Open Detail Modal dengan pengecekan null
     function openDetailModal(data) {
         const pengajuan = typeof data === 'string' ? JSON.parse(data) : data;
+        
+        // Debug log
+        console.log('Data Pengajuan:', pengajuan);
         
         document.getElementById('detailFoto').src = pengajuan.user.foto 
             ? `/storage/${pengajuan.user.foto}` 
@@ -648,10 +683,32 @@
         const statusBadge = `<span class="px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${statusClass}">${pengajuan.status.charAt(0).toUpperCase() + pengajuan.status.slice(1)}</span>`;
         document.getElementById('detailStatus').innerHTML = statusBadge;
         
-        document.getElementById('detailTanggalPengajuan').textContent = new Date(pengajuan.tanggal_pengajuan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        // ✅ FIX: Cek tanggal_pengajuan dengan benar
+        if (pengajuan.tanggal_pengajuan && pengajuan.tanggal_pengajuan !== '1970-01-01 00:00:00') {
+            const tanggalPengajuan = new Date(pengajuan.tanggal_pengajuan);
+            if (!isNaN(tanggalPengajuan.getTime()) && tanggalPengajuan.getFullYear() > 2000) {
+                document.getElementById('detailTanggalPengajuan').textContent = tanggalPengajuan.toLocaleDateString('id-ID', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } else {
+                document.getElementById('detailTanggalPengajuan').textContent = '-';
+            }
+        } else {
+            document.getElementById('detailTanggalPengajuan').textContent = '-';
+        }
+        
         document.getElementById('detailTanggalMulai').textContent = new Date(pengajuan.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         document.getElementById('detailTanggalSelesai').textContent = new Date(pengajuan.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('detailDurasi').textContent = `${pengajuan.jumlah_hari} hari`;
+        
+        // ✅ FIX: Cek jumlah_hari dengan benar
+        document.getElementById('detailDurasi').textContent = (pengajuan.jumlah_hari && pengajuan.jumlah_hari > 0) 
+            ? `${pengajuan.jumlah_hari} hari` 
+            : '-';
+        
         document.getElementById('detailAlasan').textContent = pengajuan.alasan;
         
         // File Pendukung
@@ -666,7 +723,16 @@
         if (pengajuan.catatan_admin && pengajuan.status !== 'pending') {
             document.getElementById('detailApprovalSection').classList.remove('hidden');
             document.getElementById('detailCatatan').textContent = pengajuan.catatan_admin;
-            document.getElementById('detailApprover').textContent = `Diproses pada ${new Date(pengajuan.tanggal_approval).toLocaleDateString('id-ID')}`;
+            if (pengajuan.tanggal_approval) {
+                const tanggalApproval = new Date(pengajuan.tanggal_approval);
+                if (!isNaN(tanggalApproval.getTime())) {
+                    document.getElementById('detailApprover').textContent = `Diproses pada ${tanggalApproval.toLocaleDateString('id-ID')}`;
+                } else {
+                    document.getElementById('detailApprover').textContent = '';
+                }
+            } else {
+                document.getElementById('detailApprover').textContent = '';
+            }
         } else {
             document.getElementById('detailApprovalSection').classList.add('hidden');
         }

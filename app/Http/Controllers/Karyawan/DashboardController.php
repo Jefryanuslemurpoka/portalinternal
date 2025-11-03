@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Absensi;
 use App\Models\CutiIzin;
 use App\Models\Pengumuman;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -27,9 +27,15 @@ class DashboardController extends Controller
         $sudahCheckIn = $absensiHariIni ? true : false;
         $sudahCheckOut = $absensiHariIni && $absensiHariIni->jam_keluar ? true : false;
 
-        // Jam Kerja dari Cache
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
-        $jamKeluar = Cache::get('jam_keluar', '17:00');
+        // ✅ Ambil Jam Kerja dari Model Setting
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
+        $jamKeluar = Setting::get('jam_keluar', '17:00');
+        $toleransi = Setting::get('toleransi_keterlambatan', 15);
+
+        // Hitung batas keterlambatan (jam_masuk + toleransi)
+        $batasKeterlambatan = Carbon::createFromFormat('H:i', $jamMasuk)
+            ->addMinutes($toleransi)
+            ->format('H:i:s');
 
         // Statistik Bulan Ini
         $absensiCount = Absensi::where('user_id', $user->id)
@@ -37,16 +43,18 @@ class DashboardController extends Controller
             ->whereYear('tanggal', Carbon::now()->year)
             ->count();
 
+        // Tepat Waktu = jam_masuk <= batas keterlambatan
         $tepatWaktu = Absensi::where('user_id', $user->id)
             ->whereMonth('tanggal', Carbon::now()->month)
             ->whereYear('tanggal', Carbon::now()->year)
-            ->where('jam_masuk', '<=', $jamMasuk)
+            ->whereRaw('TIME(jam_masuk) <= ?', [$batasKeterlambatan])
             ->count();
 
+        // Terlambat = jam_masuk > batas keterlambatan
         $terlambat = Absensi::where('user_id', $user->id)
             ->whereMonth('tanggal', Carbon::now()->month)
             ->whereYear('tanggal', Carbon::now()->year)
-            ->where('jam_masuk', '>', $jamMasuk)
+            ->whereRaw('TIME(jam_masuk) > ?', [$batasKeterlambatan])
             ->count();
 
         // Data Grafik Absensi 7 Hari Terakhir
@@ -92,6 +100,7 @@ class DashboardController extends Controller
             'sudahCheckOut',
             'jamMasuk',
             'jamKeluar',
+            'toleransi',
             'absensiCount',
             'tepatWaktu',
             'terlambat',

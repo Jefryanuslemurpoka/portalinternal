@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class CutiIzin extends Model
 {
@@ -14,19 +15,58 @@ class CutiIzin extends Model
     protected $fillable = [
         'user_id',
         'jenis',
+        'tanggal_pengajuan',
         'tanggal_mulai',
         'tanggal_selesai',
+        'jumlah_hari',
         'alasan',
-        'dokumen',
+        'file_pendukung',
         'status',
         'approved_by',
         'keterangan_approval',
+        'catatan_admin',
+        'tanggal_approval',
     ];
 
     protected $casts = [
+        'tanggal_pengajuan' => 'datetime',
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
+        'tanggal_approval' => 'datetime',
     ];
+
+    /**
+     * ✅ OTOMATIS ISI FIELD SAAT CREATE/UPDATE
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Event: Sebelum data disimpan (creating = insert baru)
+        static::creating(function ($cutiIzin) {
+            // Auto-fill tanggal_pengajuan jika kosong
+            if (empty($cutiIzin->tanggal_pengajuan)) {
+                $cutiIzin->tanggal_pengajuan = now();
+            }
+
+            // Auto-hitung jumlah_hari jika kosong
+            if (empty($cutiIzin->jumlah_hari) && $cutiIzin->tanggal_mulai && $cutiIzin->tanggal_selesai) {
+                $tanggalMulai = Carbon::parse($cutiIzin->tanggal_mulai);
+                $tanggalSelesai = Carbon::parse($cutiIzin->tanggal_selesai);
+                $cutiIzin->jumlah_hari = $tanggalMulai->diffInDays($tanggalSelesai) + 1;
+            }
+        });
+
+        // Event: Sebelum data diupdate
+        static::updating(function ($cutiIzin) {
+            // Auto-hitung ulang jumlah_hari jika tanggal berubah
+            if ($cutiIzin->isDirty(['tanggal_mulai', 'tanggal_selesai'])) {
+                $tanggalMulai = Carbon::parse($cutiIzin->tanggal_mulai);
+                $tanggalSelesai = Carbon::parse($cutiIzin->tanggal_selesai);
+                $cutiIzin->jumlah_hari = $tanggalMulai->diffInDays($tanggalSelesai) + 1;
+            }
+        });
+    }
 
     /**
      * Relasi ke User (pengaju)
@@ -79,10 +119,26 @@ class CutiIzin extends Model
     }
 
     /**
-     * Accessor untuk mendapatkan durasi dalam hari
+     * ✅ Accessor untuk fallback (jika data lama masih null)
      */
-    public function getDurasiAttribute()
+    public function getTanggalPengajuanAttribute($value)
     {
-        return $this->tanggal_mulai->diffInDays($this->tanggal_selesai) + 1;
+        // Jika null atau tahun 1970, gunakan created_at
+        if (!$value || Carbon::parse($value)->year < 2020) {
+            return $this->created_at;
+        }
+        return $value;
+    }
+
+    public function getJumlahHariAttribute($value)
+    {
+        // Jika null, hitung dari tanggal
+        if (is_null($value) || $value == 0) {
+            if ($this->tanggal_mulai && $this->tanggal_selesai) {
+                return Carbon::parse($this->tanggal_mulai)->diffInDays(Carbon::parse($this->tanggal_selesai)) + 1;
+            }
+            return 0;
+        }
+        return $value;
     }
 }

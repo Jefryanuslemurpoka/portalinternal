@@ -159,7 +159,7 @@
                                     <ul class="text-xs text-teal-700 space-y-0.5 sm:space-y-1">
                                         <li>• Lokasi kantor digunakan untuk validasi absensi berbasis GPS</li>
                                         <li>• Radius menentukan jarak maksimal karyawan boleh absen</li>
-                                        <li>• Nonaktifkan validasi radius untuk mendukung WFH (Work From Home)</li>
+                                        <li>• <strong>Nonaktifkan validasi radius untuk WFH</strong> (karyawan bisa absen dari mana saja)</li>
                                         <li>• Gunakan Google Maps untuk mendapatkan koordinat yang akurat</li>
                                     </ul>
                                 </div>
@@ -175,7 +175,8 @@
                                             <input type="checkbox" name="validasi_radius_aktif" id="validasi_radius_aktif" 
                                                    value="1" 
                                                    {{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'checked' : '' }}
-                                                   class="sr-only peer">
+                                                   class="sr-only peer"
+                                                   onchange="toggleRadiusField()">
                                             <div class="w-11 h-6 sm:w-14 sm:h-7 bg-gray-300 rounded-full peer peer-checked:bg-teal-600 peer-focus:ring-4 peer-focus:ring-teal-300 transition-all"></div>
                                             <div class="absolute left-0.5 top-0.5 sm:left-1 sm:top-1 bg-white w-5 h-5 rounded-full transition-all peer-checked:translate-x-5 sm:peer-checked:translate-x-7 shadow-md"></div>
                                         </div>
@@ -232,19 +233,22 @@
                                     @enderror
                                 </div>
 
-                                <!-- Radius -->
-                                <div>
+                                <!-- Radius (AUTO DISABLED) -->
+                                <div id="radius-field-wrapper">
                                     <label for="radius" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                                        <i class="fas fa-circle-notch mr-1 sm:mr-2 text-teal-600"></i>Radius Absensi (Meter) <span class="text-red-500">*</span>
+                                        <i class="fas fa-circle-notch mr-1 sm:mr-2 text-teal-600"></i>Radius Absensi (Meter) <span class="text-red-500" id="radius-required">*</span>
                                     </label>
                                     <input type="number" name="radius" id="radius" 
                                            value="{{ old('radius', $lokasiKantor['radius']) }}" 
-                                           class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('radius') border-red-500 @enderror" 
-                                           min="10" max="1000" required>
+                                           class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('radius') border-red-500 @enderror transition-all" 
+                                           min="10" max="1000"
+                                           {{ old('validasi_radius_aktif', $validasiRadiusAktif ?? true) ? 'required' : 'readonly' }}>
                                     @error('radius')
                                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                     @enderror
-                                    <p class="text-xs text-gray-500 mt-1">Jarak maksimal untuk absensi (10-1000 meter)</p>
+                                    <p class="text-xs mt-1" id="radius-help-text">
+                                        <span class="text-gray-500">Jarak maksimal untuk absensi (10-1000 meter)</span>
+                                    </p>
                                 </div>
 
                             </div>
@@ -445,23 +449,40 @@
     }
 
     // Toggle Validasi Radius GPS
-    const toggleValidasiRadius = document.getElementById('validasi_radius_aktif');
-    const statusText = document.getElementById('status-text');
-    const statusBadge = document.getElementById('status-badge');
-    const statusBadgeText = document.getElementById('status-badge-text');
-
-    if (toggleValidasiRadius) {
-        toggleValidasiRadius.addEventListener('change', function() {
-            if (this.checked) {
-                statusText.textContent = 'Aktif - Karyawan harus berada dalam radius kantor';
-                statusBadge.className = 'inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700';
-                statusBadgeText.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Aktif';
-            } else {
-                statusText.textContent = 'Nonaktif - Karyawan bisa absen dari mana saja (WFH)';
-                statusBadge.className = 'inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700';
-                statusBadgeText.innerHTML = '<i class="fas fa-times-circle mr-1"></i>Nonaktif';
-            }
-        });
+    function toggleRadiusField() {
+        const toggle = document.getElementById('validasi_radius_aktif');
+        const radiusInput = document.getElementById('radius');
+        const radiusRequired = document.getElementById('radius-required');
+        const radiusHelpText = document.getElementById('radius-help-text');
+        const statusText = document.getElementById('status-text');
+        const statusBadge = document.getElementById('status-badge');
+        const statusBadgeText = document.getElementById('status-badge-text');
+        
+        if (toggle.checked) {
+            // AKTIF - Enable radius field
+            radiusInput.removeAttribute('readonly');
+            radiusInput.setAttribute('required', 'required');
+            radiusInput.classList.remove('bg-gray-100', 'cursor-not-allowed', 'opacity-60');
+            radiusInput.classList.add('bg-white');
+            radiusRequired.classList.remove('hidden');
+            radiusHelpText.innerHTML = '<span class="text-gray-500">Jarak maksimal untuk absensi (10-1000 meter)</span>';
+            
+            statusText.textContent = 'Aktif - Karyawan harus berada dalam radius kantor';
+            statusBadge.className = 'inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700';
+            statusBadgeText.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Aktif';
+        } else {
+            // NONAKTIF - Disable radius field
+            radiusInput.setAttribute('readonly', 'readonly');
+            radiusInput.removeAttribute('required');
+            radiusInput.classList.add('bg-gray-100', 'cursor-not-allowed', 'opacity-60');
+            radiusInput.classList.remove('bg-white');
+            radiusRequired.classList.add('hidden');
+            radiusHelpText.innerHTML = '<span class="text-orange-600"><i class="fas fa-info-circle mr-1"></i>Radius tidak digunakan karena validasi GPS nonaktif (Mode WFH)</span>';
+            
+            statusText.textContent = 'Nonaktif - Karyawan bisa absen dari mana saja (WFH)';
+            statusBadge.className = 'inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700';
+            statusBadgeText.innerHTML = '<i class="fas fa-times-circle mr-1"></i>Nonaktif';
+        }
     }
 
     // Live Preview Jam Kerja
@@ -549,8 +570,11 @@
         document.getElementById('preview-telepon-perusahaan').textContent = this.value;
     });
 
-    // Initialize default tab
-    switchTab('jamKerja');
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        switchTab('jamKerja');
+        toggleRadiusField();
+    });
 </script>
 
 <style>

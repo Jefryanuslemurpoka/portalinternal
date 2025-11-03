@@ -4,9 +4,9 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use App\Models\LogAktivitas;
+use App\Models\Setting;
 
 class PengaturanController extends Controller
 {
@@ -14,26 +14,26 @@ class PengaturanController extends Controller
     public function index()
     {
         // Jam Kerja
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
-        $jamKeluar = Cache::get('jam_keluar', '17:00');
-        $toleransiKeterlambatan = (int) Cache::get('toleransi_keterlambatan', 15); // Cast ke integer
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
+        $jamKeluar = Setting::get('jam_keluar', '17:00');
+        $toleransiKeterlambatan = (int) Setting::get('toleransi_keterlambatan', 15);
 
-        // Lokasi Kantor
-        $lokasiKantor = Cache::get('lokasi_kantor', [
-            'nama' => 'Kantor Pusat',
-            'alamat' => 'Jl. Contoh No. 123, Jakarta',
-            'latitude' => '-6.200000',
-            'longitude' => '106.816666',
-            'radius' => 100,
-        ]);
+        // ✅ Ambil data lokasi kantor dari Setting terpisah
+        $lokasiKantor = [
+            'nama' => Setting::get('lokasi_kantor_nama', 'Kantor Pusat'),
+            'alamat' => Setting::get('lokasi_kantor_alamat', 'Jl. Contoh No. 123, Jakarta'),
+            'latitude' => Setting::get('lokasi_kantor_latitude', '-6.200000'),
+            'longitude' => Setting::get('lokasi_kantor_longitude', '106.816666'),
+            'radius' => (int) Setting::get('lokasi_kantor_radius', 100),
+        ];
 
-        // Validasi Radius GPS (default: true/aktif)
-        $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
+        // ✅ Validasi Radius GPS (1 = aktif, 0 = nonaktif)
+        $validasiRadiusAktif = (bool) Setting::get('validasi_radius_aktif', 1);
 
         // Info Perusahaan
-        $namaPerusahaan = Cache::get('nama_perusahaan', 'Portal Internal');
-        $emailPerusahaan = Cache::get('email_perusahaan', 'info@portal.com');
-        $teleponPerusahaan = Cache::get('telepon_perusahaan', '021-12345678');
+        $namaPerusahaan = Setting::get('nama_perusahaan', 'Portal Internal');
+        $emailPerusahaan = Setting::get('email_perusahaan', 'info@portal.com');
+        $teleponPerusahaan = Setting::get('telepon_perusahaan', '021-12345678');
 
         return view('superadmin.pengaturan.index', compact(
             'jamMasuk',
@@ -72,10 +72,10 @@ class PengaturanController extends Controller
                 ->withInput();
         }
 
-        // Simpan ke cache (permanent) - pastikan toleransi dalam format integer
-        Cache::forever('jam_masuk', $request->jam_masuk);
-        Cache::forever('jam_keluar', $request->jam_keluar);
-        Cache::forever('toleransi_keterlambatan', (int) $request->toleransi_keterlambatan); // Cast ke integer
+        // Simpan ke database
+        Setting::set('jam_masuk', $request->jam_masuk);
+        Setting::set('jam_keluar', $request->jam_keluar);
+        Setting::set('toleransi_keterlambatan', (int) $request->toleransi_keterlambatan);
 
         // Log aktivitas
         LogAktivitas::create([
@@ -96,7 +96,7 @@ class PengaturanController extends Controller
             'alamat' => 'required|string|max:500',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'radius' => 'required|integer|min:10|max:1000',
+            'radius' => 'nullable|integer|min:10|max:1000', // ✅ nullable
         ], [
             'nama_lokasi.required' => 'Nama lokasi harus diisi',
             'nama_lokasi.max' => 'Nama lokasi maksimal 255 karakter',
@@ -108,7 +108,6 @@ class PengaturanController extends Controller
             'longitude.required' => 'Longitude harus diisi',
             'longitude.numeric' => 'Longitude harus berupa angka',
             'longitude.between' => 'Longitude harus antara -180 sampai 180',
-            'radius.required' => 'Radius harus diisi',
             'radius.integer' => 'Radius harus berupa angka',
             'radius.min' => 'Radius minimal 10 meter',
             'radius.max' => 'Radius maksimal 1000 meter',
@@ -120,20 +119,16 @@ class PengaturanController extends Controller
                 ->withInput();
         }
 
-        // Simpan lokasi kantor
-        $lokasiKantor = [
-            'nama' => $request->nama_lokasi,
-            'alamat' => $request->alamat,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'radius' => (int) $request->radius, // Cast ke integer
-        ];
+        // ✅ Simpan lokasi kantor dengan key terpisah
+        Setting::set('lokasi_kantor_nama', $request->nama_lokasi);
+        Setting::set('lokasi_kantor_alamat', $request->alamat);
+        Setting::set('lokasi_kantor_latitude', $request->latitude);
+        Setting::set('lokasi_kantor_longitude', $request->longitude);
+        Setting::set('lokasi_kantor_radius', (int) $request->radius ?? 100);
 
-        Cache::forever('lokasi_kantor', $lokasiKantor);
-
-        // Simpan status validasi radius (true jika checkbox dicentang, false jika tidak)
-        $validasiRadiusAktif = $request->has('validasi_radius_aktif') ? true : false;
-        Cache::forever('validasi_radius_aktif', $validasiRadiusAktif);
+        // ✅ Simpan status validasi radius (1 = aktif, 0 = nonaktif)
+        $validasiRadiusAktif = $request->has('validasi_radius_aktif') ? 1 : 0;
+        Setting::set('validasi_radius_aktif', $validasiRadiusAktif);
 
         // Log aktivitas
         $statusValidasi = $validasiRadiusAktif ? 'Aktif' : 'Nonaktif';
@@ -172,10 +167,10 @@ class PengaturanController extends Controller
                 ->withInput();
         }
 
-        // Simpan ke cache
-        Cache::forever('nama_perusahaan', $request->nama_perusahaan);
-        Cache::forever('email_perusahaan', $request->email_perusahaan);
-        Cache::forever('telepon_perusahaan', $request->telepon_perusahaan);
+        // Simpan ke database
+        Setting::set('nama_perusahaan', $request->nama_perusahaan);
+        Setting::set('email_perusahaan', $request->email_perusahaan);
+        Setting::set('telepon_perusahaan', $request->telepon_perusahaan);
 
         // Log aktivitas
         LogAktivitas::create([
@@ -188,21 +183,31 @@ class PengaturanController extends Controller
             ->with('success', 'Informasi perusahaan berhasil disimpan!');
     }
 
-    // Helper method untuk cek validasi radius (bisa dipanggil dari controller lain)
+    // Helper method untuk cek validasi radius
     public static function isValidasiRadiusAktif()
     {
-        return Cache::get('validasi_radius_aktif', true);
+        return (bool) Setting::get('validasi_radius_aktif', 1);
     }
 
-    // Helper method untuk get lokasi kantor (bisa dipanggil dari controller lain)
+    // Helper method untuk get lokasi kantor
     public static function getLokasiKantor()
     {
-        return Cache::get('lokasi_kantor', [
-            'nama' => 'Kantor Pusat',
-            'alamat' => 'Jl. Contoh No. 123, Jakarta',
-            'latitude' => '-6.200000',
-            'longitude' => '106.816666',
-            'radius' => 100,
-        ]);
+        return [
+            'nama' => Setting::get('lokasi_kantor_nama', 'Kantor Pusat'),
+            'alamat' => Setting::get('lokasi_kantor_alamat', 'Jl. Contoh No. 123, Jakarta'),
+            'latitude' => Setting::get('lokasi_kantor_latitude', '-6.200000'),
+            'longitude' => Setting::get('lokasi_kantor_longitude', '106.816666'),
+            'radius' => (int) Setting::get('lokasi_kantor_radius', 100),
+        ];
+    }
+
+    // Helper method untuk get jam kerja
+    public static function getJamKerja()
+    {
+        return [
+            'jam_masuk' => Setting::get('jam_masuk', '08:00'),
+            'jam_keluar' => Setting::get('jam_keluar', '17:00'),
+            'toleransi_keterlambatan' => (int) Setting::get('toleransi_keterlambatan', 15),
+        ];
     }
 }

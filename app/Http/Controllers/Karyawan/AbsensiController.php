@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Karyawan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Absensi;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use App\Helpers\NotificationHelper; // ✅ TAMBAHAN (OPSIONAL)
 
 class AbsensiController extends Controller
@@ -26,18 +26,18 @@ class AbsensiController extends Controller
             ->whereDate('tanggal', $today)
             ->first();
 
-        // Jam kerja dari cache
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
-        $jamKeluar = Cache::get('jam_keluar', '17:00');
-        $toleransi = Cache::get('toleransi_keterlambatan', 15);
+        // ✅ Ambil Jam Kerja dari Model Setting
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
+        $jamKeluar = Setting::get('jam_keluar', '17:00');
+        $toleransi = Setting::get('toleransi_keterlambatan', 15);
 
-        // Lokasi kantor dari cache
-        $lokasiKantor = Cache::get('lokasi_kantor', [
-            'nama' => 'Kantor Pusat',
-            'latitude' => '-6.200000',
-            'longitude' => '106.816666',
-            'radius' => 100,
-        ]);
+        // ✅ Ambil Lokasi Kantor dari Model Setting
+        $lokasiKantor = [
+            'nama' => Setting::get('lokasi_kantor_nama', 'Kantor Pusat'),
+            'latitude' => Setting::get('lokasi_kantor_latitude', '-6.200000'),
+            'longitude' => Setting::get('lokasi_kantor_longitude', '106.816666'),
+            'radius' => Setting::get('lokasi_kantor_radius', 100),
+        ];
 
         return view('karyawan.absensi.index', compact(
             'absensiHariIni',
@@ -75,15 +75,15 @@ class AbsensiController extends Controller
             ], 400);
         }
 
-        // Ambil pengaturan lokasi
-        $lokasiKantor = Cache::get('lokasi_kantor', [
-            'latitude' => '-6.200000',
-            'longitude' => '106.816666',
-            'radius' => 100,
-        ]);
+        // ✅ Ambil pengaturan lokasi dari Model Setting
+        $lokasiKantor = [
+            'latitude' => Setting::get('lokasi_kantor_latitude', '-6.200000'),
+            'longitude' => Setting::get('lokasi_kantor_longitude', '106.816666'),
+            'radius' => Setting::get('lokasi_kantor_radius', 100),
+        ];
 
-        // Cek apakah validasi radius aktif
-        $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
+        // ✅ Cek apakah validasi radius aktif
+        $validasiRadiusAktif = Setting::get('validasi_radius_aktif', true);
 
         // Hitung jarak
         $distance = $this->calculateDistance(
@@ -111,13 +111,15 @@ class AbsensiController extends Controller
         ]);
 
         // ✅ TAMBAHAN (OPSIONAL): Kirim notifikasi konfirmasi ke karyawan sendiri
-        NotificationHelper::create(
-            auth()->id(),
-            'absensi',
-            'Check-in Berhasil',
-            'Anda telah check-in pada ' . $now->format('d M Y H:i'),
-            route('karyawan.absensi.index')
-        );
+        if (class_exists('App\Helpers\NotificationHelper')) {
+            NotificationHelper::create(
+                auth()->id(),
+                'absensi',
+                'Check-in Berhasil',
+                'Anda telah check-in pada ' . $now->format('d M Y H:i'),
+                route('karyawan.absensi.index')
+            );
+        }
 
         $message = 'Check-in berhasil pada ' . $now->format('H:i:s');
         if (!$validasiRadiusAktif) {
@@ -165,15 +167,15 @@ class AbsensiController extends Controller
             ], 400);
         }
 
-        // Ambil pengaturan lokasi
-        $lokasiKantor = Cache::get('lokasi_kantor', [
-            'latitude' => '-6.200000',
-            'longitude' => '106.816666',
-            'radius' => 100,
-        ]);
+        // ✅ Ambil pengaturan lokasi dari Model Setting
+        $lokasiKantor = [
+            'latitude' => Setting::get('lokasi_kantor_latitude', '-6.200000'),
+            'longitude' => Setting::get('lokasi_kantor_longitude', '106.816666'),
+            'radius' => Setting::get('lokasi_kantor_radius', 100),
+        ];
 
-        // Cek apakah validasi radius aktif
-        $validasiRadiusAktif = Cache::get('validasi_radius_aktif', true);
+        // ✅ Cek apakah validasi radius aktif
+        $validasiRadiusAktif = Setting::get('validasi_radius_aktif', true);
 
         // Hitung jarak
         $distance = $this->calculateDistance(
@@ -197,13 +199,15 @@ class AbsensiController extends Controller
         ]);
 
         // ✅ TAMBAHAN (OPSIONAL): Kirim notifikasi konfirmasi ke karyawan sendiri
-        NotificationHelper::create(
-            auth()->id(),
-            'absensi',
-            'Check-out Berhasil',
-            'Anda telah check-out pada ' . $now->format('d M Y H:i'),
-            route('karyawan.absensi.index')
-        );
+        if (class_exists('App\Helpers\NotificationHelper')) {
+            NotificationHelper::create(
+                auth()->id(),
+                'absensi',
+                'Check-out Berhasil',
+                'Anda telah check-out pada ' . $now->format('d M Y H:i'),
+                route('karyawan.absensi.index')
+            );
+        }
 
         $message = 'Check-out berhasil pada ' . $now->format('H:i:s');
         if (!$validasiRadiusAktif) {

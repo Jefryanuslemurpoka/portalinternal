@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Absensi;
 use App\Models\User;
+use App\Models\Setting;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AbsensiExport;
 
@@ -16,9 +16,9 @@ class AbsensiController extends Controller
     // Tampilkan rekap absensi
     public function index(Request $request)
     {
-        // Ambil pengaturan jam kerja dari cache
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
-        $toleransi = (int) Cache::get('toleransi_keterlambatan', 15); // Cast ke integer
+        // Ambil pengaturan jam kerja dari Setting Model (bukan Cache)
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
+        $toleransi = (int) Setting::get('toleransi_keterlambatan', 15);
         
         // Hitung batas keterlambatan (jam masuk + toleransi)
         $batasKeterlambatan = Carbon::createFromFormat('H:i', $jamMasuk)
@@ -65,10 +65,17 @@ class AbsensiController extends Controller
                          ->orderBy('divisi')
                          ->pluck('divisi');
 
-        // Statistik berdasarkan pengaturan jam kerja
+        // Statistik berdasarkan pengaturan jam kerja dari Setting
         $totalHadir = $absensi->total();
-        $tepatWaktu = $absensi->where('jam_masuk', '<=', $batasKeterlambatan)->count();
-        $terlambat = $absensi->where('jam_masuk', '>', $batasKeterlambatan)->count();
+        
+        // Hitung tepat waktu dan terlambat berdasarkan batas keterlambatan
+        $tepatWaktu = $absensi->filter(function($item) use ($batasKeterlambatan) {
+            return $item->jam_masuk && $item->jam_masuk <= $batasKeterlambatan;
+        })->count();
+        
+        $terlambat = $absensi->filter(function($item) use ($batasKeterlambatan) {
+            return $item->jam_masuk && $item->jam_masuk > $batasKeterlambatan;
+        })->count();
 
         return view('superadmin.absensi.index', compact(
             'absensi',

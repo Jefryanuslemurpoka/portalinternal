@@ -37,7 +37,13 @@
                 @if($sudahCheckIn)
                     <p class="text-2xl font-bold text-teal-600">{{ date('H:i', strtotime($absensiHariIni->jam_masuk)) }}</p>
                     <p class="text-xs text-gray-600 mt-1">
-                        @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($jamMasuk))
+                        @php
+                            // ✅ Hitung batas keterlambatan dengan toleransi
+                            $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+                                ->addMinutes($toleransi)
+                                ->format('H:i:s');
+                        @endphp
+                        @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
                             <span class="text-teal-600">✓ Tepat Waktu</span>
                         @else
                             <span class="text-red-600">⚠ Terlambat</span>
@@ -45,7 +51,7 @@
                     </p>
                 @else
                     <p class="text-lg font-semibold text-gray-400">Belum Check-in</p>
-                    <p class="text-xs text-gray-500 mt-1">Jam Masuk: {{ $jamMasuk }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Jam Masuk: {{ $jamMasuk }} (Toleransi: {{ $toleransi }} mnt)</p>
                 @endif
             </div>
 
@@ -174,6 +180,12 @@
             </div>
             <div class="space-y-3">
                 @forelse($riwayatAbsensi as $r)
+                @php
+                    // ✅ Hitung batas keterlambatan untuk setiap riwayat
+                    $batasKeterlambatanRiwayat = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+                        ->addMinutes($toleransi)
+                        ->format('H:i:s');
+                @endphp
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-teal-50 transition">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
@@ -185,7 +197,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm font-semibold {{ strtotime($r->jam_masuk) <= strtotime($jamMasuk) ? 'text-teal-600' : 'text-red-600' }}">
+                        <p class="text-sm font-semibold {{ strtotime($r->jam_masuk) <= strtotime($batasKeterlambatanRiwayat) ? 'text-teal-600' : 'text-red-600' }}">
                             {{ date('H:i', strtotime($r->jam_masuk)) }}
                         </p>
                         <p class="text-xs text-gray-500">

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Helpers\NotificationHelper; // ✅ TAMBAHAN
+use App\Helpers\NotificationHelper;
 
 class CutiIzinController extends Controller
 {
@@ -18,22 +18,28 @@ class CutiIzinController extends Controller
      */
     public function index(Request $request)
     {
-        $status = $request->input('status', 'all'); // all, pending, disetujui, ditolak
-        $jenis = $request->input('jenis', 'all'); // all, cuti, izin, sakit
+        // ✅ PERBAIKAN: Gunakan empty string sebagai default, bukan 'all'
+        $status = $request->input('status', '');
+        $jenis = $request->input('jenis', '');
         
         $query = CutiIzin::with('user')
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc');
         
-        if ($status != 'all') {
+        // ✅ Filter hanya jika ada nilai
+        if ($status !== '' && $status !== null) {
             $query->where('status', $status);
         }
         
-        if ($jenis != 'all') {
+        if ($jenis !== '' && $jenis !== null) {
             $query->where('jenis', $jenis);
         }
         
-        $pengajuanList = $query->paginate(10);
+        // ✅ Preserve filter params di pagination
+        $pengajuanList = $query->paginate(10)->appends([
+            'status' => $status,
+            'jenis' => $jenis
+        ]);
         
         // Hitung statistik
         $statistik = [
@@ -41,7 +47,7 @@ class CutiIzinController extends Controller
             'pending' => CutiIzin::where('user_id', Auth::id())->where('status', 'pending')->count(),
             'disetujui' => CutiIzin::where('user_id', Auth::id())->where('status', 'disetujui')->count(),
             'ditolak' => CutiIzin::where('user_id', Auth::id())->where('status', 'ditolak')->count(),
-            'sisa_cuti' => Auth::user()->sisa_cuti ?? 12 // Default 12 hari per tahun
+            'sisa_cuti' => Auth::user()->sisa_cuti ?? 12
         ];
         
         return view('karyawan.cutiizin.index', compact('pengajuanList', 'statistik', 'status', 'jenis'));
@@ -122,20 +128,18 @@ class CutiIzinController extends Controller
             $filePath = $file->storeAs('cutiizin', $fileName, 'public');
         }
         
-        // Buat pengajuan baru
+        // Buat pengajuan baru (jumlah_hari & tanggal_pengajuan otomatis terisi oleh Model boot)
         $cutiIzin = CutiIzin::create([
             'user_id' => Auth::id(),
             'jenis' => $validated['jenis'],
             'tanggal_mulai' => $validated['tanggal_mulai'],
             'tanggal_selesai' => $validated['tanggal_selesai'],
-            'jumlah_hari' => $jumlahHari,
             'alasan' => $validated['alasan'],
             'file_pendukung' => $filePath,
             'status' => 'pending',
-            'tanggal_pengajuan' => now()
         ]);
         
-        // ✅ TAMBAHAN: Kirim notifikasi ke admin
+        // Kirim notifikasi ke admin
         NotificationHelper::cutiDiajukan($cutiIzin);
         
         return redirect()->route('karyawan.cutiizin.index')
