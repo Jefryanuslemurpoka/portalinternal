@@ -53,7 +53,6 @@
                     </div>
                     @if($absensiHariIni)
                         @php
-                            // Hitung batas keterlambatan
                             $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
                                 ->addMinutes($toleransi)
                                 ->format('H:i:s');
@@ -138,7 +137,26 @@
     <div class="bg-white rounded-xl shadow-lg p-6">
         <div class="max-w-2xl mx-auto">
             
-            <!-- Location Info -->
+            <!-- ✅ Info Mode WFH (jika validasi radius nonaktif) -->
+            @php
+                $validasiRadiusAktif = App\Models\Setting::get('validasi_radius_aktif', true);
+            @endphp
+            
+            @if(!$validasiRadiusAktif)
+                <div class="mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-600 text-xl mt-1 mr-3"></i>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-blue-900 mb-1">Mode WFH Aktif</p>
+                                <p class="text-xs text-blue-700">Validasi lokasi dinonaktifkan. Anda dapat absen dari mana saja tanpa verifikasi GPS.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Location Info (hanya tampil jika validasi aktif) -->
             <div id="locationInfo" class="mb-6 hidden">
                 <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
                     <div class="flex items-start">
@@ -178,7 +196,8 @@
         </div>
     </div>
 
-    <!-- Lokasi Kantor Info -->
+    <!-- Lokasi Kantor Info (hanya tampil jika validasi aktif) -->
+    @if($validasiRadiusAktif)
     <div class="bg-white rounded-xl shadow-lg p-6">
         <h3 class="text-lg font-bold text-gray-800 mb-4">
             <i class="fas fa-building mr-2"></i>Lokasi Kantor
@@ -201,14 +220,19 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection
 
 @push('scripts')
 <script>
+    // ✅ Cek apakah validasi radius aktif (dari backend)
+    const validasiRadiusAktif = {{ $validasiRadiusAktif ? 'true' : 'false' }};
+
     // Global variables
     let userLocation = null;
+    let isGettingLocation = false;
 
     const lokasiKantor = {
         lat: {{ $lokasiKantor['latitude'] }},
@@ -216,7 +240,7 @@
         radius: {{ $lokasiKantor['radius'] }}
     };
 
-    // Update current time (with WIB timezone)
+    // Update current time
     function updateClock() {
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, '0');
@@ -224,28 +248,40 @@
         document.getElementById('currentTime').textContent = hours + ':' + minutes;
     }
     
-    // Update setiap detik
     setInterval(updateClock, 1000);
-    updateClock(); // Panggil sekali saat load
+    updateClock();
 
-    // Check-in Process
+    // ✅ Check-in Process (SKIP GEOLOCATION jika validasi nonaktif)
     function doCheckIn() {
-        // Show loading
-        Swal.fire({
-            title: 'Mendeteksi Lokasi...',
-            text: 'Mohon tunggu',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        if (isGettingLocation) return;
+        
+        // Jika validasi radius NONAKTIF, langsung konfirmasi tanpa lokasi
+        if (!validasiRadiusAktif) {
+            Swal.fire({
+                title: 'Konfirmasi Check-in',
+                html: '<p>Anda akan melakukan check-in sekarang</p><p class="text-sm text-blue-600 mt-2">Mode WFH - Tanpa validasi lokasi</p>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d9488',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Check-in',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitCheckIn({
+                        lat: 0,
+                        lng: 0,
+                        distance: 0,
+                        inRadius: true
+                    });
+                }
+            });
+            return;
+        }
 
-        // Get location
+        // Jika validasi AKTIF, jalankan geolocation
         getLocation((location) => {
-            Swal.close();
-            
             if (location) {
-                // Confirm check-in
                 Swal.fire({
                     title: 'Konfirmasi Check-in',
                     html: `
@@ -270,24 +306,37 @@
         });
     }
 
-    // Check-out Process
+    // ✅ Check-out Process (SKIP GEOLOCATION jika validasi nonaktif)
     function doCheckOut() {
-        // Show loading
-        Swal.fire({
-            title: 'Mendeteksi Lokasi...',
-            text: 'Mohon tunggu',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        if (isGettingLocation) return;
+        
+        // Jika validasi radius NONAKTIF, langsung konfirmasi tanpa lokasi
+        if (!validasiRadiusAktif) {
+            Swal.fire({
+                title: 'Konfirmasi Check-out',
+                html: '<p>Anda akan melakukan check-out sekarang</p><p class="text-sm text-blue-600 mt-2">Mode WFH - Tanpa validasi lokasi</p>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06b6d4',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Check-out',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitCheckOut({
+                        lat: 0,
+                        lng: 0,
+                        distance: 0,
+                        inRadius: true
+                    });
+                }
+            });
+            return;
+        }
 
-        // Get location
+        // Jika validasi AKTIF, jalankan geolocation
         getLocation((location) => {
-            Swal.close();
-            
             if (location) {
-                // Confirm check-out
                 Swal.fire({
                     title: 'Konfirmasi Check-out',
                     html: `
@@ -312,64 +361,208 @@
         });
     }
 
-    // Get user location
+    // Get user location (hanya dipanggil jika validasi aktif)
     function getLocation(callback) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const location = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    
-                    // Calculate distance
-                    const distance = calculateDistance(
-                        location.lat,
-                        location.lng,
-                        lokasiKantor.lat,
-                        lokasiKantor.lng
-                    );
-                    
-                    location.distance = distance;
-                    location.inRadius = distance <= lokasiKantor.radius;
-                    
-                    // Display location info
-                    document.getElementById('userLat').textContent = location.lat.toFixed(6);
-                    document.getElementById('userLng').textContent = location.lng.toFixed(6);
-                    document.getElementById('distance').textContent = Math.round(distance);
-                    
-                    const locationStatus = document.getElementById('locationStatus');
-                    if (location.inRadius) {
-                        locationStatus.textContent = 'Dalam Radius';
-                        locationStatus.className = 'px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full';
-                    } else {
-                        locationStatus.textContent = 'Diluar Radius';
-                        locationStatus.className = 'px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full';
-                    }
-                    
-                    document.getElementById('locationInfo').classList.remove('hidden');
-                    
-                    callback(location);
-                },
-                (error) => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Mendapatkan Lokasi',
-                        text: error.message,
-                        confirmButtonColor: '#ef4444'
-                    });
-                    callback(null);
-                }
-            );
-        } else {
+        if (isGettingLocation) return;
+        
+        if (!navigator.geolocation) {
             Swal.fire({
                 icon: 'error',
                 title: 'Browser Tidak Mendukung',
-                text: 'Browser Anda tidak mendukung geolocation',
-                confirmButtonColor: '#ef4444'
+                html: `
+                    <div class="text-left">
+                        <p class="mb-3">Browser Anda tidak mendukung fitur geolocation.</p>
+                        <p class="text-sm text-gray-600">Silakan gunakan browser modern seperti:</p>
+                        <ul class="text-sm text-gray-600 ml-4 mt-2">
+                            <li>• Google Chrome (recommended)</li>
+                            <li>• Mozilla Firefox</li>
+                            <li>• Microsoft Edge</li>
+                        </ul>
+                    </div>
+                `,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Mengerti',
+                allowOutsideClick: false,
+                width: '500px'
             });
             callback(null);
+            return;
         }
+
+        isGettingLocation = true;
+
+        let timerInterval;
+        Swal.fire({
+            title: 'Mendapatkan Lokasi...',
+            html: `
+                <div class="mb-3">
+                    <p class="text-sm text-gray-600">Mohon izinkan akses lokasi browser Anda</p>
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p class="text-xs text-gray-700 font-semibold mb-2">📍 Instruksi:</p>
+                    <ol class="text-xs text-gray-600 text-left ml-4">
+                        <li>1. Klik "Allow" / "Izinkan" pada popup browser</li>
+                        <li>2. Tunggu hingga GPS mendeteksi lokasi Anda</li>
+                        <li>3. Proses maksimal <b id="timer">30</b> detik</li>
+                    </ol>
+                </div>
+            `,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            showCancelButton: true,
+            cancelButtonText: 'Batal',
+            cancelButtonColor: '#6b7280',
+            width: '500px',
+            didOpen: () => {
+                Swal.showLoading();
+                let timeLeft = 30;
+                const timerElement = document.getElementById('timer');
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    if (timerElement) {
+                        timerElement.textContent = timeLeft;
+                    }
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                    }
+                }, 1000);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.cancel) {
+                isGettingLocation = false;
+            }
+        });
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                isGettingLocation = false;
+                clearInterval(timerInterval);
+                Swal.close();
+                
+                const location = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                const distance = calculateDistance(
+                    location.lat,
+                    location.lng,
+                    lokasiKantor.lat,
+                    lokasiKantor.lng
+                );
+                
+                location.distance = distance;
+                location.inRadius = distance <= lokasiKantor.radius;
+                
+                document.getElementById('userLat').textContent = location.lat.toFixed(6);
+                document.getElementById('userLng').textContent = location.lng.toFixed(6);
+                document.getElementById('distance').textContent = Math.round(distance);
+                
+                const locationStatus = document.getElementById('locationStatus');
+                if (location.inRadius) {
+                    locationStatus.textContent = 'Dalam Radius';
+                    locationStatus.className = 'px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full';
+                } else {
+                    locationStatus.textContent = 'Diluar Radius';
+                    locationStatus.className = 'px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full';
+                }
+                
+                document.getElementById('locationInfo').classList.remove('hidden');
+                
+                callback(location);
+            },
+            (error) => {
+                isGettingLocation = false;
+                clearInterval(timerInterval);
+                
+                let errorTitle = 'Gagal Mendapatkan Lokasi';
+                let errorMessage = '';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = `
+                            <div class="text-left">
+                                <p class="mb-3 font-semibold text-red-600">❌ Akses lokasi ditolak!</p>
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-3">
+                                    <p class="text-sm font-semibold mb-2">🔧 Cara Mengizinkan Lokasi:</p>
+                                    <ol class="text-sm text-gray-700 ml-4 space-y-1">
+                                        <li>1. Klik ikon <strong>🔒 kunci</strong> di address bar (samping URL)</li>
+                                        <li>2. Cari pengaturan <strong>"Location"</strong> atau <strong>"Lokasi"</strong></li>
+                                        <li>3. Ubah menjadi <strong>"Allow"</strong> atau <strong>"Izinkan"</strong></li>
+                                        <li>4. Refresh halaman (tekan F5)</li>
+                                        <li>5. Coba absen lagi</li>
+                                    </ol>
+                                </div>
+                                <p class="text-xs text-gray-500">💡 Tip: Pastikan GPS/Location di perangkat Anda juga aktif</p>
+                            </div>
+                        `;
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = `
+                            <div class="text-left">
+                                <p class="mb-3 font-semibold text-orange-600">📍 Informasi lokasi tidak tersedia</p>
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-3">
+                                    <p class="text-sm font-semibold mb-2">🔧 Solusi:</p>
+                                    <ol class="text-sm text-gray-700 ml-4 space-y-1">
+                                        <li>1. Pastikan GPS/Location Service di perangkat <strong>AKTIF</strong></li>
+                                        <li>2. Coba pindah ke area dengan sinyal GPS lebih baik</li>
+                                        <li>3. Restart browser dan coba lagi</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = `
+                            <div class="text-left">
+                                <p class="mb-3 font-semibold text-yellow-600">⏱️ Waktu habis!</p>
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3">
+                                    <p class="text-sm text-gray-700 mb-2">GPS memakan waktu terlalu lama untuk mendapatkan lokasi.</p>
+                                    <p class="text-sm font-semibold mb-2">🔧 Solusi:</p>
+                                    <ol class="text-sm text-gray-700 ml-4 space-y-1">
+                                        <li>1. Pindah ke area outdoor atau dekat jendela</li>
+                                        <li>2. Pastikan GPS aktif</li>
+                                        <li>3. Coba beberapa saat lagi</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    default:
+                        errorMessage = `
+                            <div class="text-left">
+                                <p class="mb-3 font-semibold text-red-600">⚠️ Error tidak diketahui</p>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    <p class="text-sm text-gray-700">${error.message}</p>
+                                </div>
+                            </div>
+                        `;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: errorTitle,
+                    html: errorMessage,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Tutup',
+                    allowOutsideClick: false,
+                    width: '600px',
+                    customClass: {
+                        popup: 'text-left'
+                    }
+                });
+                callback(null);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 0
+            }
+        );
     }
 
     // Submit check-in
@@ -378,6 +571,8 @@
             title: 'Memproses...',
             text: 'Mohon tunggu',
             allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
             didOpen: () => {
                 Swal.showLoading();
             }
@@ -403,7 +598,8 @@
                     icon: 'success',
                     title: 'Check-in Berhasil!',
                     text: data.message,
-                    confirmButtonColor: '#0d9488'
+                    confirmButtonColor: '#0d9488',
+                    confirmButtonText: 'OK'
                 }).then(() => {
                     window.location.reload();
                 });
@@ -412,7 +608,8 @@
                     icon: 'error',
                     title: 'Check-in Gagal',
                     text: data.message,
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Mengerti'
                 });
             }
         })
@@ -421,8 +618,9 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Terjadi kesalahan: ' + error.message,
-                confirmButtonColor: '#ef4444'
+                html: '<p>Terjadi kesalahan saat mengirim data</p><p class="text-sm text-gray-600 mt-2">' + error.message + '</p>',
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Mengerti'
             });
         });
     }
@@ -433,6 +631,8 @@
             title: 'Memproses...',
             text: 'Mohon tunggu',
             allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
             didOpen: () => {
                 Swal.showLoading();
             }
@@ -458,7 +658,8 @@
                     icon: 'success',
                     title: 'Check-out Berhasil!',
                     text: data.message,
-                    confirmButtonColor: '#0d9488'
+                    confirmButtonColor: '#0d9488',
+                    confirmButtonText: 'OK'
                 }).then(() => {
                     window.location.reload();
                 });
@@ -467,7 +668,8 @@
                     icon: 'error',
                     title: 'Check-out Gagal',
                     text: data.message,
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Mengerti'
                 });
             }
         })
@@ -476,15 +678,16 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Terjadi kesalahan: ' + error.message,
-                confirmButtonColor: '#ef4444'
+                html: '<p>Terjadi kesalahan saat mengirim data</p><p class="text-sm text-gray-600 mt-2">' + error.message + '</p>',
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Mengerti'
             });
         });
     }
 
-    // Calculate distance between two coordinates (Haversine formula)
+    // Calculate distance between two coordinates
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371000; // Earth radius in meters
+        const R = 6371000;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         
@@ -499,6 +702,5 @@
     }
 </script>
 
-<!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush

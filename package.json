@@ -3,9 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "concurrently \"php artisan serve --host=0.0.0.0 --port=8000\" \"vite\" --names \"Laravel,Vite\" --prefix-colors \"blue,green\"",
         "build": "vite build",
-        "serve": "concurrently \"php artisan serve\" \"vite\" --names \"Laravel,Vite\" --prefix-colors \"blue,green\""
+        "serve": "php artisan serve"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

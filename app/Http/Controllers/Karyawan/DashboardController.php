@@ -27,14 +27,14 @@ class DashboardController extends Controller
         $sudahCheckIn = $absensiHariIni ? true : false;
         $sudahCheckOut = $absensiHariIni && $absensiHariIni->jam_keluar ? true : false;
 
-        // ✅ Ambil Jam Kerja dari Model Setting
+        // ✅ Ambil Jam Kerja dari Model Setting dan CAST ke tipe data yang benar
         $jamMasuk = Setting::get('jam_masuk', '08:00');
         $jamKeluar = Setting::get('jam_keluar', '17:00');
-        $toleransi = Setting::get('toleransi_keterlambatan', 15);
+        $toleransi = (int) Setting::get('toleransi_keterlambatan', 15); // ✅ CAST ke integer
 
         // Hitung batas keterlambatan (jam_masuk + toleransi)
         $batasKeterlambatan = Carbon::createFromFormat('H:i', $jamMasuk)
-            ->addMinutes($toleransi)
+            ->addMinutes($toleransi) // ✅ Sekarang $toleransi sudah integer
             ->format('H:i:s');
 
         // Statistik Bulan Ini
