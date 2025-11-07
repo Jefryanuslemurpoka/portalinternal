@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pengumuman;
 use App\Models\LogAktivitas;
-use App\Helpers\NotificationHelper; // ✅ TAMBAHAN
+use App\Helpers\NotificationHelper;
+use App\Helpers\WhatsAppHelper;
+use Illuminate\Support\Facades\Log;
 
 class PengumumanController extends Controller
 {
-    // Tampilkan daftar pengumuman
+    /**
+     * Tampilkan daftar pengumuman
+     */
     public function index()
     {
         $pengumuman = Pengumuman::with('creator')
@@ -20,13 +24,17 @@ class PengumumanController extends Controller
         return view('superadmin.pengumuman.index', compact('pengumuman'));
     }
 
-    // Tampilkan form tambah pengumuman
+    /**
+     * Tampilkan form tambah pengumuman
+     */
     public function create()
     {
         return view('superadmin.pengumuman.create');
     }
 
-    // Simpan pengumuman baru
+    /**
+     * Simpan pengumuman baru
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -39,6 +47,7 @@ class PengumumanController extends Controller
             'tanggal.required' => 'Tanggal pengumuman harus diisi',
         ]);
 
+        // Simpan pengumuman
         $pengumuman = Pengumuman::create([
             'judul' => $request->judul,
             'konten' => $request->konten,
@@ -46,8 +55,42 @@ class PengumumanController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        // ✅ TAMBAHAN: Kirim notifikasi ke semua karyawan
+        // Kirim notifikasi ke dashboard karyawan
         NotificationHelper::pengumumanBaru($pengumuman);
+
+        // Base success message
+        $successMessage = 'Pengumuman berhasil ditambahkan';
+        $waStatus = [];
+
+        // Kirim ke WhatsApp Group
+        if (config('whatsapp.enabled')) {
+            try {
+                // Format pesan WhatsApp
+                $pesanWA = WhatsAppHelper::formatPesanPengumuman($pengumuman);
+                
+                // Kirim ke grup
+                $berhasilKirim = WhatsAppHelper::kirimKeGrup($pesanWA);
+                
+                if ($berhasilKirim) {
+                    $waStatus[] = '✅ Notifikasi WhatsApp terkirim ke grup';
+                } else {
+                    $waStatus[] = '⚠️ Gagal mengirim ke WhatsApp (cek log)';
+                }
+            } catch (\Exception $e) {
+                Log::error('WhatsApp notification error: ' . $e->getMessage(), [
+                    'pengumuman_id' => $pengumuman->id,
+                    'exception' => $e->getTraceAsString()
+                ]);
+                $waStatus[] = '⚠️ Error mengirim WhatsApp: ' . $e->getMessage();
+            }
+        } else {
+            $waStatus[] = 'ℹ️ Notifikasi WhatsApp dinonaktifkan';
+        }
+
+        // Gabungkan message
+        if (!empty($waStatus)) {
+            $successMessage .= '. ' . implode('. ', $waStatus);
+        }
 
         // Log aktivitas
         LogAktivitas::create([
@@ -57,17 +100,21 @@ class PengumumanController extends Controller
         ]);
 
         return redirect()->route('superadmin.pengumuman.index')
-            ->with('success', 'Pengumuman berhasil ditambahkan dan notifikasi dikirim ke semua karyawan');
+            ->with('success', $successMessage);
     }
 
-    // Tampilkan form edit pengumuman
+    /**
+     * Tampilkan form edit pengumuman
+     */
     public function edit($id)
     {
         $pengumuman = Pengumuman::findOrFail($id);
         return view('superadmin.pengumuman.edit', compact('pengumuman'));
     }
 
-    // Update pengumuman
+    /**
+     * Update pengumuman
+     */
     public function update(Request $request, $id)
     {
         $pengumuman = Pengumuman::findOrFail($id);
@@ -99,7 +146,9 @@ class PengumumanController extends Controller
             ->with('success', 'Pengumuman berhasil diperbarui');
     }
 
-    // Hapus pengumuman
+    /**
+     * Hapus pengumuman
+     */
     public function destroy($id)
     {
         $pengumuman = Pengumuman::findOrFail($id);
@@ -116,5 +165,18 @@ class PengumumanController extends Controller
 
         return redirect()->route('superadmin.pengumuman.index')
             ->with('success', 'Pengumuman berhasil dihapus');
+    }
+
+    /**
+     * Test koneksi WhatsApp
+     */
+    public function testWhatsApp()
+    {
+        $result = WhatsAppHelper::testKoneksi();
+        
+        return redirect()->back()->with(
+            $result['success'] ? 'success' : 'error',
+            $result['message']
+        );
     }
 }

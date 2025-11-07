@@ -46,16 +46,21 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::get('/', [SuratController::class, 'index'])->name('index');
         Route::get('/create', [SuratController::class, 'create'])->name('create');
         Route::post('/', [SuratController::class, 'store'])->name('store');
-        Route::get('/{id}/edit', [SuratController::class, 'edit'])->name('edit'); // TAMBAHKAN INI
-        Route::put('/{id}', [SuratController::class, 'update'])->name('update'); // TAMBAHKAN INI
-        Route::get('/{id}/download', [SuratController::class, 'download'])->name('download'); // TAMBAHKAN INI
+        Route::get('/{id}/edit', [SuratController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [SuratController::class, 'update'])->name('update');
+        Route::get('/{id}/download', [SuratController::class, 'download'])->name('download');
         Route::delete('/{id}', [SuratController::class, 'destroy'])->name('destroy');
-        Route::get('/{id}', [SuratController::class, 'show'])->name('show'); // Pindahkan ke paling bawah
+        Route::get('/{id}', [SuratController::class, 'show'])->name('show');
     });
 
-    // Server Log
-    Route::prefix('serverlog')->name('karyawan.serverlog.')->group(function () {
+    // Server Log - CRUD LENGKAP (create, edit, delete)
+    Route::prefix('server-log')->name('karyawan.serverlog.')->group(function () {
         Route::get('/', [ServerLogController::class, 'index'])->name('index');
+        Route::get('/create', [ServerLogController::class, 'create'])->name('create');
+        Route::post('/', [ServerLogController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [ServerLogController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ServerLogController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ServerLogController::class, 'destroy'])->name('destroy');
         Route::get('/{id}', [ServerLogController::class, 'show'])->name('show');
     });
 

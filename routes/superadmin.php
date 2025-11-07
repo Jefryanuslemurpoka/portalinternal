@@ -102,6 +102,9 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
         Route::get('/{id}/edit', [PengumumanController::class, 'edit'])->name('edit');
         Route::put('/{id}', [PengumumanController::class, 'update'])->name('update');
         Route::delete('/{id}', [PengumumanController::class, 'destroy'])->name('destroy');
+        
+        // Test WhatsApp Connection
+        Route::post('/test-whatsapp', [PengumumanController::class, 'testWhatsApp'])->name('test-whatsapp');
     });
 
     // ========================================

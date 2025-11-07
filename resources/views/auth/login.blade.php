@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Internal - PT Puri Digital Output</title>
-    
-    <!-- ✅ GUNAKAN VITE ASSET (BUKAN CDN) -->
-    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Login - Portal Internal PT Puri Digital Output</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -88,9 +86,14 @@
             left: 100%;
         }
 
-        .btn-premium:hover {
+        .btn-premium:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 25px 50px -12px rgba(13, 148, 136, 0.5);
+        }
+
+        .btn-premium:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .logo-glow {
@@ -107,14 +110,12 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Responsive adjustments */
         @media (max-width: 1024px) {
             .floating-slow {
                 animation: floating 6s ease-in-out infinite;
             }
         }
 
-        /* Ensure footer always visible */
         @media (min-width: 1024px) and (max-height: 800px) {
             .illustration-container {
                 min-height: 200px;
@@ -126,21 +127,17 @@
     
     <div class="flex min-h-screen flex-col lg:flex-row">
         
-        <!-- Left Side - Premium Branding (Hidden on mobile, visible on lg+) -->
+        <!-- Left Side - Premium Branding -->
         <div class="hidden lg:flex lg:w-1/2 gradient-premium relative overflow-y-auto">
             
-            <!-- Decorative Background Elements -->
             <div class="absolute inset-0 pattern-dots opacity-30"></div>
             <div class="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
             <div class="absolute bottom-20 left-20 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl"></div>
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
             
-            <!-- Content Container -->
             <div class="relative z-10 w-full min-h-screen p-6 lg:p-8 xl:p-12 flex flex-col justify-between">
                 
-                <!-- Top Section - Logo & Company -->
                 <div class="pt-2 lg:pt-3 xl:pt-4 flex-shrink-0">
-                    <!-- Logo Bulat -->
                     <div class="w-16 lg:w-20 xl:w-28 h-16 lg:h-20 xl:h-28 bg-white rounded-full flex items-center justify-center shadow-2xl mb-4 lg:mb-6 xl:mb-10 logo-glow p-3 xl:p-4">
                         <img src="{{ asset('images/logo.png') }}" alt="Logo PT Puri Digital Output" class="w-full h-full object-contain">
                     </div>
@@ -151,15 +148,12 @@
                     <p class="text-base lg:text-lg xl:text-2xl text-white/95 font-medium">Portal Internal Management</p>
                 </div>
 
-                <!-- Center Section - Illustration -->
                 <div class="flex-1 flex items-center justify-center illustration-container px-4 lg:px-6 xl:px-8 py-6 lg:py-8 min-h-[200px] lg:min-h-[300px]">
                     <div class="relative floating-slow w-full max-w-[200px] lg:max-w-xs xl:max-w-sm">
-                        <!-- Main Icon Circle -->
                         <div class="w-full aspect-square glass-morphism rounded-full flex items-center justify-center relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-full"></div>
                             <i class="fas fa-users text-4xl lg:text-6xl xl:text-8xl text-white relative z-10"></i>
                             
-                            <!-- Orbiting Elements -->
                             <div class="absolute top-3 lg:top-4 xl:top-8 -right-3 lg:-right-4 xl:-right-6 w-10 lg:w-12 xl:w-16 h-10 lg:h-12 xl:h-16 bg-white/20 backdrop-blur-md rounded-xl lg:rounded-2xl flex items-center justify-center shadow-xl">
                                 <i class="fas fa-chart-line text-lg lg:text-xl xl:text-2xl text-white"></i>
                             </div>
@@ -173,7 +167,6 @@
                     </div>
                 </div>
 
-                <!-- Bottom Section - Copyright -->
                 <div class="pb-3 lg:pb-4 xl:pb-6 flex-shrink-0">
                     <div class="border-t border-white/20 pt-3 lg:pt-4 xl:pt-8">
                         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-3">
@@ -200,7 +193,6 @@
 
                 <!-- Mobile Header -->
                 <div class="lg:hidden text-center mb-8 sm:mb-12">
-                    <!-- Logo Bulat Mobile -->
                     <div class="w-20 h-20 bg-white rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-2xl p-4 border-4 border-teal-500">
                         <img src="{{ asset('images/logo.png') }}" alt="Logo PT Puri Digital Output" class="w-full h-full object-contain">
                     </div>
@@ -214,7 +206,7 @@
                     <p class="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed font-normal">Masukkan kredensial Anda untuk mengakses sistem manajemen internal</p>
                 </div>
 
-                <!-- Alert Success (Example) -->
+                <!-- Alert Success -->
                 @if(session('success'))
                 <div class="mb-6 sm:mb-8 p-4 sm:p-5 bg-gradient-to-r from-teal-50 to-cyan-50 border-l-4 border-teal-500 rounded-xl sm:rounded-2xl flex items-center shadow-sm">
                     <div class="w-8 h-8 sm:w-10 sm:h-10 bg-teal-500 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
@@ -241,7 +233,7 @@
                 @endif
 
                 <!-- Login Form -->
-                <form action="{{ route('login') }}" method="POST" class="space-y-6 sm:space-y-8">
+                <form action="{{ route('login') }}" method="POST" class="space-y-6 sm:space-y-8" id="loginForm">
                     @csrf
 
                     <!-- Email Input -->
@@ -300,6 +292,7 @@
                             type="checkbox" 
                             name="remember" 
                             id="remember"
+                            {{ old('remember') ? 'checked' : '' }}
                             class="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
                         >
                         <label for="remember" class="ml-2 sm:ml-3 text-xs sm:text-sm text-gray-700 font-semibold cursor-pointer select-none">
@@ -310,10 +303,11 @@
                     <!-- Submit Button -->
                     <button 
                         type="submit"
+                        id="submitBtn"
                         class="btn-premium w-full bg-gradient-to-r from-teal-600 via-teal-700 to-cyan-700 text-white font-bold py-5 sm:py-6 rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base tracking-wide mt-6 sm:mt-8 lg:mt-10"
                     >
-                        <span>SIGN IN</span>
-                        <i class="fas fa-arrow-right text-base sm:text-lg"></i>
+                        <span id="btnText">SIGN IN</span>
+                        <i class="fas fa-arrow-right text-base sm:text-lg" id="btnIcon"></i>
                     </button>
 
                 </form>
@@ -329,7 +323,6 @@
 
     </div>
 
-    <!-- JavaScript -->
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
@@ -358,10 +351,51 @@
             });
         });
 
-        // Prevent form resubmission
-        if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
+        // Prevent double submit
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+
+        if (loginForm && submitBtn) {
+            loginForm.addEventListener('submit', function(e) {
+                // Disable button
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                
+                // Change button text
+                btnText.textContent = 'PROCESSING...';
+                btnIcon.classList.remove('fa-arrow-right');
+                btnIcon.classList.add('fa-spinner', 'fa-spin');
+                
+                // Re-enable after 5 seconds (jaga-jaga jika ada error)
+                setTimeout(function() {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    btnText.textContent = 'SIGN IN';
+                    btnIcon.classList.remove('fa-spinner', 'fa-spin');
+                    btnIcon.classList.add('fa-arrow-right');
+                }, 5000);
+            });
         }
+
+        // Clear history to prevent back button issues
+        if (window.history && window.history.pushState) {
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, null, window.location.href);
+            };
+        }
+
+        // Auto-clear success messages after 5 seconds
+        setTimeout(function() {
+            const successAlert = document.querySelector('.bg-gradient-to-r.from-teal-50');
+            if (successAlert) {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(() => successAlert.remove(), 500);
+            }
+        }, 5000);
     </script>
 
 </body>
