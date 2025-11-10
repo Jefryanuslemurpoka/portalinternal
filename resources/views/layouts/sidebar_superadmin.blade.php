@@ -58,6 +58,15 @@
             <span class="font-medium text-sm sm:text-base truncate">Log Book Server</span>
         </a>
 
+        <!-- SSF -->
+        <a href="https://internal.ssf.co.id/" 
+           target="_blank"
+           rel="noopener noreferrer"
+           class="flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl hover:bg-white/10 transition-all duration-200">
+            <i class="fas fa-external-link-alt text-base sm:text-lg w-5 flex-shrink-0"></i>
+            <span class="font-medium text-sm sm:text-base truncate">SSF</span>
+        </a>
+
         <!-- Pengumuman -->
         <a href="{{ route('superadmin.pengumuman.index') }}" 
            class="flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('superadmin.pengumuman.*') ? 'bg-white/20 shadow-md' : '' }}">
