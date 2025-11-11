@@ -13,11 +13,18 @@
                 <h2 class="text-lg sm:text-xl font-bold text-gray-800">Data Karyawan</h2>
                 <p class="text-xs sm:text-sm text-gray-500 mt-1">Kelola data karyawan perusahaan</p>
             </div>
-            <a href="{{ route('superadmin.karyawan.create') }}" class="inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md text-sm whitespace-nowrap flex-shrink-0">
-                <i class="fas fa-plus mr-2"></i>
-                <span class="hidden sm:inline">Tambah Karyawan</span>
-                <span class="sm:hidden">Tambah</span>
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('superadmin.divisi.index') }}" class="inline-flex items-center justify-center px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md text-sm whitespace-nowrap">
+                    <i class="fas fa-sitemap mr-1 sm:mr-2"></i>
+                    <span class="hidden sm:inline">Kelola Divisi</span>
+                    <span class="sm:hidden">Divisi</span>
+                </a>
+                <a href="{{ route('superadmin.karyawan.create') }}" class="inline-flex items-center justify-center px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md text-sm whitespace-nowrap flex-shrink-0">
+                    <i class="fas fa-plus mr-1 sm:mr-2"></i>
+                    <span class="hidden sm:inline">Tambah Karyawan</span>
+                    <span class="sm:hidden">Tambah</span>
+                </a>
+            </div>
         </div>
         
         <!-- Search & Filter Row -->
@@ -48,6 +55,7 @@
                         <th class="px-6 py-4 text-left text-sm font-semibold">Nama</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold">Divisi</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Jabatan</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold">Aksi</th>
                     </tr>
@@ -78,6 +86,11 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
+                            <span class="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-xs font-semibold">
+                                {{ $k->jabatan ?? '-' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
                             <span class="badge badge-{{ $k->status == 'aktif' ? 'success' : 'danger' }}">
                                 {{ ucfirst($k->status) }}
                             </span>
@@ -104,7 +117,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center">
+                        <td colspan="8" class="px-6 py-12 text-center">
                             <div class="empty-state">
                                 <i class="fas fa-users text-gray-300 text-4xl mb-3"></i>
                                 <p class="text-gray-500">Belum ada data karyawan</p>
@@ -129,10 +142,15 @@
                 <div class="flex-1 min-w-0">
                     <h3 class="text-sm sm:text-base font-bold text-gray-900 truncate">{{ $k->name }}</h3>
                     <p class="text-xs sm:text-sm text-gray-600 truncate">{{ $k->email }}</p>
-                    <div class="flex items-center gap-2 mt-1.5">
+                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span class="px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full text-xs font-semibold">
                             {{ $k->divisi }}
                         </span>
+                        @if($k->jabatan)
+                        <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded-full text-xs font-semibold">
+                            {{ $k->jabatan }}
+                        </span>
+                        @endif
                         <span class="badge badge-{{ $k->status == 'aktif' ? 'success' : 'danger' }} text-xs">
                             {{ ucfirst($k->status) }}
                         </span>
@@ -259,7 +277,7 @@
 
 @push('scripts')
 <script>
-    // Live Search Function - FIXED
+    // Live Search Function
     function performSearch() {
         const searchValue = document.getElementById('searchInput').value.toLowerCase();
         const filterValue = document.getElementById('filterStatus').value.toLowerCase();
@@ -300,25 +318,21 @@
         showNoResultsMessage(visibleCount === 0 && visibleCardCount === 0);
     }
 
-    // Live Search - Works for both desktop and mobile
+    // Live Search
     document.getElementById('searchInput').addEventListener('keyup', performSearch);
-
-    // Filter Status - Works for both desktop and mobile
     document.getElementById('filterStatus').addEventListener('change', performSearch);
 
     // Show/hide no results message
     function showNoResultsMessage(show) {
-        // Remove existing no results messages
         document.querySelectorAll('.no-results-message').forEach(el => el.remove());
         
         if (show) {
-            // Add to desktop table
             const tableBody = document.getElementById('tableBodykaryawanTable');
             if (tableBody && window.innerWidth >= 1024) {
                 const noResultRow = document.createElement('tr');
                 noResultRow.className = 'no-results-message';
                 noResultRow.innerHTML = `
-                    <td colspan="7" class="px-6 py-12 text-center">
+                    <td colspan="8" class="px-6 py-12 text-center">
                         <i class="fas fa-search text-gray-300 text-4xl mb-3"></i>
                         <p class="text-gray-500">Tidak ada data yang cocok dengan pencarian</p>
                     </td>
@@ -326,7 +340,6 @@
                 tableBody.appendChild(noResultRow);
             }
             
-            // Add to mobile view
             const mobileView = document.getElementById('mobileCardView');
             if (mobileView && window.innerWidth < 1024) {
                 const noResultCard = document.createElement('div');
@@ -340,14 +353,14 @@
         }
     }
 
-    // Open Delete Modal - FIXED with UUID
+    // Open Delete Modal
     function openDeleteModal(uuid, name) {
         document.getElementById('deleteKaryawanName').textContent = name;
         document.getElementById('deleteForm').action = `/superadmin/karyawan/${uuid}`;
         openModal('deleteModal');
     }
 
-    // Open Reset Password Modal - FIXED with UUID
+    // Open Reset Password Modal
     function openResetModal(uuid, name) {
         document.getElementById('resetKaryawanName').textContent = name;
         document.getElementById('resetForm').action = `/superadmin/karyawan/${uuid}/reset-password`;

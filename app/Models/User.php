@@ -14,12 +14,26 @@ class User extends Authenticatable
     protected $fillable = [
         'uuid',
         'name',
+        'nik',
+        'gelar',
         'email',
         'password',
+        'alamat',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'jenis_kelamin',
+        'nomor_rekening',
         'role',
         'divisi',
+        'jabatan',
         'foto',
+        'foto_ktp',
+        'foto_npwp',
+        'foto_bpjs',
+        'dokumen_kontrak',
         'status',
+        'aktif_dari',
+        'aktif_sampai',
     ];
 
     protected $hidden = [
@@ -32,6 +46,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tanggal_lahir' => 'date',
+            'aktif_dari' => 'date',
+            'aktif_sampai' => 'date',
         ];
     }
 
@@ -112,5 +129,21 @@ class User extends Authenticatable
     public function unreadNotifications()
     {
         return $this->notifications()->where('is_read', false);
+    }
+
+    /**
+     * Get nama lengkap dengan gelar
+     */
+    public function getNamaLengkapAttribute()
+    {
+        return $this->gelar ? $this->name . ', ' . $this->gelar : $this->name;
+    }
+
+    /**
+     * Get umur dari tanggal lahir
+     */
+    public function getUmurAttribute()
+    {
+        return $this->tanggal_lahir ? $this->tanggal_lahir->age : null;
     }
 }

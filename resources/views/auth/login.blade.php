@@ -172,7 +172,7 @@
                         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-3">
                             <div>
                                 <p class="text-white/90 text-xs lg:text-xs xl:text-sm font-medium mb-0.5 lg:mb-1">&copy; 2025 PT Puri Digital Output</p>
-                                <p class="text-white/60 text-[10px] lg:text-xs">All rights reserved • Version 1.1.0</p>
+                                <p class="text-white/60 text-[10px] lg:text-xs">All rights reserved • Version 1.1.4</p>
                             </div>
                             <div class="flex items-center space-x-2 lg:space-x-3">
                                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>

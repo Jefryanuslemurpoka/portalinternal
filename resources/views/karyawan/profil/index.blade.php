@@ -47,8 +47,13 @@
                         @endif
                     </div>
                     
-                    <h3 class="text-xl font-bold text-gray-900 mb-1">{{ $user->name }}</h3>
-                    <p class="text-gray-500 mb-4">{{ $user->email }}</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">
+                        {{ $user->name }}{{ $user->gelar ? ', ' . $user->gelar : '' }}
+                    </h3>
+                    <p class="text-gray-500 mb-1">{{ $user->email }}</p>
+                    @if($user->jabatan)
+                        <p class="text-sm text-teal-600 font-semibold mb-4">{{ $user->jabatan }}</p>
+                    @endif
                     
                     <div class="space-y-2">
                         <button onclick="openModal('modalUploadFoto')" class="w-full btn btn-primary">
@@ -82,9 +87,17 @@
                         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                             <span class="text-sm font-semibold text-gray-600">Role</span>
                             <span class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700">
-                                {{ ucfirst($user->role) }}
+                                {{ ucfirst(str_replace('_', ' ', $user->role)) }}
                             </span>
                         </div>
+                        
+                        @if($user->divisi)
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                            <span class="text-sm font-semibold text-gray-600">Divisi</span>
+                            <span class="text-sm text-gray-900 font-medium">{{ $user->divisi }}</span>
+                        </div>
+                        @endif
+                        
                         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                             <span class="text-sm font-semibold text-gray-600">Status</span>
                             @if($user->status == 'aktif')
@@ -93,10 +106,26 @@
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Tidak Aktif</span>
                             @endif
                         </div>
+                        
+                        @if($user->aktif_dari)
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                            <span class="text-sm font-semibold text-gray-600">Aktif Sejak</span>
+                            <span class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($user->aktif_dari)->format('d M Y') }}</span>
+                        </div>
+                        @endif
+                        
+                        @if($user->aktif_sampai)
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                            <span class="text-sm font-semibold text-gray-600">Kontrak Sampai</span>
+                            <span class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($user->aktif_sampai)->format('d M Y') }}</span>
+                        </div>
+                        @endif
+                        
                         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                             <span class="text-sm font-semibold text-gray-600">Terdaftar</span>
                             <span class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($user->created_at)->format('d M Y') }}</span>
                         </div>
+                        
                         @if($user->sisa_cuti)
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-semibold text-gray-600">Sisa Cuti</span>
@@ -112,6 +141,198 @@
 
         <!-- Right Column - Forms -->
         <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Data Pribadi (Read Only) -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-cyan-600">
+                    <h3 class="text-lg font-bold text-white">
+                        <i class="fas fa-id-card mr-2"></i>Data Pribadi
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- NIK -->
+                        @if($user->nik)
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIK</label>
+                            <p class="text-gray-900 font-medium mt-1">{{ $user->nik }}</p>
+                        </div>
+                        @endif
+                        
+                        <!-- Nama Lengkap dengan Gelar -->
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nama Lengkap</label>
+                            <p class="text-gray-900 font-medium mt-1">
+                                {{ $user->name }}{{ $user->gelar ? ', ' . $user->gelar : '' }}
+                            </p>
+                        </div>
+                        
+                        <!-- Tempat Lahir -->
+                        @if($user->tempat_lahir)
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tempat Lahir</label>
+                            <p class="text-gray-900 font-medium mt-1">{{ $user->tempat_lahir }}</p>
+                        </div>
+                        @endif
+                        
+                        <!-- Tanggal Lahir -->
+                        @if($user->tanggal_lahir)
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tanggal Lahir</label>
+                            <p class="text-gray-900 font-medium mt-1">
+                                {{ \Carbon\Carbon::parse($user->tanggal_lahir)->format('d F Y') }}
+                                <span class="text-sm text-gray-500">({{ \Carbon\Carbon::parse($user->tanggal_lahir)->age }} tahun)</span>
+                            </p>
+                        </div>
+                        @endif
+                        
+                        <!-- Jenis Kelamin -->
+                        @if($user->jenis_kelamin)
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Jenis Kelamin</label>
+                            <p class="text-gray-900 font-medium mt-1">{{ $user->jenis_kelamin }}</p>
+                        </div>
+                        @endif
+                        
+                        <!-- Nomor Rekening -->
+                        @if($user->nomor_rekening)
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nomor Rekening</label>
+                            <p class="text-gray-900 font-medium mt-1">{{ $user->nomor_rekening }}</p>
+                        </div>
+                        @endif
+                        
+                        <!-- Alamat -->
+                        @if($user->alamat)
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Alamat</label>
+                            <p class="text-gray-900 font-medium mt-1">{{ $user->alamat }}</p>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Info Note -->
+                    <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                        <div class="flex">
+                            <i class="fas fa-info-circle text-blue-600 text-lg mr-3 mt-0.5"></i>
+                            <div>
+                                <p class="text-blue-800 font-semibold text-sm">Informasi</p>
+                                <p class="text-blue-700 text-xs">Data pribadi ini hanya dapat diubah oleh Super Admin. Jika ada perubahan, silakan hubungi bagian HRD.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dokumen Karyawan (Read Only) -->
+            @if($user->foto_ktp || $user->foto_npwp || $user->foto_bpjs || $user->dokumen_kontrak)
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600">
+                    <h3 class="text-lg font-bold text-white">
+                        <i class="fas fa-file-alt mr-2"></i>Dokumen Saya
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Foto KTP -->
+                        @if($user->foto_ktp)
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-id-card text-teal-600 text-xl mr-3"></i>
+                                    <span class="font-semibold text-gray-900">Foto KTP</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $user->foto_ktp) }}" 
+                                   target="_blank" 
+                                   class="text-teal-600 hover:text-teal-700 text-sm font-semibold">
+                                    <i class="fas fa-eye mr-1"></i> Lihat
+                                </a>
+                            </div>
+                            <img src="{{ asset('storage/' . $user->foto_ktp) }}" 
+                                 alt="Foto KTP" 
+                                 class="w-full h-32 object-cover rounded-lg">
+                        </div>
+                        @endif
+                        
+                        <!-- Foto NPWP -->
+                        @if($user->foto_npwp)
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-invoice text-teal-600 text-xl mr-3"></i>
+                                    <span class="font-semibold text-gray-900">Foto NPWP</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $user->foto_npwp) }}" 
+                                   target="_blank" 
+                                   class="text-teal-600 hover:text-teal-700 text-sm font-semibold">
+                                    <i class="fas fa-eye mr-1"></i> Lihat
+                                </a>
+                            </div>
+                            <img src="{{ asset('storage/' . $user->foto_npwp) }}" 
+                                 alt="Foto NPWP" 
+                                 class="w-full h-32 object-cover rounded-lg">
+                        </div>
+                        @endif
+                        
+                        <!-- Foto BPJS -->
+                        @if($user->foto_bpjs)
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-hospital text-teal-600 text-xl mr-3"></i>
+                                    <span class="font-semibold text-gray-900">Foto BPJS</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $user->foto_bpjs) }}" 
+                                   target="_blank" 
+                                   class="text-teal-600 hover:text-teal-700 text-sm font-semibold">
+                                    <i class="fas fa-eye mr-1"></i> Lihat
+                                </a>
+                            </div>
+                            <img src="{{ asset('storage/' . $user->foto_bpjs) }}" 
+                                 alt="Foto BPJS" 
+                                 class="w-full h-32 object-cover rounded-lg">
+                        </div>
+                        @endif
+                        
+                        <!-- Dokumen Kontrak -->
+                        @if($user->dokumen_kontrak)
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-contract text-teal-600 text-xl mr-3"></i>
+                                    <span class="font-semibold text-gray-900">Dokumen Kontrak</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $user->dokumen_kontrak) }}" 
+                                   target="_blank" 
+                                   class="text-teal-600 hover:text-teal-700 text-sm font-semibold">
+                                    <i class="fas fa-download mr-1"></i> Unduh
+                                </a>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-6 text-center">
+                                @php
+                                    $extension = pathinfo($user->dokumen_kontrak, PATHINFO_EXTENSION);
+                                @endphp
+                                @if($extension == 'pdf')
+                                    <i class="fas fa-file-pdf text-6xl text-red-500 mb-2"></i>
+                                    <p class="text-sm text-gray-600">Dokumen PDF</p>
+                                @elseif(in_array($extension, ['doc', 'docx']))
+                                    <i class="fas fa-file-word text-6xl text-blue-500 mb-2"></i>
+                                    <p class="text-sm text-gray-600">Dokumen Word</p>
+                                @else
+                                    <img src="{{ asset('storage/' . $user->dokumen_kontrak) }}" 
+                                         alt="Dokumen Kontrak" 
+                                         class="w-full h-32 object-cover rounded-lg">
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+                        
+                    </div>
+                </div>
+            </div>
+            @endif
             
             <!-- Edit Profile Form -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -179,7 +400,7 @@
                                 <input type="date" 
                                        name="tanggal_lahir" 
                                        class="form-input @error('tanggal_lahir') border-red-500 @enderror" 
-                                       value="{{ old('tanggal_lahir', $user->tanggal_lahir) }}">
+                                       value="{{ old('tanggal_lahir', $user->tanggal_lahir ? $user->tanggal_lahir->format('Y-m-d') : '') }}">
                                 @error('tanggal_lahir')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -192,8 +413,8 @@
                                 </label>
                                 <select name="jenis_kelamin" class="form-input @error('jenis_kelamin') border-red-500 @enderror">
                                     <option value="">-- Pilih --</option>
-                                    <option value="L" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                    <option value="P" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                    <option value="Laki-laki" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="Perempuan" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
                                 @error('jenis_kelamin')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -205,11 +426,11 @@
                                 <label class="form-label">
                                     <i class="fas fa-map-marker-alt mr-2"></i>Alamat
                                 </label>
-                                <textarea name="address" 
+                                <textarea name="alamat" 
                                           rows="3" 
-                                          class="form-input @error('address') border-red-500 @enderror"
-                                          placeholder="Alamat lengkap">{{ old('address', $user->address) }}</textarea>
-                                @error('address')
+                                          class="form-input @error('alamat') border-red-500 @enderror"
+                                          placeholder="Alamat lengkap">{{ old('alamat', $user->alamat) }}</textarea>
+                                @error('alamat')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>

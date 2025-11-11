@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\KaryawanController;
+use App\Http\Controllers\SuperAdmin\DivisiController;
 use App\Http\Controllers\SuperAdmin\AbsensiController;
 use App\Http\Controllers\SuperAdmin\CutiIzinController;
 use App\Http\Controllers\SuperAdmin\SuratController;
@@ -34,6 +35,22 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
         Route::put('/{uuid}', [KaryawanController::class, 'update'])->name('update');
         Route::delete('/{uuid}', [KaryawanController::class, 'destroy'])->name('destroy');
         Route::post('/{uuid}/reset-password', [KaryawanController::class, 'resetPassword'])->name('reset-password');
+    });
+
+    // ========================================
+    // MANAJEMEN DIVISI (BARU)
+    // ========================================
+    Route::prefix('divisi')->name('superadmin.divisi.')->group(function () {
+        Route::get('/', [DivisiController::class, 'index'])->name('index');
+        Route::post('/', [DivisiController::class, 'store'])->name('store');
+        Route::put('/{id}', [DivisiController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DivisiController::class, 'destroy'])->name('destroy');
+
+        // Route untuk clear session
+        Route::post('/clear-session', function() {
+            session()->forget(['divisi_previous_url', 'redirect_back']);
+            return response()->json(['success' => true]);
+        })->name('clear-session');
     });
 
     // ========================================
