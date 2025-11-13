@@ -9,14 +9,22 @@ use App\Http\Controllers\Karyawan\PengumumanController;
 use App\Http\Controllers\Karyawan\ProfilController;
 use App\Http\Controllers\Karyawan\SuratController;
 use App\Http\Controllers\Karyawan\ServerLogController;
+use App\Http\Controllers\Karyawan\WorkspaceController;
 
-// Karyawan Routes - dengan middleware karyawan
+// ========================================
+// KARYAWAN ROUTES
+// Middleware: auth + karyawan
+// ========================================
 Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
     
-    // Dashboard
+    // ========================================
+    // DASHBOARD
+    // ========================================
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('karyawan.dashboard');
 
-    // Absensi Check-in/Check-out
+    // ========================================
+    // ABSENSI CHECK-IN/CHECK-OUT
+    // ========================================
     Route::prefix('absensi')->name('karyawan.absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
         Route::post('/check-in', [AbsensiController::class, 'checkIn'])->name('checkin');
@@ -24,7 +32,9 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::get('/today', [AbsensiController::class, 'today'])->name('today');
     });
 
-    // Rekap Absensi
+    // ========================================
+    // REKAP ABSENSI
+    // ========================================
     Route::prefix('rekap')->name('karyawan.rekap.')->group(function () {
         Route::get('/', [RekapController::class, 'index'])->name('index');
         Route::get('/harian', [RekapController::class, 'harian'])->name('harian');
@@ -32,7 +42,9 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::get('/bulanan', [RekapController::class, 'bulanan'])->name('bulanan');
     });
 
-    // Pengajuan Cuti/Izin
+    // ========================================
+    // PENGAJUAN CUTI/IZIN
+    // ========================================
     Route::prefix('cuti-izin')->name('karyawan.cutiizin.')->group(function () {
         Route::get('/', [CutiIzinController::class, 'index'])->name('index');
         Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
@@ -41,7 +53,9 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
     });
 
-    // Surat/Dokumen - LENGKAP dengan semua route yang dibutuhkan
+    // ========================================
+    // SURAT/DOKUMEN - LENGKAP
+    // ========================================
     Route::prefix('surat')->name('karyawan.surat.')->group(function () {
         Route::get('/', [SuratController::class, 'index'])->name('index');
         Route::get('/create', [SuratController::class, 'create'])->name('create');
@@ -53,7 +67,9 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::get('/{id}', [SuratController::class, 'show'])->name('show');
     });
 
-    // Server Log - CRUD LENGKAP (create, edit, delete)
+    // ========================================
+    // SERVER LOG - CRUD LENGKAP
+    // ========================================
     Route::prefix('server-log')->name('karyawan.serverlog.')->group(function () {
         Route::get('/', [ServerLogController::class, 'index'])->name('index');
         Route::get('/create', [ServerLogController::class, 'create'])->name('create');
@@ -64,13 +80,22 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::get('/{id}', [ServerLogController::class, 'show'])->name('show');
     });
 
-    // Pengumuman
+    // ========================================
+    // WORKSPACE (BARU) ✨
+    // ========================================
+    Route::get('/workspace', [WorkspaceController::class, 'index'])->name('karyawan.workspace.index');
+
+    // ========================================
+    // PENGUMUMAN
+    // ========================================
     Route::prefix('pengumuman')->name('karyawan.pengumuman.')->group(function () {
         Route::get('/', [PengumumanController::class, 'index'])->name('index');
         Route::get('/{id}', [PengumumanController::class, 'show'])->name('show');
     });
 
-    // Profil
+    // ========================================
+    // PROFIL
+    // ========================================
     Route::prefix('profil')->name('karyawan.profil.')->group(function () {
         Route::get('/', [ProfilController::class, 'index'])->name('index');
         Route::put('/update', [ProfilController::class, 'update'])->name('update');

@@ -18,6 +18,7 @@ class User extends Authenticatable
         'gelar',
         'email',
         'password',
+        'phone',  // 👈 TAMBAHKAN INI
         'alamat',
         'tempat_lahir',
         'tanggal_lahir',
@@ -34,6 +35,7 @@ class User extends Authenticatable
         'status',
         'aktif_dari',
         'aktif_sampai',
+        'sisa_cuti',  // 👈 TAMBAHKAN INI (karena ditampilkan di view)
     ];
 
     protected $hidden = [

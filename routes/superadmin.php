@@ -11,6 +11,7 @@ use App\Http\Controllers\SuperAdmin\ServerLogController;
 use App\Http\Controllers\SuperAdmin\PengumumanController;
 use App\Http\Controllers\SuperAdmin\LaporanController;
 use App\Http\Controllers\SuperAdmin\PengaturanController;
+use App\Http\Controllers\SuperAdmin\WorkspaceController;
 
 // ========================================
 // SUPER ADMIN ROUTES
@@ -108,6 +109,11 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
         Route::put('/{id}', [ServerLogController::class, 'update'])->name('update');
         Route::delete('/{id}', [ServerLogController::class, 'destroy'])->name('destroy');
     });
+
+    // ========================================
+    // WORKSPACE (BARU) ✨
+    // ========================================
+    Route::get('/workspace', [WorkspaceController::class, 'index'])->name('superadmin.workspace.index');
 
     // ========================================
     // PENGUMUMAN

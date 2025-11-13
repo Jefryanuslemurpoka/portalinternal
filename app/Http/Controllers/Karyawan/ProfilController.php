@@ -38,9 +38,9 @@ class ProfilController extends Controller
                 Rule::unique('users')->ignore($user->id)
             ],
             'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'alamat' => 'nullable|string|max:500',
             'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'nullable|in:L,P',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
         ], [
             'name.required' => 'Nama harus diisi',
             'name.max' => 'Nama maksimal 255 karakter',
@@ -48,9 +48,9 @@ class ProfilController extends Controller
             'email.email' => 'Format email tidak valid',
             'email.unique' => 'Email sudah digunakan',
             'phone.max' => 'Nomor telepon maksimal 20 karakter',
-            'address.max' => 'Alamat maksimal 500 karakter',
+            'alamat.max' => 'Alamat maksimal 500 karakter',
             'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
-            'jenis_kelamin.in' => 'Jenis kelamin harus L atau P',
+            'jenis_kelamin.in' => 'Jenis kelamin harus Laki-laki atau Perempuan',
         ]);
         
         // Update user data
@@ -114,7 +114,7 @@ class ProfilController extends Controller
                     ->with('success', 'Foto profil berhasil dihapus!');
             }
             
-            return redirect()->route('karyawan.p    rofil.index')
+            return redirect()->route('karyawan.profil.index')
                 ->with('error', 'Foto profil tidak ditemukan!');
         }
         
