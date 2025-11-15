@@ -168,76 +168,92 @@
 
 </div>
 
-<!-- Modal Add -->
+<!-- Modal Add - LAYOUT BARU: Kiri Input, Kanan Tombol -->
 <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full" onclick="event.stopPropagation()">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full" onclick="event.stopPropagation()">
         <div class="p-6 border-b border-gray-200">
             <h3 class="text-xl font-bold text-gray-900">Tambah Divisi Baru</h3>
         </div>
         <form action="{{ route('superadmin.divisi.store') }}" method="POST">
             @csrf
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="form-label">Nama Divisi <span class="text-red-500">*</span></label>
-                    <input type="text" name="nama_divisi" class="form-input" placeholder="Contoh: IT, HR, Marketing" required>
+            <div class="p-6">
+                <!-- Grid 2 Kolom: Kiri Form, Kanan Tombol -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- KIRI: Form Input (2 kolom) -->
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <label class="form-label">Nama Divisi <span class="text-red-500">*</span></label>
+                            <input type="text" name="nama_divisi" class="form-input" placeholder="Contoh: IT, HR, Marketing" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Deskripsi</label>
+                            <textarea name="deskripsi" rows="3" class="form-input" placeholder="Deskripsi singkat divisi"></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label">Status <span class="text-red-500">*</span></label>
+                            <select name="status" class="form-input" required>
+                                <option value="aktif">Aktif</option>
+                                <option value="nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- KANAN: Tombol Aksi (1 kolom) -->
+                    <div class="md:col-span-1 flex flex-col justify-center space-y-3">
+                        <button type="submit" class="w-full px-5 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md">
+                            <i class="fas fa-save mr-2"></i>Simpan
+                        </button>
+                        <button type="button" onclick="closeModal('addModal')" class="w-full px-5 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
+                            <i class="fas fa-times mr-2"></i>Batal
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label class="form-label">Deskripsi</label>
-                    <textarea name="deskripsi" rows="3" class="form-input" placeholder="Deskripsi singkat divisi"></textarea>
-                </div>
-                <div>
-                    <label class="form-label">Status <span class="text-red-500">*</span></label>
-                    <select name="status" class="form-input" required>
-                        <option value="aktif">Aktif</option>
-                        <option value="nonaktif">Nonaktif</option>
-                    </select>
-                </div>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-b-xl flex items-center justify-end space-x-3">
-                <button type="button" onclick="closeModal('addModal')" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
-                    Batal
-                </button>
-                <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md">
-                    <i class="fas fa-save mr-2"></i>Simpan
-                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal Edit -->
+<!-- Modal Edit - LAYOUT BARU: Kiri Input, Kanan Tombol -->
 <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full" onclick="event.stopPropagation()">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full" onclick="event.stopPropagation()">
         <div class="p-6 border-b border-gray-200">
             <h3 class="text-xl font-bold text-gray-900">Edit Divisi</h3>
         </div>
         <form id="editForm" method="POST">
             @csrf
             @method('PUT')
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="form-label">Nama Divisi <span class="text-red-500">*</span></label>
-                    <input type="text" name="nama_divisi" id="edit_nama_divisi" class="form-input" required>
+            <div class="p-6">
+                <!-- Grid 2 Kolom: Kiri Form, Kanan Tombol -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- KIRI: Form Input (2 kolom) -->
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <label class="form-label">Nama Divisi <span class="text-red-500">*</span></label>
+                            <input type="text" name="nama_divisi" id="edit_nama_divisi" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Deskripsi</label>
+                            <textarea name="deskripsi" id="edit_deskripsi" rows="3" class="form-input"></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label">Status <span class="text-red-500">*</span></label>
+                            <select name="status" id="edit_status" class="form-input" required>
+                                <option value="aktif">Aktif</option>
+                                <option value="nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- KANAN: Tombol Aksi (1 kolom) -->
+                    <div class="md:col-span-1 flex flex-col justify-center space-y-3">
+                        <button type="submit" class="w-full px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-lg hover:from-amber-600 hover:to-orange-700 transition shadow-md">
+                            <i class="fas fa-save mr-2"></i>Update
+                        </button>
+                        <button type="button" onclick="closeModal('editModal')" class="w-full px-5 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
+                            <i class="fas fa-times mr-2"></i>Batal
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label class="form-label">Deskripsi</label>
-                    <textarea name="deskripsi" id="edit_deskripsi" rows="3" class="form-input"></textarea>
-                </div>
-                <div>
-                    <label class="form-label">Status <span class="text-red-500">*</span></label>
-                    <select name="status" id="edit_status" class="form-input" required>
-                        <option value="aktif">Aktif</option>
-                        <option value="nonaktif">Nonaktif</option>
-                    </select>
-                </div>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-b-xl flex items-center justify-end space-x-3">
-                <button type="button" onclick="closeModal('editModal')" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">
-                    Batal
-                </button>
-                <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-lg hover:from-amber-600 hover:to-orange-700 transition shadow-md">
-                    <i class="fas fa-save mr-2"></i>Update
-                </button>
             </div>
         </form>
     </div>

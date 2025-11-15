@@ -1,135 +1,132 @@
+<!-- Redesigned Edit Pengumuman (Teal-Cyan Theme, Matching Create Page) -->
 @extends('layouts.app')
 
 @section('title', 'Edit Pengumuman')
 @section('page-title', 'Edit Pengumuman')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
+<div class="max-w-7xl mx-auto space-y-5">
 
     <!-- Back Button -->
-    <div class="mb-6">
-        <a href="{{ route('superadmin.pengumuman.index') }}" class="inline-flex items-center text-gray-600 hover:text-gray-800">
-            <i class="fas fa-arrow-left mr-2"></i>
-            Kembali ke Daftar Pengumuman
+    <div class="flex items-center mb-4">
+        <a href="{{ route('superadmin.pengumuman.index') }}" class="inline-flex items-center gap-2 text-gray-700 hover:text-teal-600 font-semibold transition">
+            <i class="fas fa-arrow-left text-lg"></i>
+            <span>Kembali</span>
         </a>
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        
+    <!-- Main Container -->
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+
         <!-- Header -->
-        <div class="bg-gradient-to-r from-teal-600 to-cyan-600 px-6 py-4">
-            <h3 class="text-xl font-bold text-white">
-                <i class="fas fa-edit mr-2"></i>Form Edit Pengumuman
-            </h3>
+        <div class="px-6 py-5 bg-gradient-to-r from-teal-600 to-cyan-600">
+            <h2 class="text-xl font-extrabold text-white tracking-wide flex items-center gap-3">
+                <i class="fas fa-edit text-3xl"></i>
+                Edit Pengumuman
+            </h2>
+            <p class="text-white/80 text-sm mt-2">Perbarui informasi pengumuman sesuai kebutuhan.</p>
         </div>
 
         <!-- Form -->
-        <form action="{{ route('superadmin.pengumuman.update', $pengumuman->id) }}" method="POST" class="p-6">
+        <form action="{{ route('superadmin.pengumuman.update', $pengumuman->id) }}" method="POST" class="p-4">
             @csrf
             @method('PUT')
 
-            <div class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-10 gap-10">
 
-                <!-- Info Box -->
-                <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                    <div class="flex items-start">
-                        <i class="fas fa-info-circle text-teal-600 mt-1 mr-3"></i>
-                        <div>
-                            <p class="text-sm text-teal-800 font-semibold mb-1">Tips Pengumuman Efektif</p>
-                            <ul class="text-xs text-teal-700 space-y-1">
-                                <li>• Gunakan judul yang jelas dan menarik perhatian</li>
-                                <li>• Tulis konten yang singkat, padat, dan mudah dipahami</li>
-                                <li>• Cantumkan informasi penting seperti tanggal, waktu, dan lokasi</li>
-                            </ul>
+                <!-- LEFT SECTION -->
+                <div class="lg:col-span-6 space-y-5">
+
+                    <!-- Tips Box -->
+                    <div class="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4 shadow-sm mb-4">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4 flex items-center gap-3">
+                            <i class="fas fa-lightbulb text-teal-600 text-xl"></i>
+                            Tips Mengedit Pengumuman
+                        </h3>
+                        <ul class="space-y-3 text-gray-700 text-sm">
+                            <li class="flex gap-3"><i class="fas fa-check-circle text-teal-600 mt-1"></i> Perbarui informasi penting dengan jelas</li>
+                            <li class="flex gap-3"><i class="fas fa-check-circle text-teal-600 mt-1"></i> Pastikan tanggal dan isi tidak salah ketik</li>
+                            <li class="flex gap-3"><i class="fas fa-check-circle text-teal-600 mt-1"></i> Gunakan bahasa yang tetap sopan dan mudah dipahami</li>
+                        </ul>
+                    </div>
+
+                    <!-- Judul -->
+                    <div class="space-y-2">
+                        <label class="block font-semibold text-gray-700">Judul Pengumuman <span class="text-red-500">*</span></label>
+                        <input type="text" id="judul" name="judul"
+                               value="{{ old('judul', $pengumuman->judul) }}"
+                               class="w-full px-3 py-2 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-teal-500 focus:outline-none @error('judul') border-red-500 @enderror" required>
+                        @error('judul')<p class="text-red-500 text-sm">{{ $message }}</p>@enderror
+                        <p class="text-xs text-gray-500"><span id="judulCount">{{ strlen($pengumuman->judul) }}</span>/255 karakter</p>
+                    </div>
+
+                    <!-- Tanggal -->
+                    <div class="space-y-2">
+                        <label class="block font-semibold text-gray-700">Tanggal Pengumuman <span class="text-red-500">*</span></label>
+                        <input type="date" id="tanggal" name="tanggal"
+                               value="{{ old('tanggal', $pengumuman->tanggal->format('Y-m-d')) }}"
+                               class="w-full px-3 py-2 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-teal-500 @error('tanggal') border-red-500 @enderror" required>
+                        @error('tanggal')<p class="text-red-500 text-sm">{{ $message }}</p>@enderror
+                    </div>
+
+                    <!-- Konten -->
+                    <div class="space-y-2">
+                        <label class="block font-semibold text-gray-700">Konten Pengumuman <span class="text-red-500">*</span></label>
+                        <textarea id="konten" name="konten" rows="8"
+                                  class="w-full px-3 py-2 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-teal-500 resize-none @error('konten') border-red-500 @enderror" required>{{ old('konten', $pengumuman->konten) }}</textarea>
+                        @error('konten')<p class="text-red-500 text-sm">{{ $message }}</p>@enderror
+                        <p class="text-xs text-gray-500"><span id="kontenCount">{{ strlen($pengumuman->konten) }}</span> karakter</p>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT SECTION: PREVIEW -->
+                <div class="lg:col-span-4 space-y-5">
+
+                    <!-- Preview Card -->
+                    <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm mt-4">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-eye text-teal-600"></i> Live Preview
+                        </h3>
+
+                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4 shadow-inner">
+
+                            <!-- Header Preview -->
+                            <div class="flex items-start gap-3">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-md">
+                                    <i class="fas fa-bullhorn"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 id="previewJudul" class="text-gray-900 font-bold truncate">{{ $pengumuman->judul }}</h4>
+                                    <p id="previewTanggal" class="text-xs text-gray-500 mt-1">
+                                        <i class="fas fa-calendar mr-1"></i>{{ $pengumuman->tanggal->format('d M Y') }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Content Preview -->
+                            <div class="bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap shadow-sm">
+                                <p id="previewKonten">{{ $pengumuman->konten }}</p>
+                            </div>
+
                         </div>
                     </div>
-                </div>
 
-                <!-- Judul -->
-                <div>
-                    <label for="judul" class="form-label">
-                        <i class="fas fa-heading mr-2"></i>Judul Pengumuman <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="judul" id="judul" value="{{ old('judul', $pengumuman->judul) }}" 
-                           class="form-input @error('judul') border-red-500 @enderror" 
-                           placeholder="Contoh: Rapat Koordinasi Bulanan, Libur Nasional, Update Sistem"
-                           required>
-                    @error('judul')
-                        <p class="form-error">{{ $message }}</p>
-                    @enderror
-                    <p class="text-xs text-gray-500 mt-1">
-                        <span id="judulCount">{{ strlen($pengumuman->judul) }}</span>/255 karakter
-                    </p>
-                </div>
+                    <!-- Action Buttons -->
+                    <div class="space-y-4">
+                        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> Update Pengumuman
+                        </button>
 
-                <!-- Tanggal -->
-                <div>
-                    <label for="tanggal" class="form-label">
-                        <i class="fas fa-calendar mr-2"></i>Tanggal Pengumuman <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal', $pengumuman->tanggal->format('Y-m-d')) }}" 
-                           class="form-input @error('tanggal') border-red-500 @enderror" required>
-                    @error('tanggal')
-                        <p class="form-error">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Konten -->
-                <div>
-                    <label for="konten" class="form-label">
-                        <i class="fas fa-align-left mr-2"></i>Konten Pengumuman <span class="text-red-500">*</span>
-                    </label>
-                    <textarea name="konten" id="konten" rows="10" 
-                              class="form-input @error('konten') border-red-500 @enderror" 
-                              placeholder="Tulis isi pengumuman dengan detail..."
-                              required>{{ old('konten', $pengumuman->konten) }}</textarea>
-                    @error('konten')
-                        <p class="form-error">{{ $message }}</p>
-                    @enderror
-                    <p class="text-xs text-gray-500 mt-1">
-                        <span id="kontenCount">{{ strlen($pengumuman->konten) }}</span> karakter
-                    </p>
-                </div>
-
-                <!-- Preview Box -->
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                    <h4 class="text-sm font-bold text-gray-700 mb-3">
-                        <i class="fas fa-eye mr-2"></i>Preview Pengumuman
-                    </h4>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white">
-                                <i class="fas fa-bullhorn"></i>
-                            </div>
-                            <div>
-                                <h5 id="previewJudul" class="font-bold text-gray-900">
-                                    {{ $pengumuman->judul }}
-                                </h5>
-                                <p id="previewTanggal" class="text-xs text-gray-500">
-                                    <i class="fas fa-calendar mr-1"></i>
-                                    {{ $pengumuman->tanggal->format('d M Y') }}
-                                </p>
-                            </div>
-                        </div>
-                        <p id="previewKonten" class="text-sm text-gray-700">
-                            {{ $pengumuman->konten }}
-                        </p>
+                        <a href="{{ route('superadmin.pengumuman.index') }}"
+                           class="w-full block py-3 rounded-xl bg-gray-200 hover:bg-gray-300 text-center text-gray-700 font-semibold shadow-sm transition">
+                           <i class="fas fa-times mr-1"></i> Batal
+                        </a>
                     </div>
+
                 </div>
 
             </div>
-
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
-                <a href="{{ route('superadmin.pengumuman.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-times mr-2"></i>Batal
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save mr-2"></i>Update Pengumuman
-                </button>
-            </div>
-
         </form>
 
     </div>
@@ -139,30 +136,31 @@
 
 @push('scripts')
 <script>
-    // Character Counter & Live Preview
     const judulInput = document.getElementById('judul');
     const kontenInput = document.getElementById('konten');
     const tanggalInput = document.getElementById('tanggal');
+
     const judulCount = document.getElementById('judulCount');
     const kontenCount = document.getElementById('kontenCount');
+
     const previewJudul = document.getElementById('previewJudul');
     const previewKonten = document.getElementById('previewKonten');
     const previewTanggal = document.getElementById('previewTanggal');
 
-    judulInput.addEventListener('input', function() {
-        judulCount.textContent = this.value.length;
-        previewJudul.textContent = this.value || '(Judul akan muncul disini)';
+    judulInput.addEventListener('input', () => {
+        judulCount.textContent = judulInput.value.length;
+        previewJudul.textContent = judulInput.value || '(Judul akan tampil di sini)';
     });
 
-    kontenInput.addEventListener('input', function() {
-        kontenCount.textContent = this.value.length;
-        previewKonten.textContent = this.value || '(Konten akan muncul disini)';
+    kontenInput.addEventListener('input', () => {
+        kontenCount.textContent = kontenInput.value.length;
+        previewKonten.textContent = kontenInput.value || '(Konten akan tampil di sini)';
     });
 
-    tanggalInput.addEventListener('change', function() {
-        const date = new Date(this.value);
+    tanggalInput.addEventListener('change', () => {
+        const t = new Date(tanggalInput.value);
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        previewTanggal.innerHTML = '<i class="fas fa-calendar mr-1"></i>' + date.toLocaleDateString('id-ID', options);
+        previewTanggal.innerHTML = `<i class="fas fa-calendar mr-1"></i>${t.toLocaleDateString('id-ID', options)}`;
     });
 </script>
 @endpush
