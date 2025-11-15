@@ -92,7 +92,7 @@
     <div class="p-4 border-t border-teal-500/30 mt-auto">
         <div class="text-center">
             <p class="text-xs text-teal-100 font-medium mb-1">&copy; 2025 PT Puri Digital Output</p>
-            <p class="text-xs text-teal-200/70">Version 1.1.7</p>
+            <p class="text-xs text-teal-200/70">Version 1.1.8</p>
         </div>
     </div>
 
