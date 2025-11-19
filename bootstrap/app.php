@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
             'karyawan' => \App\Http\Middleware\KaryawanMiddleware::class,
+            'check.divisi' => \App\Http\Middleware\CheckDivisi::class,
         ]);
 
         // Ensure session is started before CSRF verification

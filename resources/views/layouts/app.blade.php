@@ -71,11 +71,17 @@
     
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar -->
-        @if(Auth::user()->isSuperAdmin())
-            @include('layouts.sidebar_superadmin')
-        @else
-            @include('layouts.sidebar_karyawan')
+        <!-- Sidebar Dinamis Berdasarkan Role & Divisi -->
+        @if(Auth::check())
+            @if(Auth::user()->isSuperAdmin())
+                @include('layouts.sidebar_superadmin')
+            @elseif(Auth::user()->isKaryawan())
+                @if(strtoupper(Auth::user()->divisi) === 'FINANCE')
+                    @include('layouts.sidebar_finance')
+                @else
+                    @include('layouts.sidebar_karyawan')
+                @endif
+            @endif
         @endif
 
         <!-- Main Content -->
@@ -107,34 +113,38 @@
     
     <script>
         // Sidebar Toggle for Mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
-        
-        // Close sidebar when clicking overlay
-        document.getElementById('sidebarOverlay').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+            }
             
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-        
-        // Close sidebar when clicking a menu item on mobile
-        document.querySelectorAll('#sidebar a').forEach(function(link) {
-            link.addEventListener('click', function() {
-                if (window.innerWidth < 1024) {
-                    const sidebar = document.getElementById('sidebar');
-                    const overlay = document.getElementById('sidebarOverlay');
-                    
+            // Close sidebar when clicking overlay
+            if (overlay) {
+                overlay.addEventListener('click', function() {
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
-                }
-            });
+                });
+            }
+            
+            // Close sidebar when clicking a menu item on mobile
+            if (sidebar) {
+                const links = sidebar.querySelectorAll('a');
+                links.forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 1024) {
+                            sidebar.classList.remove('active');
+                            overlay.classList.remove('active');
+                        }
+                    });
+                });
+            }
         });
     </script>
 

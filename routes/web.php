@@ -75,3 +75,4 @@ Route::get('/test-wa-grup', function() {
 // Include route files untuk Super Admin dan Karyawan
 require __DIR__.'/superadmin.php';
 require __DIR__.'/karyawan.php';
+require __DIR__.'/finance.php';

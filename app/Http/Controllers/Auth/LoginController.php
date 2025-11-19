@@ -15,10 +15,7 @@ class LoginController extends Controller
     {
         // Pastikan user yang sudah login tidak bisa akses login page
         if (Auth::check()) {
-            if (Auth::user()->isSuperAdmin()) {
-                return redirect()->route('superadmin.dashboard');
-            }
-            return redirect()->route('karyawan.dashboard');
+            return redirect($this->redirectTo());
         }
 
         return view('auth.login');
@@ -46,9 +43,6 @@ class LoginController extends Controller
         $user = \App\Models\User::where('email', $request->email)->first();
 
         if ($user && $user->status === 'nonaktif') {
-            // REGENERATE TOKEN SAAT ERROR
-            $request->session()->regenerateToken();
-            
             return back()->withErrors([
                 'email' => 'Akun Anda tidak aktif. Hubungi administrator.',
             ])->withInput($request->only('email'));
@@ -58,6 +52,9 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             // REGENERATE SESSION untuk keamanan
             $request->session()->regenerate();
+            
+            // ✅ CRITICAL FIX: Simpan session secara eksplisit
+            $request->session()->save();
 
             // Log aktivitas login
             try {
@@ -70,19 +67,12 @@ class LoginController extends Controller
                 Log::error('Failed to log activity: ' . $e->getMessage());
             }
 
-            // Redirect berdasarkan role
-            if (Auth::user()->isSuperAdmin()) {
-                return redirect()->intended(route('superadmin.dashboard'))
-                    ->with('success', 'Selamat datang, ' . Auth::user()->name);
-            } else {
-                return redirect()->intended(route('karyawan.dashboard'))
-                    ->with('success', 'Selamat datang, ' . Auth::user()->name);
-            }
+            // Redirect berdasarkan role menggunakan redirectTo()
+            return redirect()->intended($this->redirectTo())
+                ->with('success', 'Selamat datang, ' . Auth::user()->name);
         }
 
-        // Login gagal - REGENERATE TOKEN
-        $request->session()->regenerateToken();
-        
+        // Login gagal
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ])->withInput($request->only('email'));
@@ -108,5 +98,32 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'Anda berhasil logout');
+    }
+
+    /**
+     * Tentukan redirect URL berdasarkan role dan divisi user
+     */
+    protected function redirectTo()
+    {
+        $user = auth()->user();
+
+        // Redirect untuk Super Admin
+        if ($user->isSuperAdmin()) {
+            return '/superadmin/dashboard';
+        }
+
+        // Redirect untuk Karyawan berdasarkan divisi
+        if ($user->isKaryawan()) {
+            // Finance divisi ke dashboard finance
+            if (strtoupper($user->divisi) === 'FINANCE') {
+                return '/finance/dashboard';
+            }
+            
+            // Default ke dashboard karyawan (untuk IT dan divisi lain)
+            return '/karyawan/dashboard';
+        }
+
+        // Fallback jika tidak ada role yang cocok
+        return '/login';
     }
 }
