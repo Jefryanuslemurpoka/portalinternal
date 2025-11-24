@@ -16,9 +16,10 @@ class PengaturanController extends Controller
         // Jam Kerja
         $jamMasuk = Setting::get('jam_masuk', '08:00');
         $jamKeluar = Setting::get('jam_keluar', '17:00');
+        $jamSabtuKeluar = Setting::get('jam_sabtu_keluar', '12:00');
         $toleransiKeterlambatan = (int) Setting::get('toleransi_keterlambatan', 15);
 
-        // ✅ Ambil data lokasi kantor dari Setting terpisah
+        // Ambil data lokasi kantor dari Setting terpisah
         $lokasiKantor = [
             'nama' => Setting::get('lokasi_kantor_nama', 'Kantor Pusat'),
             'alamat' => Setting::get('lokasi_kantor_alamat', 'Jl. Contoh No. 123, Jakarta'),
@@ -27,7 +28,7 @@ class PengaturanController extends Controller
             'radius' => (int) Setting::get('lokasi_kantor_radius', 100),
         ];
 
-        // ✅ Validasi Radius GPS (1 = aktif, 0 = nonaktif)
+        // Validasi Radius GPS (1 = aktif, 0 = nonaktif)
         $validasiRadiusAktif = (bool) Setting::get('validasi_radius_aktif', 1);
 
         // Info Perusahaan
@@ -38,6 +39,7 @@ class PengaturanController extends Controller
         return view('superadmin.pengaturan.index', compact(
             'jamMasuk',
             'jamKeluar',
+            'jamSabtuKeluar',
             'toleransiKeterlambatan',
             'lokasiKantor',
             'validasiRadiusAktif',
@@ -53,6 +55,7 @@ class PengaturanController extends Controller
         $validator = Validator::make($request->all(), [
             'jam_masuk' => 'required|date_format:H:i',
             'jam_keluar' => 'required|date_format:H:i|after:jam_masuk',
+            'jam_sabtu_keluar' => 'required|date_format:H:i',
             'toleransi_keterlambatan' => 'required|integer|min:0|max:60',
         ], [
             'jam_masuk.required' => 'Jam masuk harus diisi',
@@ -60,6 +63,8 @@ class PengaturanController extends Controller
             'jam_keluar.required' => 'Jam keluar harus diisi',
             'jam_keluar.date_format' => 'Format jam keluar tidak valid',
             'jam_keluar.after' => 'Jam keluar harus lebih besar dari jam masuk',
+            'jam_sabtu_keluar.required' => 'Jam keluar Sabtu harus diisi',
+            'jam_sabtu_keluar.date_format' => 'Format jam keluar Sabtu tidak valid',
             'toleransi_keterlambatan.required' => 'Toleransi keterlambatan harus diisi',
             'toleransi_keterlambatan.integer' => 'Toleransi harus berupa angka',
             'toleransi_keterlambatan.min' => 'Toleransi minimal 0 menit',
@@ -75,13 +80,14 @@ class PengaturanController extends Controller
         // Simpan ke database
         Setting::set('jam_masuk', $request->jam_masuk);
         Setting::set('jam_keluar', $request->jam_keluar);
+        Setting::set('jam_sabtu_keluar', $request->jam_sabtu_keluar);
         Setting::set('toleransi_keterlambatan', (int) $request->toleransi_keterlambatan);
 
         // Log aktivitas
         LogAktivitas::create([
             'user_id' => auth()->id(),
             'aktivitas' => 'Update Jam Kerja',
-            'deskripsi' => "Mengubah jam kerja menjadi {$request->jam_masuk} - {$request->jam_keluar} (Toleransi: {$request->toleransi_keterlambatan} menit)",
+            'deskripsi' => "Mengubah jam kerja menjadi {$request->jam_masuk} - {$request->jam_keluar}, Sabtu: {$request->jam_sabtu_keluar} (Toleransi: {$request->toleransi_keterlambatan} menit)",
         ]);
 
         return redirect()->route('superadmin.pengaturan.index')
@@ -96,7 +102,7 @@ class PengaturanController extends Controller
             'alamat' => 'required|string|max:500',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'radius' => 'nullable|integer|min:10|max:1000', // ✅ nullable
+            'radius' => 'nullable|integer|min:10|max:1000',
         ], [
             'nama_lokasi.required' => 'Nama lokasi harus diisi',
             'nama_lokasi.max' => 'Nama lokasi maksimal 255 karakter',
@@ -119,14 +125,14 @@ class PengaturanController extends Controller
                 ->withInput();
         }
 
-        // ✅ Simpan lokasi kantor dengan key terpisah
+        // Simpan lokasi kantor dengan key terpisah
         Setting::set('lokasi_kantor_nama', $request->nama_lokasi);
         Setting::set('lokasi_kantor_alamat', $request->alamat);
         Setting::set('lokasi_kantor_latitude', $request->latitude);
         Setting::set('lokasi_kantor_longitude', $request->longitude);
         Setting::set('lokasi_kantor_radius', (int) $request->radius ?? 100);
 
-        // ✅ Simpan status validasi radius (1 = aktif, 0 = nonaktif)
+        // Simpan status validasi radius (1 = aktif, 0 = nonaktif)
         $validasiRadiusAktif = $request->has('validasi_radius_aktif') ? 1 : 0;
         Setting::set('validasi_radius_aktif', $validasiRadiusAktif);
 
@@ -207,6 +213,7 @@ class PengaturanController extends Controller
         return [
             'jam_masuk' => Setting::get('jam_masuk', '08:00'),
             'jam_keluar' => Setting::get('jam_keluar', '17:00'),
+            'jam_sabtu_keluar' => Setting::get('jam_sabtu_keluar', '12:00'),
             'toleransi_keterlambatan' => (int) Setting::get('toleransi_keterlambatan', 15),
         ];
     }

@@ -27,15 +27,15 @@
             <nav class="flex space-x-0 px-2 sm:px-4 md:px-6" aria-label="Tabs">
                 <button onclick="switchTab('jamKerja')" id="tab-jamKerja" 
                         class="tab-button active flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap">
-                    <i class="fas fa-clock mr-1 sm:mr-2"></i><span class="hidden xs:inline">Jam Kerja</span><span class="xs:hidden">Jam</span>
+                    <i class="fas fa-clock mr-1 sm:mr-2"></i><span>Jam Kerja</span>
                 </button>
                 <button onclick="switchTab('lokasi')" id="tab-lokasi" 
                         class="tab-button flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap">
-                    <i class="fas fa-map-marker-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">Lokasi</span><span class="xs:hidden">Lokasi</span>
+                    <i class="fas fa-map-marker-alt mr-1 sm:mr-2"></i><span>Lokasi</span>
                 </button>
                 <button onclick="switchTab('general')" id="tab-general" 
                         class="tab-button flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap">
-                    <i class="fas fa-building mr-1 sm:mr-2"></i><span class="hidden xs:inline">Info Perusahaan</span><span class="xs:hidden">Info</span>
+                    <i class="fas fa-building mr-1 sm:mr-2"></i><span>Info Perusahaan</span>
                 </button>
             </nav>
         </div>
@@ -92,6 +92,22 @@
                             @enderror
                         </div>
 
+                        <!-- Jam Keluar Sabtu -->
+                        <div>
+                            <label for="jam_sabtu_keluar" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                <i class="fas fa-calendar-day mr-1 sm:mr-2 text-orange-600"></i>Jam Keluar Sabtu (Setengah Hari) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="time" name="jam_sabtu_keluar" id="jam_sabtu_keluar" 
+                                   value="{{ old('jam_sabtu_keluar', $jamSabtuKeluar ?? '12:00') }}" 
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 @error('jam_sabtu_keluar') border-red-500 @enderror" required>
+                            @error('jam_sabtu_keluar')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>Hari Sabtu kerja sampai jam ini saja (setengah hari)
+                            </p>
+                        </div>
+
                         <!-- Toleransi Keterlambatan -->
                         <div>
                             <label for="toleransi_keterlambatan" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
@@ -107,20 +123,39 @@
                             <p class="text-xs text-gray-500 mt-1">Batas waktu toleransi (0-60 menit)</p>
                         </div>
 
-                        <!-- Preview -->
+                        <!-- Info Box Jadwal Kerja -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                            <div class="flex items-start gap-2 sm:gap-3">
+                                <i class="fas fa-calendar-week text-blue-600 mt-0.5 sm:mt-1 flex-shrink-0 text-sm sm:text-base"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm text-blue-800 font-semibold mb-1">Jadwal Kerja Mingguan</p>
+                                    <ul class="text-xs text-blue-700 space-y-0.5 sm:space-y-1">
+                                        <li>• <strong>Senin - Jumat:</strong> Jam <span id="info-masuk">{{ $jamMasuk }}</span> - <span id="info-keluar">{{ $jamKeluar }}</span></li>
+                                        <li>• <strong>Sabtu:</strong> Jam <span id="info-masuk-sabtu">{{ $jamMasuk }}</span> - <span id="info-sabtu">{{ $jamSabtuKeluar ?? '12:00' }}</span> (Setengah Hari)</li>
+                                        <li>• <strong>Minggu:</strong> LIBUR (tidak dihitung dalam perhitungan kehadiran)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Jam Kerja -->
                         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
                             <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">Preview Jam Kerja</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-700">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-700">
                                 <div class="flex items-center gap-2 bg-white p-2 rounded">
-                                    <i class="fas fa-sign-in-alt text-teal-600"></i>
+                                    <i class="fas fa-sign-in-alt text-teal-600 flex-shrink-0"></i>
                                     <span class="truncate">Masuk: <strong id="preview-masuk">{{ $jamMasuk }}</strong></span>
                                 </div>
                                 <div class="flex items-center gap-2 bg-white p-2 rounded">
-                                    <i class="fas fa-sign-out-alt text-cyan-600"></i>
+                                    <i class="fas fa-sign-out-alt text-cyan-600 flex-shrink-0"></i>
                                     <span class="truncate">Keluar: <strong id="preview-keluar">{{ $jamKeluar }}</strong></span>
                                 </div>
                                 <div class="flex items-center gap-2 bg-white p-2 rounded">
-                                    <i class="fas fa-hourglass-half text-teal-500"></i>
+                                    <i class="fas fa-calendar-day text-orange-600 flex-shrink-0"></i>
+                                    <span class="truncate">Sabtu: <strong id="preview-sabtu">{{ $jamSabtuKeluar ?? '12:00' }}</strong></span>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white p-2 rounded">
+                                    <i class="fas fa-hourglass-half text-teal-500 flex-shrink-0"></i>
                                     <span class="truncate">Toleransi: <strong id="preview-toleransi">{{ $toleransiKeterlambatan }}</strong> mnt</span>
                                 </div>
                             </div>
@@ -335,7 +370,7 @@
         </div>
 
         <!-- Tab Content: Info Perusahaan -->
-        <div id="content-general" class="tab-content hidden p-4 sm:p-6 lg:p-8">
+        <div id="content-general" class="tab-content hidden p-4 sm:p-6lg:p-8">
             <form action="{{ route('superadmin.pengaturan.general') }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -488,10 +523,18 @@
     // Live Preview Jam Kerja
     document.getElementById('jam_masuk')?.addEventListener('change', function() {
         document.getElementById('preview-masuk').textContent = this.value;
+        document.getElementById('info-masuk').textContent = this.value;
+        document.getElementById('info-masuk-sabtu').textContent = this.value;
     });
 
     document.getElementById('jam_keluar')?.addEventListener('change', function() {
         document.getElementById('preview-keluar').textContent = this.value;
+        document.getElementById('info-keluar').textContent = this.value;
+    });
+
+    document.getElementById('jam_sabtu_keluar')?.addEventListener('change', function() {
+        document.getElementById('preview-sabtu').textContent = this.value;
+        document.getElementById('info-sabtu').textContent = this.value;
     });
 
     document.getElementById('toleransi_keterlambatan')?.addEventListener('input', function() {
@@ -617,29 +660,12 @@
         scrollbar-width: none;
     }
 
-    /* Responsive breakpoint for extra small devices */
-    @media (min-width: 375px) {
-        .xs\:inline {
-            display: inline;
-        }
-        .xs\:hidden {
-            display: none;
-        }
-    }
-
     /* Focus visible styles for accessibility */
     button:focus-visible,
     input:focus-visible,
     textarea:focus-visible {
         outline: 2px solid #0d9488;
         outline-offset: 2px;
-    }
-
-    /* Smooth transitions */
-    * {
-        transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 150ms;
     }
 
     /* Mobile Optimization */

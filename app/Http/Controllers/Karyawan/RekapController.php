@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Absensi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
+use App\Models\Setting;
+use App\Helpers\AttendanceHelper;
 
 class RekapController extends Controller
 {
@@ -17,59 +18,105 @@ class RekapController extends Controller
         $user = Auth::user();
         $periode = $request->get('periode', 'bulanan'); // harian, mingguan, bulanan
         
-        // Jam kerja dari cache
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
+        // Jam kerja dari Setting
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
+
+        // Get periode kerja saat ini (15 - 14)
+        $currentPeriod = AttendanceHelper::getCurrentPeriod();
 
         // Get data based on periode
         if ($periode === 'harian') {
+            // Harian: periode kerja saat ini (15 - 14)
             $absensi = $this->getHarian($user->id);
-            $startDate = Carbon::now()->startOfMonth();
-            $endDate = Carbon::now()->endOfMonth();
+            $startDate = Carbon::parse($currentPeriod['start']);
+            $endDate = Carbon::parse($currentPeriod['end']);
         } elseif ($periode === 'mingguan') {
+            // Mingguan: 4 minggu terakhir
             $absensi = $this->getMingguan($user->id);
-            $startDate = Carbon::now()->startOfMonth();
-            $endDate = Carbon::now()->endOfMonth();
+            $startDate = Carbon::now()->subWeeks(4)->startOfWeek();
+            $endDate = Carbon::now()->endOfWeek();
         } else {
+            // Bulanan: 6 bulan terakhir
             $absensi = $this->getBulanan($user->id);
             $startDate = Carbon::now()->subMonths(5)->startOfMonth();
             $endDate = Carbon::now()->endOfMonth();
         }
 
-        // Statistik
-        $totalHadir = $absensi->count();
-        $tepatWaktu = $absensi->where('jam_masuk', '<=', $jamMasuk . ':00')->count();
-        $terlambat = $absensi->where('jam_masuk', '>', $jamMasuk . ':00')->count();
+        // Statistik - EXCLUDE MINGGU dan IZIN/CUTI yang APPROVED
+        $totalHariKerja = AttendanceHelper::countWorkingDays(
+            $user->id, 
+            $startDate->format('Y-m-d'), 
+            $endDate->format('Y-m-d')
+        );
+
+        // Filter absensi yang valid (exclude minggu dan izin)
+        $absensiValid = $absensi->filter(function($item) use ($user) {
+            return AttendanceHelper::isWorkingDay($user->id, $item->tanggal);
+        });
+
+        $totalHadir = $absensiValid->count();
+        $tepatWaktu = $absensiValid->filter(function($item) {
+            return !AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+        $terlambat = $absensiValid->filter(function($item) {
+            return AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+
+        // Hitung tidak hadir (hari kerja - hadir)
+        $tidakHadir = $totalHariKerja - $totalHadir;
 
         return view('karyawan.rekap.index', compact(
             'absensi',
             'periode',
+            'totalHariKerja',
             'totalHadir',
             'tepatWaktu',
             'terlambat',
+            'tidakHadir',
             'jamMasuk',
             'startDate',
             'endDate'
         ));
     }
 
-    // Rekap Harian (bulan ini)
+    // Rekap Harian (periode kerja saat ini: 15 - 14)
     public function harian(Request $request)
     {
         $user = Auth::user();
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
 
+        $currentPeriod = AttendanceHelper::getCurrentPeriod();
         $absensi = $this->getHarian($user->id);
 
-        $totalHadir = $absensi->count();
-        $tepatWaktu = $absensi->where('jam_masuk', '<=', $jamMasuk . ':00')->count();
-        $terlambat = $absensi->where('jam_masuk', '>', $jamMasuk . ':00')->count();
+        // Filter absensi yang valid
+        $absensiValid = $absensi->filter(function($item) use ($user) {
+            return AttendanceHelper::isWorkingDay($user->id, $item->tanggal);
+        });
+
+        $totalHariKerja = AttendanceHelper::countWorkingDays(
+            $user->id,
+            $currentPeriod['start'],
+            $currentPeriod['end']
+        );
+
+        $totalHadir = $absensiValid->count();
+        $tepatWaktu = $absensiValid->filter(function($item) {
+            return !AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+        $terlambat = $absensiValid->filter(function($item) {
+            return AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+        $tidakHadir = $totalHariKerja - $totalHadir;
 
         return view('karyawan.rekap.harian', compact(
             'absensi',
+            'totalHariKerja',
             'totalHadir',
             'tepatWaktu',
             'terlambat',
-            'jamMasuk'
+            'tidakHadir',
+            'jamMasuk',
+            'currentPeriod'
         ));
     }
 
@@ -77,19 +124,39 @@ class RekapController extends Controller
     public function mingguan(Request $request)
     {
         $user = Auth::user();
-        $jamMasuk = Cache::get('jam_masuk', '08:00');
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
 
         $absensi = $this->getMingguan($user->id);
 
-        $totalHadir = $absensi->count();
-        $tepatWaktu = $absensi->where('jam_masuk', '<=', $jamMasuk . ':00')->count();
-        $terlambat = $absensi->where('jam_masuk', '>', $jamMasuk . ':00')->count();
+        $startDate = Carbon::now()->subWeeks(4)->startOfWeek();
+        $endDate = Carbon::now()->endOfWeek();
+
+        $absensiValid = $absensi->filter(function($item) use ($user) {
+            return AttendanceHelper::isWorkingDay($user->id, $item->tanggal);
+        });
+
+        $totalHariKerja = AttendanceHelper::countWorkingDays(
+            $user->id,
+            $startDate->format('Y-m-d'),
+            $endDate->format('Y-m-d')
+        );
+
+        $totalHadir = $absensiValid->count();
+        $tepatWaktu = $absensiValid->filter(function($item) {
+            return !AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+        $terlambat = $absensiValid->filter(function($item) {
+            return AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+        $tidakHadir = $totalHariKerja - $totalHadir;
 
         return view('karyawan.rekap.mingguan', compact(
             'absensi',
+            'totalHariKerja',
             'totalHadir',
             'tepatWaktu',
             'terlambat',
+            'tidakHadir',
             'jamMasuk'
         ));
     }
@@ -98,38 +165,58 @@ class RekapController extends Controller
     public function bulanan(Request $request)
     {
         $user = Auth::user();
-
         $rekapBulanan = [];
         
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
-            $startOfMonth = $date->copy()->startOfMonth();
-            $endOfMonth = $date->copy()->endOfMonth();
-
+            
+            // Hitung periode 15-14 untuk bulan ini
+            $monthPeriod = AttendanceHelper::getCurrentPeriod($date->day(20)); // Use day 20 to ensure correct period
+            
             $absensi = Absensi::where('user_id', $user->id)
-                ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+                ->whereBetween('tanggal', [$monthPeriod['start'], $monthPeriod['end']])
                 ->get();
 
-            $jamMasuk = Cache::get('jam_masuk', '08:00');
+            $absensiValid = $absensi->filter(function($item) use ($user) {
+                return AttendanceHelper::isWorkingDay($user->id, $item->tanggal);
+            });
+
+            $totalHariKerja = AttendanceHelper::countWorkingDays(
+                $user->id,
+                $monthPeriod['start'],
+                $monthPeriod['end']
+            );
+
+            $totalHadir = $absensiValid->count();
+            $tepatWaktu = $absensiValid->filter(function($item) {
+                return !AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+            })->count();
+            $terlambat = $absensiValid->filter(function($item) {
+                return AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+            })->count();
 
             $rekapBulanan[] = [
                 'bulan' => $date->format('F Y'),
                 'bulan_short' => $date->format('M Y'),
-                'total_hadir' => $absensi->count(),
-                'tepat_waktu' => $absensi->where('jam_masuk', '<=', $jamMasuk . ':00')->count(),
-                'terlambat' => $absensi->where('jam_masuk', '>', $jamMasuk . ':00')->count(),
+                'periode' => $monthPeriod['start_formatted'] . ' - ' . $monthPeriod['end_formatted'],
+                'total_hari_kerja' => $totalHariKerja,
+                'total_hadir' => $totalHadir,
+                'tepat_waktu' => $tepatWaktu,
+                'terlambat' => $terlambat,
+                'tidak_hadir' => $totalHariKerja - $totalHadir,
             ];
         }
 
         return view('karyawan.rekap.bulanan', compact('rekapBulanan'));
     }
 
-    // Helper: Get Harian Data
+    // Helper: Get Harian Data (Periode 15-14)
     private function getHarian($userId)
     {
+        $currentPeriod = AttendanceHelper::getCurrentPeriod();
+        
         return Absensi::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereBetween('tanggal', [$currentPeriod['start'], $currentPeriod['end']])
             ->orderBy('tanggal', 'desc')
             ->get();
     }

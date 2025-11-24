@@ -31,7 +31,8 @@
         },
         "files": [
             "app/Helpers/NotificationHelper.php",
-            "app/Helpers/WhatsAppHelper.php"
+            "app/Helpers/WhatsAppHelper.php",
+            "app/Helpers/AttendanceHelper.php"
         ]
     },
     "autoload-dev": {

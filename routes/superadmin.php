@@ -17,17 +17,17 @@ use App\Http\Controllers\SuperAdmin\WorkspaceController;
 // SUPER ADMIN ROUTES
 // Middleware: auth + superadmin
 // ========================================
-Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function () {
+Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
     
     // ========================================
     // DASHBOARD
     // ========================================
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('superadmin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // ========================================
     // MANAJEMEN KARYAWAN
     // ========================================
-    Route::prefix('karyawan')->name('superadmin.karyawan.')->group(function () {
+    Route::prefix('karyawan')->name('karyawan.')->group(function () {
         Route::get('/', [KaryawanController::class, 'index'])->name('index');
         Route::get('/create', [KaryawanController::class, 'create'])->name('create');
         Route::post('/', [KaryawanController::class, 'store'])->name('store');
@@ -39,9 +39,9 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     });
 
     // ========================================
-    // MANAJEMEN DIVISI (BARU)
+    // MANAJEMEN DIVISI
     // ========================================
-    Route::prefix('divisi')->name('superadmin.divisi.')->group(function () {
+    Route::prefix('divisi')->name('divisi.')->group(function () {
         Route::get('/', [DivisiController::class, 'index'])->name('index');
         Route::post('/', [DivisiController::class, 'store'])->name('store');
         Route::put('/{id}', [DivisiController::class, 'update'])->name('update');
@@ -57,7 +57,7 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // ========================================
     // MANAJEMEN ABSENSI
     // ========================================
-    Route::prefix('absensi')->name('superadmin.absensi.')->group(function () {
+    Route::prefix('absensi')->name('absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
         Route::get('/create', [AbsensiController::class, 'create'])->name('create');
         Route::post('/', [AbsensiController::class, 'store'])->name('store');
@@ -72,7 +72,7 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // ========================================
     // PERSETUJUAN CUTI/IZIN
     // ========================================
-    Route::prefix('cuti-izin')->name('superadmin.cutiizin.')->group(function () {
+    Route::prefix('cuti-izin')->name('cutiizin.')->group(function () {
         Route::get('/', [CutiIzinController::class, 'index'])->name('index');
         Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
         Route::post('/', [CutiIzinController::class, 'store'])->name('store');
@@ -87,7 +87,7 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // ========================================
     // LOG BOOK SURAT
     // ========================================
-    Route::prefix('surat')->name('superadmin.surat.')->group(function () {
+    Route::prefix('surat')->name('surat.')->group(function () {
         Route::get('/', [SuratController::class, 'index'])->name('index');
         Route::get('/create', [SuratController::class, 'create'])->name('create');
         Route::post('/', [SuratController::class, 'store'])->name('store');
@@ -101,7 +101,7 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // ========================================
     // LOG BOOK SERVER
     // ========================================
-    Route::prefix('server-log')->name('superadmin.serverlog.')->group(function () {
+    Route::prefix('server-log')->name('serverlog.')->group(function () {
         Route::get('/', [ServerLogController::class, 'index'])->name('index');
         Route::get('/create', [ServerLogController::class, 'create'])->name('create');
         Route::post('/', [ServerLogController::class, 'store'])->name('store');
@@ -111,14 +111,14 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     });
 
     // ========================================
-    // WORKSPACE (BARU) ✨
+    // WORKSPACE ✨
     // ========================================
-    Route::get('/workspace', [WorkspaceController::class, 'index'])->name('superadmin.workspace.index');
+    Route::get('/workspace', [WorkspaceController::class, 'index'])->name('workspace.index');
 
     // ========================================
     // PENGUMUMAN
     // ========================================
-    Route::prefix('pengumuman')->name('superadmin.pengumuman.')->group(function () {
+    Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
         Route::get('/', [PengumumanController::class, 'index'])->name('index');
         Route::get('/create', [PengumumanController::class, 'create'])->name('create');
         Route::post('/', [PengumumanController::class, 'store'])->name('store');
@@ -133,7 +133,7 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // ========================================
     // LAPORAN (LENGKAP)
     // ========================================
-    Route::prefix('laporan')->name('superadmin.laporan.')->group(function () {
+    Route::prefix('laporan')->name('laporan.')->group(function () {
         // Halaman Utama Laporan
         Route::get('/', [LaporanController::class, 'index'])->name('index');
         
@@ -159,7 +159,7 @@ Route::prefix('superadmin')->middleware(['auth', 'superadmin'])->group(function 
     // ========================================
     // PENGATURAN SISTEM
     // ========================================
-    Route::prefix('pengaturan')->name('superadmin.pengaturan.')->group(function () {
+    Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
         Route::get('/', [PengaturanController::class, 'index'])->name('index');
         Route::put('/jam-kerja', [PengaturanController::class, 'updateJamKerja'])->name('jam-kerja');
         Route::put('/lokasi', [PengaturanController::class, 'updateLokasi'])->name('lokasi');
