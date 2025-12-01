@@ -3,18 +3,51 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\LandingController;
 
-// Redirect root ke login
-Route::get('/', function () {
+/*
+|--------------------------------------------------------------------------
+| Landing Page Routes
+|--------------------------------------------------------------------------
+*/
+
+// Landing Page
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+
+// Contact Form Submit
+Route::post('/contact', [LandingController::class, 'contact'])->name('landing.contact');
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
+// Login redirect (jika user sudah login, tetap bisa akses /login-portal)
+Route::get('/login-portal', function () {
+    if (auth()->check()) {
+        // Redirect based on role
+        if (auth()->user()->hasRole('superadmin')) {
+            return redirect()->route('superadmin.dashboard');
+        } elseif (auth()->user()->hasRole('karyawan')) {
+            return redirect()->route('karyawan.dashboard');
+        } elseif (auth()->user()->hasRole('finance')) {
+            return redirect()->route('finance.dashboard');
+        }
+    }
     return redirect('/login');
 });
 
-// Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// ✅ Notifications Routes (Semua dalam satu group)
+/*
+|--------------------------------------------------------------------------
+| Notifications Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread', [NotificationController::class, 'getUnread'])->name('notifications.unread');
@@ -23,6 +56,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::post('/notifications/delete-all-read', [NotificationController::class, 'deleteAllRead'])->name('notifications.deleteAllRead');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Test WhatsApp Route
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/test-wa-grup', function() {
     $enabled = config('whatsapp.enabled');
     $token = config('whatsapp.api_token');
@@ -72,7 +112,13 @@ Route::get('/test-wa-grup', function() {
     }
 })->middleware('auth');
 
-// Include route files untuk Super Admin dan Karyawan
+/*
+|--------------------------------------------------------------------------
+| Role-Based Routes
+|--------------------------------------------------------------------------
+*/
+
+// Include route files untuk Super Admin, Karyawan, dan Finance
 require __DIR__.'/superadmin.php';
 require __DIR__.'/karyawan.php';
 require __DIR__.'/finance.php';

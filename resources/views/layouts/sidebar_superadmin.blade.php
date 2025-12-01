@@ -72,6 +72,13 @@
             <span class="font-medium text-sm sm:text-base truncate">Pengumuman</span>
         </a>
 
+        <!-- Landing Page Management ✨ NEW! -->
+        <a href="#" 
+           class="flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('superadmin.landing.*') ? 'bg-white/20 shadow-md' : '' }}">
+            <i class="fas fa-globe text-base sm:text-lg w-5 flex-shrink-0"></i>
+            <span class="font-medium text-sm sm:text-base truncate">Edit Landing Page</span>
+        </a>
+
         <!-- Laporan -->
         <a href="{{ route('superadmin.laporan.index') }}" 
            class="flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('superadmin.laporan.*') ? 'bg-white/20 shadow-md' : '' }}">
@@ -92,7 +99,7 @@
     <div class="p-4 border-t border-teal-500/30 mt-auto">
         <div class="text-center">
             <p class="text-xs text-teal-100 font-medium mb-1">&copy; 2025 PT Puri Digital Output</p>
-            <p class="text-xs text-teal-200/70">Version 1.2.0</p>
+            <p class="text-xs text-teal-200/70">Version 1.2.7</p>
         </div>
     </div>
 
