@@ -43,12 +43,34 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
     });
 
     // ========================================
-    // PENGAJUAN CUTI/IZIN
+    // PENGAJUAN CUTI/IZIN - ROUTE UTAMA
     // ========================================
     Route::prefix('cuti-izin')->name('karyawan.cutiizin.')->group(function () {
         Route::get('/', [CutiIzinController::class, 'index'])->name('index');
         Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
         Route::post('/', [CutiIzinController::class, 'store'])->name('store');
+        Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
+        Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
+    });
+
+    // ========================================
+    // ALIAS ROUTE UNTUK IZIN (untuk AJAX dari halaman absensi)
+    // ========================================
+    Route::prefix('izin')->name('karyawan.izin.')->group(function () {
+        Route::get('/', [CutiIzinController::class, 'index'])->name('index');
+        Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
+        Route::post('/store', [CutiIzinController::class, 'storeIzin'])->name('store'); // ✅ UBAH JADI storeIzin
+        Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
+        Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
+    });
+
+    // ========================================
+    // ALIAS ROUTE UNTUK CUTI (untuk AJAX dari halaman absensi)
+    // ========================================
+    Route::prefix('cuti')->name('karyawan.cuti.')->group(function () {
+        Route::get('/', [CutiIzinController::class, 'index'])->name('index');
+        Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
+        Route::post('/store', [CutiIzinController::class, 'storeCuti'])->name('store'); // ✅ UBAH JADI storeCuti
         Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
         Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
     });

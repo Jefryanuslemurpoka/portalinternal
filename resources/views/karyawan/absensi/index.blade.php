@@ -29,7 +29,7 @@
         <!-- Status Absensi -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <h3 class="text-lg font-bold text-gray-800 mb-4">
-                <i class="fas fa-info-circle mr-2"></i>Status Absensi
+                <i class="fas fa-info-circle mr-2"></i>Status Hari Ini
             </h3>
 
             <div class="space-y-4">
@@ -135,7 +135,7 @@
 
     <!-- Absensi Actions -->
     <div class="bg-white rounded-xl shadow-lg p-6">
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-3xl mx-auto">
             
             <!-- ✅ Info Mode WFH (jika validasi radius nonaktif) -->
             @php
@@ -173,22 +173,46 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex justify-center space-x-4">
+            <div class="space-y-4">
                 @if(!$absensiHariIni)
-                    <button type="button" onclick="doCheckIn()" id="checkInBtn" class="px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Check-in Sekarang
+                    <!-- Tombol Hadir -->
+                    <button type="button" onclick="doCheckIn()" id="checkInBtn" class="w-full px-8 py-4 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-user-check mr-3 text-2xl"></i>
+                        <div class="text-left">
+                            <div class="font-bold">HADIR</div>
+                            <div class="text-xs opacity-90">Absensi Kehadiran Normal</div>
+                        </div>
                     </button>
+
+                    <!-- Tombol Izin -->
+                    <button type="button" onclick="showIzinForm()" class="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-file-alt mr-3 text-2xl"></i>
+                        <div class="text-left">
+                            <div class="font-bold">IZIN</div>
+                            <div class="text-xs opacity-90">Pengajuan Izin Tidak Masuk</div>
+                        </div>
+                    </button>
+
+                    <!-- Tombol Cuti -->
+                    <button type="button" onclick="showCutiForm()" class="w-full px-8 py-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-umbrella-beach mr-3 text-2xl"></i>
+                        <div class="text-left">
+                            <div class="font-bold">CUTI</div>
+                            <div class="text-xs opacity-90">Pengajuan Cuti</div>
+                        </div>
+                    </button>
+
                 @elseif(!$absensiHariIni->jam_keluar)
-                    <button type="button" onclick="doCheckOut()" id="checkOutBtn" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-700 text-white text-lg font-semibold rounded-lg shadow-lg transition duration-200">
+                    <button type="button" onclick="doCheckOut()" id="checkOutBtn" class="w-full px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200">
                         <i class="fas fa-sign-out-alt mr-2"></i>Check-out Sekarang
                     </button>
                 @else
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-check text-teal-600 text-3xl"></i>
+                    <div class="text-center py-6">
+                        <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check text-teal-600 text-4xl"></i>
                         </div>
-                        <p class="text-lg font-bold text-gray-900">Absensi Hari Ini Selesai</p>
-                        <p class="text-sm text-gray-600">Terima kasih sudah melakukan absensi</p>
+                        <p class="text-xl font-bold text-gray-900">Absensi Hari Ini Selesai</p>
+                        <p class="text-sm text-gray-600 mt-2">Terima kasih sudah melakukan absensi</p>
                     </div>
                 @endif
             </div>
@@ -226,481 +250,400 @@
 @endsection
 
 @push('scripts')
+
+<!-- ✅ SweetAlert WAJIB di-load SEBELUM script utama -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    // ✅ Cek apakah validasi radius aktif (dari backend)
-    const validasiRadiusAktif = {{ $validasiRadiusAktif ? 'true' : 'false' }};
+// ======================================================
+// CONFIG DARI BACKEND
+// ======================================================
+const validasiRadiusAktif = {{ $validasiRadiusAktif ? 'true' : 'false' }};
 
-    // Global variables
-    let userLocation = null;
-    let isGettingLocation = false;
+const lokasiKantor = {!! $validasiRadiusAktif
+    ? json_encode([
+        'lat'    => $lokasiKantor['latitude'],
+        'lng'    => $lokasiKantor['longitude'],
+        'radius' => $lokasiKantor['radius']
+    ])
+    : 'null'
+!!};
 
-    const lokasiKantor = {
-        lat: {{ $lokasiKantor['latitude'] }},
-        lng: {{ $lokasiKantor['longitude'] }},
-        radius: {{ $lokasiKantor['radius'] }}
-    };
+let isGettingLocation = false;
 
-    // Update current time
-    function updateClock() {
-        const now = new Date();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        document.getElementById('currentTime').textContent = hours + ':' + minutes;
-    }
-    
-    setInterval(updateClock, 1000);
-    updateClock();
+// ======================================================
+// JAM REALTIME
+// ======================================================
+function updateClock(){
+    const now = new Date();
+    document.getElementById('currentTime') &&
+    (document.getElementById('currentTime').textContent =
+        now.getHours().toString().padStart(2,'0') + ':' +
+        now.getMinutes().toString().padStart(2,'0'));
+}
+setInterval(updateClock,1000); updateClock();
 
-    // ✅ Check-in Process (SKIP GEOLOCATION jika validasi nonaktif)
-    function doCheckIn() {
-        if (isGettingLocation) return;
-        
-        // Jika validasi radius NONAKTIF, langsung konfirmasi tanpa lokasi
-        if (!validasiRadiusAktif) {
-            Swal.fire({
-                title: 'Konfirmasi Check-in',
-                html: '<p>Anda akan melakukan check-in sekarang</p><p class="text-sm text-blue-600 mt-2">Mode WFH - Tanpa validasi lokasi</p>',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#0d9488',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Check-in',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitCheckIn({
-                        lat: 0,
-                        lng: 0,
-                        distance: 0,
-                        inRadius: true
-                    });
-                }
-            });
-            return;
-        }
 
-        // Jika validasi AKTIF, jalankan geolocation
-        getLocation((location) => {
-            if (location) {
-                Swal.fire({
-                    title: 'Konfirmasi Check-in',
-                    html: `
-                        <p>Lokasi Anda terdeteksi</p>
-                        <p class="text-sm text-gray-600 mt-2">Jarak dari kantor: <strong>${Math.round(location.distance)}m</strong></p>
-                        <p class="text-sm ${location.inRadius ? 'text-teal-600' : 'text-red-600'}">
-                            ${location.inRadius ? '✓ Dalam radius kantor' : '✗ Diluar radius kantor'}
-                        </p>
-                    `,
-                    icon: location.inRadius ? 'question' : 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#0d9488',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Ya, Check-in',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        submitCheckIn(location);
-                    }
-                });
+// ======================================================
+// SAFE FETCH JSON
+// ======================================================
+function fetchJson(url, options){
+
+    return fetch(url, options)
+        .then(res => res.text())
+        .then(text => {
+            try{
+                return JSON.parse(text);
+            }catch(err){
+                console.error("SERVER RESPONSE:");
+                console.error(text);
+                throw new Error("Server tidak mengembalikan JSON valid (redirect / error / HTML)");
             }
         });
-    }
+}
 
-    // ✅ Check-out Process (SKIP GEOLOCATION jika validasi nonaktif)
-    function doCheckOut() {
-        if (isGettingLocation) return;
-        
-        // Jika validasi radius NONAKTIF, langsung konfirmasi tanpa lokasi
-        if (!validasiRadiusAktif) {
-            Swal.fire({
-                title: 'Konfirmasi Check-out',
-                html: '<p>Anda akan melakukan check-out sekarang</p><p class="text-sm text-blue-600 mt-2">Mode WFH - Tanpa validasi lokasi</p>',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#06b6d4',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Check-out',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitCheckOut({
-                        lat: 0,
-                        lng: 0,
-                        distance: 0,
-                        inRadius: true
-                    });
-                }
-            });
-            return;
-        }
 
-        // Jika validasi AKTIF, jalankan geolocation
-        getLocation((location) => {
-            if (location) {
-                Swal.fire({
-                    title: 'Konfirmasi Check-out',
-                    html: `
-                        <p>Lokasi Anda terdeteksi</p>
-                        <p class="text-sm text-gray-600 mt-2">Jarak dari kantor: <strong>${Math.round(location.distance)}m</strong></p>
-                        <p class="text-sm ${location.inRadius ? 'text-teal-600' : 'text-red-600'}">
-                            ${location.inRadius ? '✓ Dalam radius kantor' : '✗ Diluar radius kantor'}
-                        </p>
-                    `,
-                    icon: location.inRadius ? 'question' : 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#06b6d4',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Ya, Check-out',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        submitCheckOut(location);
-                    }
-                });
+// ======================================================
+// IZIN
+// ======================================================
+function showIzinForm(){
+
+    Swal.fire({
+        title:'Pengajuan Izin',
+        html:`
+            <div class="text-left space-y-4">
+                <input type="date" id="izin_tanggal_mulai" class="w-full px-3 py-2 border rounded" required>
+                <input type="date" id="izin_tanggal_selesai" class="w-full px-3 py-2 border rounded" required>
+                <textarea id="izin_alasan" rows="3" class="w-full px-3 py-2 border rounded" placeholder="Alasan izin" required></textarea>
+                <input type="file" id="izin_dokumen" accept=".jpg,.png,.pdf">
+                <small class="text-gray-500">Max 2MB</small>
+            </div>
+        `,
+        showCancelButton:true,
+        confirmButtonText:'Ajukan',
+        preConfirm:()=>{
+            const mulai  = izin_tanggal_mulai.value;
+            const selesai= izin_tanggal_selesai.value;
+            const alasan = izin_alasan.value;
+            const file   = izin_dokumen.files[0];
+
+            if(!mulai||!selesai||!alasan){
+                Swal.showValidationMessage("Lengkapi semua field!");
+                return false;
             }
-        });
+
+            if(selesai < mulai){
+                Swal.showValidationMessage("Tanggal selesai harus setelah tanggal mulai!");
+                return false;
+            }
+
+            if(file && file.size > 2048000){
+                Swal.showValidationMessage("Ukuran file max 2MB!");
+                return false;
+            }
+
+            return {mulai, selesai, alasan, file};
+        }
+    })
+    .then(r=>{
+        if(r.isConfirmed) submitIzin(r.value);
+    });
+
+}
+
+// ======================================================
+// CUTI
+// ======================================================
+function showCutiForm(){
+
+    Swal.fire({
+        title:'Pengajuan Cuti',
+        html:`
+            <div class="text-left space-y-4">
+                <input type="date" id="cuti_tanggal_mulai" class="w-full px-3 py-2 border rounded" required>
+                <input type="date" id="cuti_tanggal_selesai" class="w-full px-3 py-2 border rounded" required>
+                <textarea id="cuti_alasan" rows="3" class="w-full px-3 py-2 border rounded" placeholder="Alasan cuti" required></textarea>
+                <input type="file" id="cuti_dokumen" accept=".jpg,.png,.pdf">
+                <small class="text-gray-500">Max 2MB</small>
+            </div>
+        `,
+        showCancelButton:true,
+        confirmButtonText:'Ajukan',
+        preConfirm:()=>{
+
+            const mulai   = cuti_tanggal_mulai.value;
+            const selesai = cuti_tanggal_selesai.value;
+            const alasan  = cuti_alasan.value;
+            const file    = cuti_dokumen.files[0];
+
+            if(!mulai || !selesai || !alasan){
+                Swal.showValidationMessage("Lengkapi semua field!");
+                return false;
+            }
+
+            if(selesai < mulai){
+                Swal.showValidationMessage("Tanggal selesai harus setelah tanggal mulai!");
+                return false;
+            }
+
+            if(file && file.size > 2048000){
+                Swal.showValidationMessage("Ukuran file max 2MB!");
+                return false;
+            }
+
+            return { mulai, selesai, alasan, file };
+        }
+    })
+    .then(r=>{
+        if(r.isConfirmed) submitCuti(r.value);
+    });
+
+}
+
+function submitCuti(data){
+
+    Swal.fire({title:'Memproses...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+
+    const form = new FormData();
+    form.append('jenis','cuti');
+    form.append('tanggal_mulai', data.mulai);
+    form.append('tanggal_selesai', data.selesai);
+    form.append('alasan', data.alasan);
+    if(data.file) form.append('dokumen', data.file);
+
+    fetchJson('{{ route("karyawan.izin.store") }}', {
+        method: 'POST',
+        headers:{
+            'X-CSRF-TOKEN':'{{ csrf_token() }}'
+        },
+        body: form
+    })
+    .then(r=>{
+        Swal.close();
+        Swal.fire(r.success ? 'success' : 'error', r.message)
+            .then(()=> r.success && location.reload());
+    })
+    .catch(e=>{
+        Swal.close();
+        Swal.fire('ERROR', e.message, 'error');
+    });
+
+}
+
+
+function submitIzin(data){
+
+    Swal.fire({title:'Memproses...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+
+    const form = new FormData();
+    form.append('jenis','izin');
+    form.append('tanggal_mulai', data.mulai);
+    form.append('tanggal_selesai', data.selesai);
+    form.append('alasan', data.alasan);
+    if(data.file) form.append('dokumen',data.file);
+
+    fetchJson('{{ route("karyawan.izin.store") }}',{
+        method:'POST',
+        headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'},
+        body:form
+    })
+    .then(r=>{
+        Swal.close();
+        Swal.fire(r.success?'success':'error', r.message)
+            .then(()=> r.success && location.reload());
+    })
+    .catch(e=>{
+        Swal.close();
+        Swal.fire('ERROR', e.message,'error');
+    });
+
+}
+
+// ======================================================
+// GEOLOCATION
+// ======================================================
+function calculateDistance(lat1, lon1, lat2, lon2){
+    const R = 6371000;
+    const dLat=(lat2-lat1)*Math.PI/180;
+    const dLon=(lon2-lon1)*Math.PI/180;
+
+    const a = Math.sin(dLat/2)**2 +
+        Math.cos(lat1*Math.PI/180) *
+        Math.cos(lat2*Math.PI/180) *
+        Math.sin(dLon/2)**2;
+
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getLocation(cb){
+
+    if(isGettingLocation) return;
+
+    if(!navigator.geolocation){
+        Swal.fire('Browser tidak mendukung GPS','Gunakan Chrome/Edge','error')
+        return cb(null);
     }
 
-    // Get user location (hanya dipanggil jika validasi aktif)
-    function getLocation(callback) {
-        if (isGettingLocation) return;
-        
-        if (!navigator.geolocation) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Browser Tidak Mendukung',
-                html: `
-                    <div class="text-left">
-                        <p class="mb-3">Browser Anda tidak mendukung fitur geolocation.</p>
-                        <p class="text-sm text-gray-600">Silakan gunakan browser modern seperti:</p>
-                        <ul class="text-sm text-gray-600 ml-4 mt-2">
-                            <li>• Google Chrome (recommended)</li>
-                            <li>• Mozilla Firefox</li>
-                            <li>• Microsoft Edge</li>
-                        </ul>
-                    </div>
-                `,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Mengerti',
-                allowOutsideClick: false,
-                width: '500px'
-            });
-            callback(null);
-            return;
-        }
+    isGettingLocation = true;
+    Swal.fire({title:'Mendapatkan lokasi...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
 
-        isGettingLocation = true;
+    navigator.geolocation.getCurrentPosition(
+        pos=>{
+            Swal.close();
+            isGettingLocation=false;
 
-        let timerInterval;
+            const loc={
+                lat:pos.coords.latitude,
+                lng:pos.coords.longitude
+            };
+
+            const dist=calculateDistance(
+                loc.lat,
+                loc.lng,
+                lokasiKantor.lat,
+                lokasiKantor.lng
+            );
+
+            loc.distance=dist;
+            loc.inRadius= dist <= lokasiKantor.radius;
+
+            cb(loc);
+        },
+        err=>{
+            Swal.close();
+            isGettingLocation=false;
+            Swal.fire('GPS Error',err.message,'error');
+            cb(null);
+        },
+        {enableHighAccuracy:true,timeout:30000}
+    );
+}
+
+
+// ======================================================
+// CHECKIN
+// ======================================================
+function doCheckIn(){
+
+    if(!validasiRadiusAktif){
+
         Swal.fire({
-            title: 'Mendapatkan Lokasi...',
-            html: `
-                <div class="mb-3">
-                    <p class="text-sm text-gray-600">Mohon izinkan akses lokasi browser Anda</p>
-                </div>
-                <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p class="text-xs text-gray-700 font-semibold mb-2">📍 Instruksi:</p>
-                    <ol class="text-xs text-gray-600 text-left ml-4">
-                        <li>1. Klik "Allow" / "Izinkan" pada popup browser</li>
-                        <li>2. Tunggu hingga GPS mendeteksi lokasi Anda</li>
-                        <li>3. Proses maksimal <b id="timer">30</b> detik</li>
-                    </ol>
-                </div>
+            title:'Hadir WFH',
+            text:'Tanpa validasi radius',
+            showCancelButton:true
+        })
+        .then(r=>{
+            r.isConfirmed && submitCheckIn({lat:0,lng:0});
+        });
+        return;
+    }
+
+    getLocation(loc=>{
+        if(!loc) return;
+
+        Swal.fire({
+            title:'Konfirmasi Hadir',
+            html:`
+            Jarak: ${Math.round(loc.distance)} m<br>
+            <b style="color:${loc.inRadius?'green':'red'}">
+              ${loc.inRadius?'Dalam Radius':'Diluar Radius'}
+            </b>
             `,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            showCancelButton: true,
-            cancelButtonText: 'Batal',
-            cancelButtonColor: '#6b7280',
-            width: '500px',
-            didOpen: () => {
-                Swal.showLoading();
-                let timeLeft = 30;
-                const timerElement = document.getElementById('timer');
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    if (timerElement) {
-                        timerElement.textContent = timeLeft;
-                    }
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                    }
-                }, 1000);
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            }
-        }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.cancel) {
-                isGettingLocation = false;
-            }
+            showCancelButton:true
+        })
+        .then(r=>{
+            r.isConfirmed && submitCheckIn(loc);
         });
+    });
 
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                isGettingLocation = false;
-                clearInterval(timerInterval);
-                Swal.close();
-                
-                const location = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                
-                const distance = calculateDistance(
-                    location.lat,
-                    location.lng,
-                    lokasiKantor.lat,
-                    lokasiKantor.lng
-                );
-                
-                location.distance = distance;
-                location.inRadius = distance <= lokasiKantor.radius;
-                
-                document.getElementById('userLat').textContent = location.lat.toFixed(6);
-                document.getElementById('userLng').textContent = location.lng.toFixed(6);
-                document.getElementById('distance').textContent = Math.round(distance);
-                
-                const locationStatus = document.getElementById('locationStatus');
-                if (location.inRadius) {
-                    locationStatus.textContent = 'Dalam Radius';
-                    locationStatus.className = 'px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full';
-                } else {
-                    locationStatus.textContent = 'Diluar Radius';
-                    locationStatus.className = 'px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full';
-                }
-                
-                document.getElementById('locationInfo').classList.remove('hidden');
-                
-                callback(location);
-            },
-            (error) => {
-                isGettingLocation = false;
-                clearInterval(timerInterval);
-                
-                let errorTitle = 'Gagal Mendapatkan Lokasi';
-                let errorMessage = '';
-                
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage = `
-                            <div class="text-left">
-                                <p class="mb-3 font-semibold text-red-600">❌ Akses lokasi ditolak!</p>
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-3">
-                                    <p class="text-sm font-semibold mb-2">🔧 Cara Mengizinkan Lokasi:</p>
-                                    <ol class="text-sm text-gray-700 ml-4 space-y-1">
-                                        <li>1. Klik ikon <strong>🔒 kunci</strong> di address bar (samping URL)</li>
-                                        <li>2. Cari pengaturan <strong>"Location"</strong> atau <strong>"Lokasi"</strong></li>
-                                        <li>3. Ubah menjadi <strong>"Allow"</strong> atau <strong>"Izinkan"</strong></li>
-                                        <li>4. Refresh halaman (tekan F5)</li>
-                                        <li>5. Coba absen lagi</li>
-                                    </ol>
-                                </div>
-                                <p class="text-xs text-gray-500">💡 Tip: Pastikan GPS/Location di perangkat Anda juga aktif</p>
-                            </div>
-                        `;
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage = `
-                            <div class="text-left">
-                                <p class="mb-3 font-semibold text-orange-600">📍 Informasi lokasi tidak tersedia</p>
-                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-3">
-                                    <p class="text-sm font-semibold mb-2">🔧 Solusi:</p>
-                                    <ol class="text-sm text-gray-700 ml-4 space-y-1">
-                                        <li>1. Pastikan GPS/Location Service di perangkat <strong>AKTIF</strong></li>
-                                        <li>2. Coba pindah ke area dengan sinyal GPS lebih baik</li>
-                                        <li>3. Restart browser dan coba lagi</li>
-                                    </ol>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage = `
-                            <div class="text-left">
-                                <p class="mb-3 font-semibold text-yellow-600">⏱️ Waktu habis!</p>
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3">
-                                    <p class="text-sm text-gray-700 mb-2">GPS memakan waktu terlalu lama untuk mendapatkan lokasi.</p>
-                                    <p class="text-sm font-semibold mb-2">🔧 Solusi:</p>
-                                    <ol class="text-sm text-gray-700 ml-4 space-y-1">
-                                        <li>1. Pindah ke area outdoor atau dekat jendela</li>
-                                        <li>2. Pastikan GPS aktif</li>
-                                        <li>3. Coba beberapa saat lagi</li>
-                                    </ol>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                    default:
-                        errorMessage = `
-                            <div class="text-left">
-                                <p class="mb-3 font-semibold text-red-600">⚠️ Error tidak diketahui</p>
-                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    <p class="text-sm text-gray-700">${error.message}</p>
-                                </div>
-                            </div>
-                        `;
-                }
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: errorTitle,
-                    html: errorMessage,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'Tutup',
-                    allowOutsideClick: false,
-                    width: '600px',
-                    customClass: {
-                        popup: 'text-left'
-                    }
-                });
-                callback(null);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 30000,
-                maximumAge: 0
-            }
-        );
-    }
+}
 
-    // Submit check-in
-    function submitCheckIn(location) {
+function submitCheckIn(loc){
+
+    Swal.fire({title:'Memproses...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+
+    fetchJson('{{ route("karyawan.absensi.checkin") }}',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'X-CSRF-TOKEN':'{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            latitude: loc.lat,
+            longitude: loc.lng
+        })
+    })
+    .then(r=>{
+        Swal.close();
+        Swal.fire(r.success?'success':'error', r.message)
+            .then(()=> r.success && location.reload());
+    })
+    .catch(e=>{
+        Swal.close();
+        Swal.fire('ERROR',e.message,'error');
+    });
+
+}
+
+
+// ======================================================
+// CHECK OUT
+// ======================================================
+function doCheckOut(){
+
+    if(!validasiRadiusAktif){
         Swal.fire({
-            title: 'Memproses...',
-            text: 'Mohon tunggu',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        
-        fetch('{{ route("karyawan.absensi.checkin") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                latitude: location.lat,
-                longitude: location.lng
-            })
+            title:'Checkout WFH',
+            text:'Tanpa GPS',
+            showCancelButton:true
         })
-        .then(response => response.json())
-        .then(data => {
-            Swal.close();
-            
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Check-in Berhasil!',
-                    text: data.message,
-                    confirmButtonColor: '#0d9488',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.reload();
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Check-in Gagal',
-                    text: data.message,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'Mengerti'
-                });
-            }
-        })
-        .catch(error => {
-            Swal.close();
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                html: '<p>Terjadi kesalahan saat mengirim data</p><p class="text-sm text-gray-600 mt-2">' + error.message + '</p>',
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Mengerti'
-            });
+        .then(r=>{
+            r.isConfirmed && submitCheckOut({lat:0,lng:0});
         });
+        return;
     }
 
-    // Submit check-out
-    function submitCheckOut(location) {
+    getLocation(loc=>{
+        if(!loc)return;
+
         Swal.fire({
-            title: 'Memproses...',
-            text: 'Mohon tunggu',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        
-        fetch('{{ route("karyawan.absensi.checkout") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                latitude: location.lat,
-                longitude: location.lng
-            })
+            title:'Konfirmasi Checkout',
+            html:`Jarak ${Math.round(loc.distance)}m`,
+            showCancelButton:true
         })
-        .then(response => response.json())
-        .then(data => {
-            Swal.close();
-            
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Check-out Berhasil!',
-                    text: data.message,
-                    confirmButtonColor: '#0d9488',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.reload();
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Check-out Gagal',
-                    text: data.message,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'Mengerti'
-                });
-            }
-        })
-        .catch(error => {
-            Swal.close();
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                html: '<p>Terjadi kesalahan saat mengirim data</p><p class="text-sm text-gray-600 mt-2">' + error.message + '</p>',
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Mengerti'
-            });
+        .then(r=>{
+            r.isConfirmed && submitCheckOut(loc);
         });
-    }
+    });
 
-    // Calculate distance between two coordinates
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371000;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c;
-        
-        return distance;
-    }
+}
+
+function submitCheckOut(loc){
+
+    Swal.fire({title:'Memproses...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+
+    fetchJson('{{ route("karyawan.absensi.checkout") }}',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'X-CSRF-TOKEN':'{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            latitude: loc.lat,
+            longitude: loc.lng
+        })
+    })
+    .then(r=>{
+        Swal.close();
+        Swal.fire(r.success?'success':'error', r.message)
+            .then(()=> r.success && location.reload());
+    })
+    .catch(e=>{
+        Swal.close();
+        Swal.fire('ERROR',e.message,'error');
+    });
+
+}
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush

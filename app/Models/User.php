@@ -72,15 +72,36 @@ class User extends Authenticatable
         return 'uuid';
     }
 
-    // Role Checker Methods
+    // ========================================
+    // ✅ ROLE CHECKER METHODS (DIPERBAIKI)
+    // ========================================
+    
+    /**
+     * Check if user has specific role
+     * Method ini agar kompatibel dengan Spatie-style checking
+     */
+    public function hasRole($role)
+    {
+        // Normalize role name (handle both 'karyawan' and 'super_admin')
+        $normalizedRole = str_replace('_', '', strtolower($this->role));
+        $checkRole = str_replace('_', '', strtolower($role));
+        
+        return $normalizedRole === $checkRole;
+    }
+
     public function isSuperAdmin()
     {
-        return $this->role === 'super_admin';
+        return $this->role === 'super_admin' || $this->role === 'superadmin';
     }
 
     public function isKaryawan()
     {
         return $this->role === 'karyawan';
+    }
+
+    public function isFinance()
+    {
+        return $this->role === 'finance';
     }
 
     // ========================================
@@ -131,10 +152,6 @@ class User extends Authenticatable
     // RELASI UNTUK SISTEM GAJI (BARU)
     // ========================================
 
-    /**
-     * Get the active salary for the user
-     * Gaji yang sedang aktif saat ini
-     */
     public function salary()
     {
         return $this->hasOne(Salary::class)
@@ -142,20 +159,12 @@ class User extends Authenticatable
                     ->orderBy('effective_date', 'desc');
     }
 
-    /**
-     * Get all salaries (including inactive) for the user
-     * Semua history gaji termasuk yang non-aktif
-     */
     public function salaries()
     {
         return $this->hasMany(Salary::class)
                     ->orderBy('effective_date', 'desc');
     }
 
-    /**
-     * Get salary slips for the user
-     * Semua slip gaji user
-     */
     public function salarySlips()
     {
         return $this->hasMany(SalarySlip::class)
@@ -163,10 +172,6 @@ class User extends Authenticatable
                     ->orderBy('bulan', 'desc');
     }
 
-    /**
-     * Get assigned salary components (tunjangan & potongan)
-     * Komponen gaji yang di-assign khusus untuk user ini
-     */
     public function salaryComponents()
     {
         return $this->belongsToMany(SalaryComponent::class, 'user_salary_components')
@@ -174,10 +179,6 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    /**
-     * Get active salary components only
-     * Hanya komponen yang sedang aktif
-     */
     public function activeSalaryComponents()
     {
         return $this->belongsToMany(SalaryComponent::class, 'user_salary_components')
@@ -191,20 +192,12 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    /**
-     * Get salary histories for the user
-     * History perubahan gaji
-     */
     public function salaryHistories()
     {
         return $this->hasMany(SalaryHistory::class)
                     ->orderBy('created_at', 'desc');
     }
 
-    /**
-     * Get approved salary slips (as approver)
-     * Slip gaji yang user ini approve
-     */
     public function approvedSlips()
     {
         return $this->hasMany(SalarySlip::class, 'approved_by');
@@ -214,18 +207,11 @@ class User extends Authenticatable
     // SCOPES UNTUK SISTEM GAJI
     // ========================================
 
-    /**
-     * Scope: Only active employees
-     */
     public function scopeActive($query)
     {
         return $query->where('status', 'aktif');
     }
 
-    /**
-     * Scope: Has salary setup
-     * Filter user yang sudah punya master gaji
-     */
     public function scopeHasSalary($query)
     {
         return $query->whereHas('salary');
@@ -235,18 +221,11 @@ class User extends Authenticatable
     // HELPER METHODS UNTUK SISTEM GAJI
     // ========================================
 
-    /**
-     * Check if user has active salary
-     */
     public function hasActiveSalary(): bool
     {
         return $this->salary()->exists();
     }
 
-    /**
-     * Get current month salary slip
-     * Slip gaji bulan ini
-     */
     public function getCurrentMonthSlip()
     {
         return $this->salarySlips()
@@ -255,10 +234,6 @@ class User extends Authenticatable
                     ->first();
     }
 
-    /**
-     * Get total salary for specific month
-     * Total gaji yang sudah dibayar di bulan tertentu
-     */
     public function getTotalSalary($tahun, $bulan)
     {
         $slip = $this->salarySlips()
@@ -270,10 +245,6 @@ class User extends Authenticatable
         return $slip ? $slip->gaji_bersih : 0;
     }
 
-    /**
-     * Get unpaid slips count
-     * Jumlah slip yang belum dibayar
-     */
     public function getUnpaidSlipsCount(): int
     {
         return $this->salarySlips()
@@ -281,9 +252,6 @@ class User extends Authenticatable
                     ->count();
     }
 
-    /**
-     * Get total gaji tahun ini
-     */
     public function getTotalGajiTahunIniAttribute()
     {
         return $this->salarySlips()
@@ -292,10 +260,6 @@ class User extends Authenticatable
                     ->sum('gaji_bersih');
     }
 
-    /**
-     * Get latest paid slip
-     * Slip gaji terakhir yang sudah dibayar
-     */
     public function getLatestPaidSlip()
     {
         return $this->salarySlips()

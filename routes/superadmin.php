@@ -5,7 +5,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\KaryawanController;
 use App\Http\Controllers\SuperAdmin\DivisiController;
 use App\Http\Controllers\SuperAdmin\AbsensiController;
-use App\Http\Controllers\SuperAdmin\CutiIzinController;
+use App\Http\Controllers\SuperAdmin\ManajemenCutiIzinController;
 use App\Http\Controllers\SuperAdmin\SuratController;
 use App\Http\Controllers\SuperAdmin\ServerLogController;
 use App\Http\Controllers\SuperAdmin\PengumumanController;
@@ -73,15 +73,15 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     // PERSETUJUAN CUTI/IZIN
     // ========================================
     Route::prefix('cuti-izin')->name('cutiizin.')->group(function () {
-        Route::get('/', [CutiIzinController::class, 'index'])->name('index');
-        Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
-        Route::post('/', [CutiIzinController::class, 'store'])->name('store');
-        Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [CutiIzinController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [CutiIzinController::class, 'update'])->name('update');
-        Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
-        Route::post('/{id}/approve', [CutiIzinController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [CutiIzinController::class, 'reject'])->name('reject');
+        Route::get('/', [ManajemenCutiIzinController::class, 'index'])->name('index');
+        Route::get('/create', [ManajemenCutiIzinController::class, 'create'])->name('create');
+        Route::post('/', [ManajemenCutiIzinController::class, 'store'])->name('store');
+        Route::get('/{id}', [ManajemenCutiIzinController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ManajemenCutiIzinController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ManajemenCutiIzinController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ManajemenCutiIzinController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/approve', [ManajemenCutiIzinController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [ManajemenCutiIzinController::class, 'reject'])->name('reject');
     });
 
     // ========================================

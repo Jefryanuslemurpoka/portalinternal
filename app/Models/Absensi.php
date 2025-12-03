@@ -17,16 +17,33 @@ class Absensi extends Model
         'jam_masuk',
         'jam_keluar',
         'lokasi',
-        'foto',  // 👈 TAMBAHKAN INI
+        'foto',
+        'status',
+        'keterangan',
+        'cuti_izin_id',
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'date:Y-m-d',
+        'jam_masuk' => 'datetime:H:i:s',
+        'jam_keluar' => 'datetime:H:i:s',
     ];
 
-    // Relasi ke User
+    /**
+     * ========================
+     * RELATIONS
+     * ========================
+     */
+
+    // ✅ Relasi ke User
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\Models\User::class);
+    }
+
+    // ✅ Relasi ke Cuti/Izin
+    public function cutiIzin()
+    {
+        return $this->belongsTo(\App\Models\CutiIzin::class, 'cuti_izin_id');
     }
 }
