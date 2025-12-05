@@ -25,52 +25,51 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             
             <!-- Status Check-in -->
-            <div class="bg-gradient-to-br {{ $sudahCheckIn ? 'from-teal-50 to-teal-100 border-teal-200' : 'from-gray-50 to-gray-100 border-gray-200' }} border rounded-xl p-4">
+            <div class="bg-gradient-to-br {{ $sudahCheckIn ? ($absensiHariIni->status == 'cuti' ? 'from-purple-50 to-purple-100 border-purple-200' : ($absensiHariIni->status == 'izin' ? 'from-orange-50 to-orange-100 border-orange-200' : 'from-teal-50 to-teal-100 border-teal-200')) : 'from-gray-50 to-gray-100 border-gray-200' }} border rounded-xl p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-semibold text-gray-700">Check-in</span>
+                    <span class="text-sm font-semibold text-gray-700">Status Hari Ini</span>
                     @if($sudahCheckIn)
-                        <i class="fas fa-check-circle text-teal-600 text-xl"></i>
+                        @if($absensiHariIni->status == 'cuti')
+                            <i class="fas fa-umbrella-beach text-purple-600 text-xl"></i>
+                        @elseif($absensiHariIni->status == 'izin')
+                            <i class="fas fa-file-alt text-orange-600 text-xl"></i>
+                        @else
+                            <i class="fas fa-check-circle text-teal-600 text-xl"></i>
+                        @endif
                     @else
                         <i class="fas fa-times-circle text-gray-400 text-xl"></i>
                     @endif
                 </div>
                 @if($sudahCheckIn)
-                    <p class="text-2xl font-bold text-teal-600">{{ date('H:i', strtotime($absensiHariIni->jam_masuk)) }}</p>
-                    <p class="text-xs text-gray-600 mt-1">
-                        @php
-                            // ✅ Hitung batas keterlambatan dengan toleransi
-                            $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
-                                ->addMinutes($toleransi)
-                                ->format('H:i:s');
-                        @endphp
-                        @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
-                            <span class="text-teal-600">✓ Tepat Waktu</span>
-                        @else
-                            <span class="text-red-600">⚠ Terlambat</span>
-                        @endif
-                    </p>
+                    @if($absensiHariIni->status == 'cuti')
+                        <p class="text-2xl font-bold text-purple-600">CUTI</p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            <span class="text-purple-600">🏖️ Sedang Cuti</span>
+                        </p>
+                    @elseif($absensiHariIni->status == 'izin')
+                        <p class="text-2xl font-bold text-orange-600">IZIN</p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            <span class="text-orange-600">📄 Sedang Izin</span>
+                        </p>
+                    @else
+                        <p class="text-2xl font-bold text-teal-600">{{ date('H:i', strtotime($absensiHariIni->jam_masuk)) }}</p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            @php
+                                // ✅ Hitung batas keterlambatan dengan toleransi
+                                $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+                                    ->addMinutes($toleransi)
+                                    ->format('H:i:s');
+                            @endphp
+                            @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
+                                <span class="text-teal-600">✓ Tepat Waktu</span>
+                            @else
+                                <span class="text-red-600">⚠ Terlambat</span>
+                            @endif
+                        </p>
+                    @endif
                 @else
                     <p class="text-lg font-semibold text-gray-400">Belum Check-in</p>
                     <p class="text-xs text-gray-500 mt-1">Jam Masuk: {{ $jamMasuk }} (Toleransi: {{ $toleransi }} mnt)</p>
-                @endif
-            </div>
-
-            <!-- Status Check-out -->
-            <div class="bg-gradient-to-br {{ $sudahCheckOut ? 'from-cyan-50 to-cyan-100 border-cyan-200' : 'from-gray-50 to-gray-100 border-gray-200' }} border rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-semibold text-gray-700">Check-out</span>
-                    @if($sudahCheckOut)
-                        <i class="fas fa-check-circle text-cyan-600 text-xl"></i>
-                    @else
-                        <i class="fas fa-times-circle text-gray-400 text-xl"></i>
-                    @endif
-                </div>
-                @if($sudahCheckOut)
-                    <p class="text-2xl font-bold text-cyan-600">{{ date('H:i', strtotime($absensiHariIni->jam_keluar)) }}</p>
-                    <p class="text-xs text-gray-600 mt-1">✓ Sudah Check-out</p>
-                @else
-                    <p class="text-lg font-semibold text-gray-400">Belum Check-out</p>
-                    <p class="text-xs text-gray-500 mt-1">Jam Keluar: {{ $jamKeluar }}</p>
                 @endif
             </div>
 
@@ -304,15 +303,20 @@
 <script>
     // Mini Grafik Absensi 7 Hari
     const ctx = document.getElementById('miniAbsensiChart').getContext('2d');
+    
+    // Data dari controller
+    const chartData = @json($dataAbsensi);
+    const chartColors = @json($warna); // Array warna dari controller
+    
     const miniAbsensiChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: @json($labels),
             datasets: [{
                 label: 'Kehadiran',
-                data: @json($dataAbsensi),
-                backgroundColor: 'rgba(20, 184, 166, 0.8)',
-                borderColor: 'rgb(20, 184, 166)',
+                data: chartData,
+                backgroundColor: chartColors, // Gunakan warna dinamis
+                borderColor: chartColors.map(color => color.replace('0.8', '1')), // Border lebih solid
                 borderWidth: 2,
                 borderRadius: 8,
             }]
@@ -323,16 +327,25 @@
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const labels = ['Tidak Hadir', 'Hadir', 'Cuti', 'Izin', 'Libur'];
+                            return labels[context.parsed.y] || 'Tidak Ada Data';
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 1,
+                    max: 4,
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            return value === 1 ? 'Hadir' : 'Tidak';
+                            const labels = ['', 'Hadir', 'Cuti', 'Izin', 'Libur'];
+                            return labels[value] || '';
                         }
                     }
                 }

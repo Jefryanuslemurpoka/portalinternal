@@ -27,68 +27,93 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Status Absensi -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">
-                <i class="fas fa-info-circle mr-2"></i>Status Hari Ini
-            </h3>
+<div class="bg-white rounded-xl shadow-lg p-6">
+    <h3 class="text-lg font-bold text-gray-800 mb-4">
+        <i class="fas fa-info-circle mr-2"></i>Status Hari Ini
+    </h3>
 
-            <div class="space-y-4">
-                
-                <!-- Check-in Status -->
-                <div class="flex items-center justify-between p-4 {{ $absensiHariIni ? 'bg-teal-50 border-teal-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
-                    <div class="flex items-center space-x-3">
-                        @if($absensiHariIni)
-                            <i class="fas fa-check-circle text-teal-600 text-2xl"></i>
-                        @else
-                            <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
-                        @endif
-                        <div>
-                            <p class="font-semibold text-gray-900">Check-in</p>
-                            @if($absensiHariIni)
-                                <p class="text-sm text-gray-600">{{ date('H:i', strtotime($absensiHariIni->jam_masuk)) }}</p>
-                            @else
-                                <p class="text-sm text-gray-500">Belum check-in</p>
-                            @endif
-                        </div>
-                    </div>
+    @php
+        $status = $absensiHariIni->status ?? null;
+    @endphp
+
+    @if($status === 'cuti' || $status === 'izin')
+        
+        <!-- Status Cuti/Izin - Dipusatkan -->
+        <div class="flex flex-col items-center justify-center py-12 space-y-4">
+            <div class="text-6xl">
+                @if($status === 'cuti')
+                    ⛱️
+                @else
+                    📋
+                @endif
+            </div>
+            <h4 class="text-xl font-bold text-gray-800 text-center">
+                Hari ini Anda {{ strtoupper($status) }}
+            </h4>
+            <p class="text-gray-600 text-center">
+                Tidak perlu melakukan check-in / check-out.
+            </p>
+        </div>
+
+    @else
+        
+        <div class="space-y-4">
+            <!-- Check-in Status -->
+            <div class="flex items-center justify-between p-4 {{ $absensiHariIni ? 'bg-teal-50 border-teal-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
+                <div class="flex items-center space-x-3">
                     @if($absensiHariIni)
-                        @php
-                            $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
-                                ->addMinutes($toleransi)
-                                ->format('H:i:s');
-                        @endphp
-                        @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
-                            <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full">Tepat Waktu</span>
-                        @else
-                            <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Terlambat</span>
-                        @endif
+                        <i class="fas fa-check-circle text-teal-600 text-2xl"></i>
+                    @else
+                        <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
                     @endif
-                </div>
-
-                <!-- Check-out Status -->
-                <div class="flex items-center justify-between p-4 {{ $absensiHariIni && $absensiHariIni->jam_keluar ? 'bg-cyan-50 border-cyan-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
-                    <div class="flex items-center space-x-3">
-                        @if($absensiHariIni && $absensiHariIni->jam_keluar)
-                            <i class="fas fa-check-circle text-cyan-600 text-2xl"></i>
+                    <div>
+                        <p class="font-semibold text-gray-900">Check-in</p>
+                        @if($absensiHariIni)
+                            <p class="text-sm text-gray-600">{{ date('H:i', strtotime($absensiHariIni->jam_masuk)) }}</p>
                         @else
-                            <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
+                            <p class="text-sm text-gray-500">Belum check-in</p>
                         @endif
-                        <div>
-                            <p class="font-semibold text-gray-900">Check-out</p>
-                            @if($absensiHariIni && $absensiHariIni->jam_keluar)
-                                <p class="text-sm text-gray-600">{{ date('H:i', strtotime($absensiHariIni->jam_keluar)) }}</p>
-                            @else
-                                <p class="text-sm text-gray-500">Belum check-out</p>
-                            @endif
-                        </div>
                     </div>
-                    @if($absensiHariIni && $absensiHariIni->jam_keluar)
-                        <span class="px-3 py-1 bg-cyan-100 text-cyan-800 text-xs font-semibold rounded-full">Selesai</span>
-                    @endif
                 </div>
+                @if($absensiHariIni)
+                    @php
+                        $batasKeterlambatan = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)
+                            ->addMinutes($toleransi)
+                            ->format('H:i:s');
+                    @endphp
+                    @if(strtotime($absensiHariIni->jam_masuk) <= strtotime($batasKeterlambatan))
+                        <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full">Tepat Waktu</span>
+                    @else
+                        <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Terlambat</span>
+                    @endif
+                @endif
+            </div>
 
+            <!-- Check-out Status -->
+            <div class="flex items-center justify-between p-4 {{ $absensiHariIni && $absensiHariIni->jam_keluar ? 'bg-cyan-50 border-cyan-200' : 'bg-gray-50 border-gray-200' }} border rounded-lg">
+                <div class="flex items-center space-x-3">
+                    @if($absensiHariIni && $absensiHariIni->jam_keluar)
+                        <i class="fas fa-check-circle text-cyan-600 text-2xl"></i>
+                    @else
+                        <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
+                    @endif
+                    <div>
+                        <p class="font-semibold text-gray-900">Check-out</p>
+                        @if($absensiHariIni && $absensiHariIni->jam_keluar)
+                            <p class="text-sm text-gray-600">{{ date('H:i', strtotime($absensiHariIni->jam_keluar)) }}</p>
+                        @else
+                            <p class="text-sm text-gray-500">Belum check-out</p>
+                        @endif
+                    </div>
+                </div>
+                @if($absensiHariIni && $absensiHariIni->jam_keluar)
+                    <span class="px-3 py-1 bg-cyan-100 text-cyan-800 text-xs font-semibold rounded-full">Selesai</span>
+                @endif
             </div>
         </div>
+
+    @endif
+</div>
 
         <!-- Jam Kerja Info -->
         <div class="bg-white rounded-xl shadow-lg p-6">
@@ -133,92 +158,77 @@
 
     </div>
 
-    <!-- Absensi Actions -->
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <div class="max-w-3xl mx-auto">
+    @php
+        $status = $absensiHariIni->status ?? null;
+    @endphp
+
+   <!-- Absensi Actions -->
+<div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="max-w-3xl mx-auto">
+        <div class="flex flex-col items-center space-y-4">
             
-            <!-- ✅ Info Mode WFH (jika validasi radius nonaktif) -->
-            @php
-                $validasiRadiusAktif = App\Models\Setting::get('validasi_radius_aktif', true);
-            @endphp
-            
-            @if(!$validasiRadiusAktif)
-                <div class="mb-6">
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex items-start">
-                            <i class="fas fa-info-circle text-blue-600 text-xl mt-1 mr-3"></i>
-                            <div class="flex-1">
-                                <p class="text-sm font-semibold text-blue-900 mb-1">Mode WFH Aktif</p>
-                                <p class="text-xs text-blue-700">Validasi lokasi dinonaktifkan. Anda dapat absen dari mana saja tanpa verifikasi GPS.</p>
-                            </div>
-                        </div>
+            {{-- MODE BELUM HADIR --}}
+            @if(!$absensiHariIni)
+
+                <!-- HADIR -->
+                <button type="button" onclick="doCheckIn()"
+                    class="w-full max-w-xl px-8 py-4 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700
+                    text-white text-lg font-semibold rounded-xl shadow-lg transition flex items-center justify-center">
+                    <i class="fas fa-user-check mr-3 text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold">HADIR</div>
+                        <div class="text-xs opacity-90">Absensi Kehadiran Normal</div>
                     </div>
+                </button>
+
+            {{-- MODE CHECK OUT (HANYA JIKA HADIR) --}}
+            @elseif($status === 'hadir' && !$absensiHariIni->jam_keluar)
+
+                <button type="button" onclick="doCheckOut()"
+                    class="w-full max-w-xl px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700
+                    text-white text-lg font-semibold rounded-xl shadow-lg transition flex items-center justify-center">
+                    <i class="fas fa-sign-out-alt mr-3 text-2xl"></i>
+                    CHECK-OUT SEKARANG
+                </button>
+
+            {{-- MODE IZIN / CUTI --}}
+            @elseif($status === 'izin' || $status === 'cuti')
+
+                <div class="text-center py-6">
+                    <div class="w-16 h-16 mx-auto flex items-center justify-center
+                        rounded-full {{ $status == 'cuti' ? 'bg-purple-100' : 'bg-orange-100' }}">
+                        
+                        <i class="fas {{ $status == 'cuti' ? 'fa-umbrella-beach text-purple-600' : 'fa-file-alt text-orange-600' }} text-3xl"></i>
+                    </div>
+
+                    <p class="mt-4 text-lg font-bold 
+                        {{ $status == 'cuti' ? 'text-purple-700' : 'text-orange-700' }}">
+                        
+                        Hari ini Anda {{ strtoupper($status) }}
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                        Tidak perlu melakukan check-in / check-out.
+                    </p>
                 </div>
+
+            {{-- MODE ABSENSI SELESAI --}}
+            @else
+
+                <div class="text-center py-6">
+                    <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-teal-600 text-4xl"></i>
+                    </div>
+                    <p class="text-xl font-bold text-gray-900">Absensi Hari Ini Selesai</p>
+                    <p class="text-sm text-gray-600 mt-2">Terima kasih sudah melakukan absensi</p>
+                </div>
+
             @endif
-
-            <!-- Location Info (hanya tampil jika validasi aktif) -->
-            <div id="locationInfo" class="mb-6 hidden">
-                <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                    <div class="flex items-start">
-                        <i class="fas fa-map-marker-alt text-teal-600 text-xl mt-1 mr-3"></i>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-teal-900 mb-1">Lokasi Terdeteksi</p>
-                            <p class="text-xs text-teal-700">Latitude: <span id="userLat">-</span></p>
-                            <p class="text-xs text-teal-700">Longitude: <span id="userLng">-</span></p>
-                            <p class="text-xs text-teal-700 mt-1">Jarak dari kantor: <span id="distance">-</span> meter</p>
-                        </div>
-                        <span id="locationStatus" class="px-3 py-1 text-xs font-semibold rounded-full"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="space-y-4">
-                @if(!$absensiHariIni)
-                    <!-- Tombol Hadir -->
-                    <button type="button" onclick="doCheckIn()" id="checkInBtn" class="w-full px-8 py-4 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200 flex items-center justify-center">
-                        <i class="fas fa-user-check mr-3 text-2xl"></i>
-                        <div class="text-left">
-                            <div class="font-bold">HADIR</div>
-                            <div class="text-xs opacity-90">Absensi Kehadiran Normal</div>
-                        </div>
-                    </button>
-
-                    <!-- Tombol Izin -->
-                    <button type="button" onclick="showIzinForm()" class="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200 flex items-center justify-center">
-                        <i class="fas fa-file-alt mr-3 text-2xl"></i>
-                        <div class="text-left">
-                            <div class="font-bold">IZIN</div>
-                            <div class="text-xs opacity-90">Pengajuan Izin Tidak Masuk</div>
-                        </div>
-                    </button>
-
-                    <!-- Tombol Cuti -->
-                    <button type="button" onclick="showCutiForm()" class="w-full px-8 py-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200 flex items-center justify-center">
-                        <i class="fas fa-umbrella-beach mr-3 text-2xl"></i>
-                        <div class="text-left">
-                            <div class="font-bold">CUTI</div>
-                            <div class="text-xs opacity-90">Pengajuan Cuti</div>
-                        </div>
-                    </button>
-
-                @elseif(!$absensiHariIni->jam_keluar)
-                    <button type="button" onclick="doCheckOut()" id="checkOutBtn" class="w-full px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white text-lg font-semibold rounded-xl shadow-lg transition duration-200">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Check-out Sekarang
-                    </button>
-                @else
-                    <div class="text-center py-6">
-                        <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-check text-teal-600 text-4xl"></i>
-                        </div>
-                        <p class="text-xl font-bold text-gray-900">Absensi Hari Ini Selesai</p>
-                        <p class="text-sm text-gray-600 mt-2">Terima kasih sudah melakukan absensi</p>
-                    </div>
-                @endif
-            </div>
 
         </div>
     </div>
+</div>
+
 
     <!-- Lokasi Kantor Info (hanya tampil jika validasi aktif) -->
     @if($validasiRadiusAktif)

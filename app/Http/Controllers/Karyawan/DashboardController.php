@@ -57,9 +57,10 @@ class DashboardController extends Controller
             ->whereRaw('TIME(jam_masuk) > ?', [$batasKeterlambatan])
             ->count();
 
-        // Data Grafik Absensi 7 Hari Terakhir
+        // ✅ Data Grafik Absensi 7 Hari Terakhir (dengan warna berbeda)
         $labels = [];
         $dataAbsensi = [];
+        $warna = []; // Array untuk warna
 
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
@@ -67,9 +68,27 @@ class DashboardController extends Controller
             
             $absen = Absensi::where('user_id', $user->id)
                 ->whereDate('tanggal', $date)
-                ->exists();
+                ->first();
             
-            $dataAbsensi[] = $absen ? 1 : 0;
+            // Cek apakah hari minggu (libur)
+            if ($date->dayOfWeek == 0) { // 0 = Minggu
+                $dataAbsensi[] = 4; // Libur
+                $warna[] = 'rgba(239, 68, 68, 0.8)'; // Merah untuk libur
+            } elseif ($absen) {
+                if ($absen->status == 'cuti') {
+                    $dataAbsensi[] = 2; // Cuti
+                    $warna[] = 'rgba(168, 85, 247, 0.8)'; // Ungu untuk cuti
+                } elseif ($absen->status == 'izin') {
+                    $dataAbsensi[] = 3; // Izin
+                    $warna[] = 'rgba(249, 115, 22, 0.8)'; // Orange untuk izin
+                } else {
+                    $dataAbsensi[] = 1; // Hadir
+                    $warna[] = 'rgba(20, 184, 166, 0.8)'; // Hijau untuk hadir
+                }
+            } else {
+                $dataAbsensi[] = 0; // Tidak hadir
+                $warna[] = 'rgba(156, 163, 175, 0.8)'; // Abu-abu untuk tidak hadir
+            }
         }
 
         // Pengajuan Cuti/Izin
@@ -106,6 +125,7 @@ class DashboardController extends Controller
             'terlambat',
             'labels',
             'dataAbsensi',
+            'warna', // ✅ Tambahkan variable warna
             'cutiPending',
             'cutiDisetujui',
             'pengumuman',

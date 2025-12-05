@@ -131,36 +131,51 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($absensi as $key => $a)
+                    @forelse($absensi as $key => $item)
+                    @php
+                        // ✅ Handle data dari collection (bisa Absensi model atau array)
+                        $a = is_array($item) ? (object) $item : $item;
+                        $tanggal = $a->tanggal instanceof \Carbon\Carbon ? $a->tanggal : \Carbon\Carbon::parse($a->tanggal);
+                        $status = $a->status ?? 'hadir';
+                        $jamMasukKaryawan = $a->jam_masuk ?? null;
+                        $jamKeluarKaryawan = $a->jam_keluar ?? null;
+                    @endphp
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4 text-sm text-gray-900">
                             {{ $key + 1 }}
                         </td>
                         <td class="px-6 py-4">
-                            <p class="text-sm font-semibold text-gray-900">{{ $a->tanggal->format('d M Y') }}</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ $tanggal->format('d M Y') }}</p>
                         </td>
                         <td class="px-6 py-4">
-                            <p class="text-sm text-gray-600">{{ $a->tanggal->format('l') }}</p>
+                            <p class="text-sm text-gray-600">{{ $tanggal->format('l') }}</p>
                         </td>
                         <td class="px-6 py-4">
-                            <p class="text-sm font-semibold {{ strtotime($a->jam_masuk) <= strtotime($jamMasuk . ':00') ? 'text-green-600' : 'text-red-600' }}">
-                                {{ date('H:i', strtotime($a->jam_masuk)) }}
-                            </p>
-                        </td>
-                        <td class="px-6 py-4">
-                            @if($a->jam_keluar)
-                                <p class="text-sm font-semibold text-teal-600">
-                                    {{ date('H:i', strtotime($a->jam_keluar)) }}
+                            @if($jamMasukKaryawan)
+                                @php
+                                    $batasJam = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)->format('H:i:s');
+                                @endphp
+                                <p class="text-sm font-semibold {{ strtotime($jamMasukKaryawan) <= strtotime($batasJam) ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ date('H:i', strtotime($jamMasukKaryawan)) }}
                                 </p>
                             @else
-                                <span class="badge badge-warning">Belum Checkout</span>
+                                <span class="text-sm text-gray-400">-</span>
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @if($a->jam_masuk && $a->jam_keluar)
+                            @if($jamKeluarKaryawan)
+                                <p class="text-sm font-semibold text-teal-600">
+                                    {{ date('H:i', strtotime($jamKeluarKaryawan)) }}
+                                </p>
+                            @else
+                                <span class="text-sm text-gray-400">-</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                            @if($jamMasukKaryawan && $jamKeluarKaryawan)
                                 @php
-                                    $jamMasukTime = \Carbon\Carbon::parse($a->jam_masuk);
-                                    $jamKeluarTime = \Carbon\Carbon::parse($a->jam_keluar);
+                                    $jamMasukTime = \Carbon\Carbon::parse($jamMasukKaryawan);
+                                    $jamKeluarTime = \Carbon\Carbon::parse($jamKeluarKaryawan);
                                     $durasi = $jamMasukTime->diff($jamKeluarTime);
                                 @endphp
                                 <p class="text-sm text-gray-700">
@@ -171,14 +186,39 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @if(strtotime($a->jam_masuk) <= strtotime($jamMasuk . ':00'))
-                                <span class="badge badge-success">
-                                    <i class="fas fa-check mr-1"></i>Tepat Waktu
+                            @if($tanggal->dayOfWeek == 0 || $status == 'libur')
+                                <!-- Minggu / Libur -->
+                                <span class="badge badge-danger">
+                                    Libur
+                                </span>
+                            @elseif($status == 'cuti')
+                                <!-- Cuti -->
+                                <span class="badge badge-secondary">
+                                    Cuti
+                                </span>
+                            @elseif($status == 'izin')
+                                <!-- Izin -->
+                                <span class="badge badge-warning">
+                                    Izin
                                 </span>
                             @else
-                                <span class="badge badge-danger">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>Terlambat
-                                </span>
+                                <!-- Hadir Normal -->
+                                @if($jamMasukKaryawan)
+                                    @php
+                                        $batasJamMasuk = \Carbon\Carbon::createFromFormat('H:i', $jamMasuk)->format('H:i:s');
+                                    @endphp
+                                    @if(strtotime($jamMasukKaryawan) <= strtotime($batasJamMasuk))
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check mr-1"></i>Tepat Waktu
+                                        </span>
+                                    @else
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>Terlambat
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-sm text-gray-400">-</span>
+                                @endif
                             @endif
                         </td>
                     </tr>
@@ -215,8 +255,16 @@
                         Check-in setelah jam {{ $jamMasuk }}
                     </li>
                     <li class="flex items-center">
-                        <span class="badge badge-warning mr-2">Belum Checkout</span>
-                        Belum melakukan check-out
+                        <span class="badge badge-secondary mr-2">Cuti</span>
+                        Sedang mengambil cuti
+                    </li>
+                    <li class="flex items-center">
+                        <span class="badge badge-warning mr-2">Izin</span>
+                        Sedang izin tidak masuk
+                    </li>
+                    <li class="flex items-center">
+                        <span class="badge badge-danger mr-2">Libur</span>
+                        Hari Minggu / Hari Libur
                     </li>
                 </ul>
             </div>
