@@ -16,11 +16,11 @@
             <div class="relative" data-aos="fade-right">
                 
                 <!-- Main Image with Enhanced Effects -->
-                <div class="relative image-hover rounded-2xl glow-pulse">
-                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1000" 
-                         alt="Office Team" 
-                         class="rounded-2xl shadow-2xl w-full border-2 border-primary-500/20">
-                    
+                <div class="relative image-hover rounded-2xl glow-pulse aspect-square w-full max-w-md mx-auto">
+                    <img src="{{ asset('images/model1.jpeg') }}" 
+                        alt="Office Team" 
+                        class="w-full h-full object-cover rounded-2xl shadow-2xl border-2 border-primary-500/20">
+
                     <!-- Animated Corner Accent -->
                     <div class="absolute top-0 left-0 w-20 h-20 border-t-4 border-l-4 border-primary-500 rounded-tl-2xl"></div>
                     <div class="absolute bottom-0 right-0 w-20 h-20 border-b-4 border-r-4 border-cyan-500 rounded-br-2xl"></div>
@@ -37,7 +37,7 @@
                 <!-- Enhanced Small Image -->
                 <div class="absolute -top-8 -left-8 hidden md:block" data-aos="fade-up" data-aos-delay="200">
                     <div class="image-hover rounded-2xl">
-                        <img src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=80&w=400" 
+                        <img src="{{ asset('images/model2.png') }}" 
                              alt="Professional" 
                              class="w-52 h-52 rounded-2xl shadow-xl object-cover border-4 border-dark">
                         <!-- Glow Effect -->
