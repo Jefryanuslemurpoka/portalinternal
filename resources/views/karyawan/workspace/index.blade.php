@@ -126,6 +126,22 @@
             </div>
         </a>
 
+        <!-- Laporan Bulanan Order Notaris (BARU) -->
+        <a href="{{ route('karyawan.laporan-notaris.index') }}" 
+           class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 flex flex-col items-center justify-center space-y-4 hover:-translate-y-2 border-2 border-transparent hover:border-teal-500">
+            <div class="w-20 h-20 bg-gradient-to-br from-teal-600 to-cyan-700 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-file-contract text-white text-3xl"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-gray-800 mb-1">Laporan Bulanan Order Notaris</h3>
+                <p class="text-sm text-gray-500">Laporan Order Notaris</p>
+            </div>
+            <div class="flex items-center text-teal-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <span>Buka</span>
+                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+        </a>
+
     </div>
 
     <!-- Info Section -->

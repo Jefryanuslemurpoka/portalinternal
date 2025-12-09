@@ -10,6 +10,7 @@ use App\Http\Controllers\Karyawan\ProfilController;
 use App\Http\Controllers\Karyawan\SuratController;
 use App\Http\Controllers\Karyawan\ServerLogController;
 use App\Http\Controllers\Karyawan\WorkspaceController;
+use App\Http\Controllers\Karyawan\LaporanNotarisController;
 
 // ========================================
 // KARYAWAN ROUTES
@@ -103,9 +104,24 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
     });
 
     // ========================================
-    // WORKSPACE (BARU) ✨
+    // WORKSPACE
     // ========================================
     Route::get('/workspace', [WorkspaceController::class, 'index'])->name('karyawan.workspace.index');
+
+    // ========================================
+    // LAPORAN BULANAN ORDER NOTARIS (BARU) ✨
+    // ========================================
+    Route::prefix('laporan-notaris')->name('karyawan.laporan-notaris.')->group(function () {
+        Route::get('/', [LaporanNotarisController::class, 'index'])->name('index');
+        Route::get('/create', [LaporanNotarisController::class, 'create'])->name('create');
+        Route::post('/', [LaporanNotarisController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [LaporanNotarisController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [LaporanNotarisController::class, 'update'])->name('update');
+        Route::delete('/{id}', [LaporanNotarisController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/notaris/{notaris}', [LaporanNotarisController::class, 'notarisDetail'])->name('notaris-detail');
+        Route::get('/{id}/grafik', [LaporanNotarisController::class, 'grafik'])->name('grafik');
+        Route::get('/{id}', [LaporanNotarisController::class, 'show'])->name('show');
+    });
 
     // ========================================
     // PENGUMUMAN
