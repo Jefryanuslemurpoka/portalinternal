@@ -38,11 +38,23 @@ class DashboardController extends Controller
 
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $labels[] = $date->format('d M');
             
-            $hadir = Absensi::whereDate('tanggal', $date)->count();
-            $dataHadir[] = $hadir;
-            $dataTidakHadir[] = $karyawanAktif - $hadir;
+            // CEK HARI LIBUR (0 = Minggu aja)
+            $isDayOff = $date->dayOfWeek === 0; // Cuma Minggu
+            
+            // Format label dengan keterangan libur
+            $labels[] = $date->format('d M') . ($isDayOff ? ' (Libur)' : '');
+            
+            if ($isDayOff) {
+                // Jika hari libur, set 0 untuk kedua data
+                $dataHadir[] = 0;
+                $dataTidakHadir[] = 0;
+            } else {
+                // Hitung yang hadir
+                $hadir = Absensi::whereDate('tanggal', $date)->count();
+                $dataHadir[] = $hadir;
+                $dataTidakHadir[] = $karyawanAktif - $hadir;
+            }
         }
 
         // Data Grafik Absensi per Divisi

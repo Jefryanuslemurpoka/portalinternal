@@ -58,7 +58,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
             <div class="flex items-center justify-between">
                 <div>
@@ -72,7 +72,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs opacity-90 mb-1">Hadir</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->where('status', 'hadir')->count() }}</h3>
+                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->count() }}</h3>
                 </div>
                 <i class="fas fa-check-circle text-2xl sm:text-3xl opacity-20"></i>
             </div>
@@ -81,7 +81,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs opacity-90 mb-1">Izin/Sakit</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->whereIn('status', ['izin', 'sakit'])->count() }}</h3>
+                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->filter(function($item) { return $item->keterangan && in_array(strtolower($item->keterangan), ['izin', 'sakit']); })->count() }}</h3>
                 </div>
                 <i class="fas fa-calendar-times text-2xl sm:text-3xl opacity-20"></i>
             </div>
@@ -90,9 +90,18 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs opacity-90 mb-1">Alpha</p>
-                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->where('status', 'alpha')->count() }}</h3>
+                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->filter(function($item) { return $item->keterangan && strtolower($item->keterangan) === 'alpha'; })->count() }}</h3>
                 </div>
                 <i class="fas fa-times-circle text-2xl sm:text-3xl opacity-20"></i>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs opacity-90 mb-1">Libur</p>
+                    <h3 class="text-xl sm:text-2xl font-bold">{{ $absensi->filter(function($item) { return \Carbon\Carbon::parse($item->tanggal)->dayOfWeek === 0; })->count() }}</h3>
+                </div>
+                <i class="fas fa-umbrella-beach text-2xl sm:text-3xl opacity-20"></i>
             </div>
         </div>
     </div>
@@ -103,27 +112,38 @@
         <!-- Mobile Card View -->
         <div class="block lg:hidden">
             @forelse($absensi as $key => $item)
-            <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+            @php
+                $isLibur = \Carbon\Carbon::parse($item->tanggal)->dayOfWeek === 0; // 0 = Minggu
+            @endphp
+            <div class="border-b border-gray-200 p-4 hover:bg-gray-50 {{ $isLibur ? 'bg-blue-50' : '' }}">
                 <div class="flex items-start justify-between mb-3">
                     <div class="flex-1">
                         <p class="font-bold text-gray-900 text-sm mb-1">{{ $item->user->name }}</p>
                         <p class="text-xs text-gray-600">{{ $item->user->divisi }} - {{ $item->user->jabatan }}</p>
                     </div>
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold
-                        @if($item->status == 'hadir') bg-green-100 text-green-700
-                        @elseif(in_array($item->status, ['izin', 'sakit'])) bg-yellow-100 text-yellow-700
-                        @else bg-red-100 text-red-700
-                        @endif">
-                        {{ ucfirst($item->status) }}
-                    </span>
+                    @if($isLibur)
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                            <i class="fas fa-umbrella-beach mr-1"></i>Libur
+                        </span>
+                    @else
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            Hadir
+                        </span>
+                    @endif
                 </div>
                 <div class="space-y-1 text-xs">
-                    <p><span class="text-gray-600">Tanggal:</span> <span class="font-semibold">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</span></p>
+                    <p><span class="text-gray-600">Tanggal:</span> <span class="font-semibold">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y (l)') }}</span></p>
                     @if($item->jam_masuk)
                     <p><span class="text-gray-600">Jam Masuk:</span> <span class="font-semibold">{{ $item->jam_masuk }}</span></p>
                     @endif
                     @if($item->jam_keluar)
                     <p><span class="text-gray-600">Jam Keluar:</span> <span class="font-semibold">{{ $item->jam_keluar }}</span></p>
+                    @endif
+                    @if($item->lokasi)
+                    <p><span class="text-gray-600">Lokasi:</span> <span class="font-semibold">{{ $item->lokasi }}</span></p>
+                    @endif
+                    @if($item->keterangan)
+                    <p><span class="text-gray-600">Keterangan:</span> <span class="font-semibold">{{ $item->keterangan }}</span></p>
                     @endif
                 </div>
             </div>
@@ -145,34 +165,46 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Nama Karyawan</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Divisi</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Jabatan</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Status</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Jam Masuk</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Jam Keluar</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Lokasi</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Keterangan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse($absensi as $key => $item)
-                    <tr class="hover:bg-gray-50">
+                    @php
+                        $isLibur = \Carbon\Carbon::parse($item->tanggal)->dayOfWeek === 0; // 0 = Minggu
+                    @endphp
+                    <tr class="hover:bg-gray-50 {{ $isLibur ? 'bg-blue-50' : '' }}">
                         <td class="px-4 py-3 text-sm">{{ $key + 1 }}</td>
-                        <td class="px-4 py-3 text-sm font-semibold">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</td>
+                        <td class="px-4 py-3 text-sm font-semibold">
+                            {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
+                            <span class="block text-xs text-gray-500">{{ \Carbon\Carbon::parse($item->tanggal)->format('l') }}</span>
+                        </td>
                         <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ $item->user->name }}</td>
                         <td class="px-4 py-3 text-sm">{{ $item->user->divisi }}</td>
                         <td class="px-4 py-3 text-sm">{{ $item->user->jabatan }}</td>
-                        <td class="px-4 py-3">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                @if($item->status == 'hadir') bg-green-100 text-green-700
-                                @elseif(in_array($item->status, ['izin', 'sakit'])) bg-yellow-100 text-yellow-700
-                                @else bg-red-100 text-red-700
-                                @endif">
-                                {{ ucfirst($item->status) }}
-                            </span>
-                        </td>
                         <td class="px-4 py-3 text-sm">{{ $item->jam_masuk ?? '-' }}</td>
                         <td class="px-4 py-3 text-sm">{{ $item->jam_keluar ?? '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-xs">{{ $item->lokasi ? Str::limit($item->lokasi, 20) : '-' }}</td>
+                        <td class="px-4 py-3">
+                            @if($isLibur)
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                    <i class="fas fa-umbrella-beach mr-1"></i>Libur
+                                </span>
+                            @else
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                    <i class="fas fa-check-circle mr-1"></i>Hadir
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-sm">{{ $item->keterangan ?? '-' }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-4 py-8 text-center text-gray-600">
+                        <td colspan="10" class="px-4 py-8 text-center text-gray-600">
                             <i class="fas fa-inbox text-4xl mb-3 block"></i>
                             Tidak ada data absensi
                         </td>

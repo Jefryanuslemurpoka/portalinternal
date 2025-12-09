@@ -98,23 +98,25 @@
 
                     <!-- Baris 2: Jam Masuk & Keluar -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Jam Masuk -->
                         <div>
                             <label class="form-label text-sm font-semibold text-gray-700 mb-2 block">
                                 Jam Masuk
                             </label>
                             <input type="time" name="jam_masuk" id="jam_masuk" 
-                                   value="{{ old('jam_masuk', $absensi->jam_masuk ? substr($absensi->jam_masuk, 0, 5) : '') }}" 
-                                   class="form-input">
+                                value="{{ old('jam_masuk', $absensi->jam_masuk ? \Carbon\Carbon::parse($absensi->jam_masuk)->format('H:i') : '') }}" 
+                                class="form-input">
                             <p class="text-xs text-gray-500 mt-2">Opsional, kosongkan jika tidak ada</p>
                         </div>
 
+                        <!-- Jam Keluar -->
                         <div>
                             <label class="form-label text-sm font-semibold text-gray-700 mb-2 block">
                                 Jam Keluar
                             </label>
                             <input type="time" name="jam_keluar" id="jam_keluar" 
-                                   value="{{ old('jam_keluar', $absensi->jam_keluar ? substr($absensi->jam_keluar, 0, 5) : '') }}" 
-                                   class="form-input">
+                                value="{{ old('jam_keluar', $absensi->jam_keluar ? \Carbon\Carbon::parse($absensi->jam_keluar)->format('H:i') : '') }}" 
+                                class="form-input">
                             <p class="text-xs text-gray-500 mt-2">Opsional, harus lebih besar dari jam masuk</p>
                         </div>
                     </div>

@@ -9,6 +9,8 @@ use App\Models\Absensi;
 use App\Models\CutiIzin;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AbsensiExport;
 
 class LaporanController extends Controller
 {
@@ -66,7 +68,7 @@ class LaporanController extends Controller
             });
         }
 
-        $absensi = $query->orderBy('tanggal', 'desc')->get();
+        $absensi = $query->orderBy('tanggal', 'asc')->get();
 
         $data = [
             'absensi' => $absensi,
@@ -76,7 +78,7 @@ class LaporanController extends Controller
         ];
 
         $pdf = Pdf::loadView('superadmin.laporan.pdf.absensi', $data)
-            ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'portrait');
         
         return $pdf->download('Laporan_Absensi_' . date('Ymd_His') . '.pdf');
     }
@@ -99,45 +101,12 @@ class LaporanController extends Controller
             });
         }
 
-        $absensi = $query->orderBy('tanggal', 'desc')->get();
+        $absensi = $query->orderBy('tanggal', 'asc')->get();
 
-        $filename = 'Laporan_Absensi_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
-        ];
-
-        $callback = function() use ($absensi) {
-            $file = fopen('php://output', 'w');
-            
-            // UTF-8 BOM untuk Excel
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Header
-            fputcsv($file, ['No', 'Tanggal', 'Nama Karyawan', 'NIK', 'Divisi', 'Jabatan', 'Status', 'Jam Masuk', 'Jam Keluar']);
-
-            // Data
-            foreach ($absensi as $key => $item) {
-                fputcsv($file, [
-                    $key + 1,
-                    \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y'),
-                    $item->user->name,
-                    $item->user->nik ?? '-',
-                    $item->user->divisi,
-                    $item->user->jabatan,
-                    strtoupper($item->status),
-                    $item->jam_masuk ?? '-',
-                    $item->jam_keluar ?? '-',
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(
+            new AbsensiExport($absensi, $request->tanggal_mulai, $request->tanggal_selesai, $request->divisi),
+            'Laporan_Absensi_' . date('Ymd_His') . '.xlsx'
+        );
     }
 
     // Laporan Cuti/Izin
