@@ -8,15 +8,21 @@
 
     <!-- Header -->
     <div class="bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl shadow-lg p-6 text-white">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
                 <h2 class="text-2xl font-bold mb-2">
                     <i class="fas fa-chart-bar mr-2"></i>Rekap Absensi
                 </h2>
                 <p class="text-white/80">Riwayat kehadiran Anda</p>
             </div>
-            <div class="hidden md:block">
-                <i class="fas fa-calendar-alt text-6xl text-white/20"></i>
+            <div class="flex items-center gap-3">
+                <form action="{{ route('karyawan.rekap.export') }}" method="GET" class="inline">
+                    <input type="hidden" name="periode" value="{{ $periode }}">
+                    <button type="submit" class="px-4 py-2 bg-white text-teal-600 rounded-lg font-semibold hover:bg-teal-50 transition shadow-md">
+                        <i class="fas fa-file-excel mr-2"></i>Export Excel
+                    </button>
+                </form>
+                <i class="fas fa-calendar-alt text-4xl md:text-6xl text-white/20 hidden sm:block"></i>
             </div>
         </div>
     </div>
@@ -27,7 +33,7 @@
             <h3 class="text-lg font-bold text-gray-800">
                 <i class="fas fa-filter mr-2"></i>Filter Periode
             </h3>
-            <div class="flex space-x-2">
+            <div class="flex flex-wrap gap-2">
                 <a href="{{ route('karyawan.rekap.index', ['periode' => 'harian']) }}" 
                    class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'harian' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                     <i class="fas fa-calendar-day mr-2"></i>Harian
@@ -40,6 +46,12 @@
                    class="px-4 py-2 rounded-lg font-medium transition {{ $periode == 'bulanan' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                     <i class="fas fa-calendar-alt mr-2"></i>Bulanan
                 </a>
+                <form action="{{ route('karyawan.rekap.export') }}" method="GET" class="inline md:hidden">
+                    <input type="hidden" name="periode" value="{{ $periode }}">
+                    <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition">
+                        <i class="fas fa-file-excel mr-2"></i>Export
+                    </button>
+                </form>
             </div>
         </div>
     </div>

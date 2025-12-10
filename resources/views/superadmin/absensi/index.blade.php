@@ -159,23 +159,6 @@
                 <i class="fas fa-clipboard-list mr-2 text-teal-600"></i>Rekap Absensi
             </h3>
             
-            <!-- Export Button -->
-            @if($absensi->total() > 0)
-            <form action="{{ route('superadmin.absensi.export') }}" method="POST" class="inline-block">
-                @csrf
-                <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
-                <input type="hidden" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}">
-                <input type="hidden" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}">
-                <input type="hidden" name="user_id" value="{{ request('user_id') }}">
-                <input type="hidden" name="divisi" value="{{ request('divisi') }}">
-                
-                <button type="submit" class="inline-flex items-center justify-center px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition shadow-md text-xs sm:text-sm whitespace-nowrap">
-                    <i class="fas fa-file-excel mr-1 sm:mr-2"></i>
-                    <span class="hidden sm:inline">Export Excel</span>
-                    <span class="sm:hidden">Export</span>
-                </button>
-            </form>
-            @endif
         </div>
             
         <!-- Mobile Card View -->

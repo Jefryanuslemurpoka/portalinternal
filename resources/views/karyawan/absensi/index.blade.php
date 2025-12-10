@@ -167,33 +167,8 @@
     <div class="max-w-3xl mx-auto">
         <div class="flex flex-col items-center space-y-4">
             
-            {{-- MODE BELUM HADIR --}}
-            @if(!$absensiHariIni)
-
-                <!-- HADIR -->
-                <button type="button" onclick="doCheckIn()"
-                    class="w-full max-w-xl px-8 py-4 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700
-                    text-white text-lg font-semibold rounded-xl shadow-lg transition flex items-center justify-center">
-                    <i class="fas fa-user-check mr-3 text-2xl"></i>
-                    <div class="text-left">
-                        <div class="font-bold">HADIR</div>
-                        <div class="text-xs opacity-90">Absensi Kehadiran Normal</div>
-                    </div>
-                </button>
-
-            {{-- MODE CHECK OUT (HANYA JIKA HADIR) --}}
-            @elseif($status === 'hadir' && !$absensiHariIni->jam_keluar)
-
-                <button type="button" onclick="doCheckOut()"
-                    class="w-full max-w-xl px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700
-                    text-white text-lg font-semibold rounded-xl shadow-lg transition flex items-center justify-center">
-                    <i class="fas fa-sign-out-alt mr-3 text-2xl"></i>
-                    CHECK-OUT SEKARANG
-                </button>
-
-            {{-- MODE IZIN / CUTI --}}
-            @elseif($status === 'izin' || $status === 'cuti')
-
+            @if($status === 'izin' || $status === 'cuti')
+                {{-- MODE IZIN / CUTI - Tidak ada tombol --}}
                 <div class="text-center py-6">
                     <div class="w-16 h-16 mx-auto flex items-center justify-center
                         rounded-full {{ $status == 'cuti' ? 'bg-purple-100' : 'bg-orange-100' }}">
@@ -212,9 +187,8 @@
                     </p>
                 </div>
 
-            {{-- MODE ABSENSI SELESAI --}}
-            @else
-
+            @elseif($absensiHariIni && $absensiHariIni->jam_keluar)
+                {{-- MODE ABSENSI SELESAI (sudah check-in DAN check-out) --}}
                 <div class="text-center py-6">
                     <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-check text-teal-600 text-4xl"></i>
@@ -222,6 +196,55 @@
                     <p class="text-xl font-bold text-gray-900">Absensi Hari Ini Selesai</p>
                     <p class="text-sm text-gray-600 mt-2">Terima kasih sudah melakukan absensi</p>
                 </div>
+
+            @else
+                {{-- MODE NORMAL - TAMPILKAN 2 TOMBOL SEKALIGUS --}}
+                
+                <!-- TOMBOL CHECK-IN (HADIR) -->
+                <button type="button" 
+                    onclick="doCheckIn()"
+                    {{ $absensiHariIni ? 'disabled' : '' }}
+                    class="w-full max-w-xl px-8 py-4 text-lg font-semibold rounded-xl shadow-lg transition flex items-center justify-center
+                    {{ $absensiHariIni 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white' 
+                    }}">
+                    
+                    <i class="fas fa-user-check mr-3 text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold">
+                            {{ $absensiHariIni ? '✓ SUDAH CHECK-IN' : 'CHECK-IN (HADIR)' }}
+                        </div>
+                        <div class="text-xs opacity-90">
+                            {{ $absensiHariIni 
+                                ? 'Check-in berhasil pada ' . date('H:i', strtotime($absensiHariIni->jam_masuk))
+                                : 'Absensi Kehadiran Normal' 
+                            }}
+                        </div>
+                    </div>
+                </button>
+
+                <!-- TOMBOL CHECK-OUT -->
+                <button type="button" 
+                    onclick="doCheckOut()"
+                    {{ !$absensiHariIni ? 'disabled' : '' }}
+                    class="w-full max-w-xl px-8 py-4 text-lg font-semibold rounded-xl shadow-lg transition flex items-center justify-center
+                    {{ !$absensiHariIni 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white' 
+                    }}">
+                    
+                    <i class="fas fa-sign-out-alt mr-3 text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold">CHECK-OUT</div>
+                        <div class="text-xs opacity-90">
+                            {{ !$absensiHariIni 
+                                ? 'Harap check-in terlebih dahulu' 
+                                : 'Klik untuk check-out sekarang' 
+                            }}
+                        </div>
+                    </div>
+                </button>
 
             @endif
 

@@ -39,11 +39,11 @@
                         </div>
                     </div>
                     
-                    <div class="p-2 sm:p-3 text-center border-t border-gray-100 flex-shrink-0">
+                    <!--<div class="p-2 sm:p-3 text-center border-t border-gray-100 flex-shrink-0">
                         <a href="{{ route('notifications.index') }}" class="text-xs sm:text-sm text-teal-600 hover:text-teal-700 font-medium transition inline-block py-1">
                             Lihat Semua Notifikasi
                         </a>
-                    </div>
+                    </div>-->
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Karyawan\DashboardController;
 use App\Http\Controllers\Karyawan\AbsensiController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\Karyawan\SuratController;
 use App\Http\Controllers\Karyawan\ServerLogController;
 use App\Http\Controllers\Karyawan\WorkspaceController;
 use App\Http\Controllers\Karyawan\LaporanNotarisController;
+
+
 
 // ========================================
 // KARYAWAN ROUTES
@@ -41,6 +44,7 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::get('/harian', [RekapController::class, 'harian'])->name('harian');
         Route::get('/mingguan', [RekapController::class, 'mingguan'])->name('mingguan');
         Route::get('/bulanan', [RekapController::class, 'bulanan'])->name('bulanan');
+        Route::get('/export', [RekapController::class, 'exportRekap'])->name('export');
     });
 
     // ========================================
@@ -60,7 +64,7 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
     Route::prefix('izin')->name('karyawan.izin.')->group(function () {
         Route::get('/', [CutiIzinController::class, 'index'])->name('index');
         Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
-        Route::post('/store', [CutiIzinController::class, 'storeIzin'])->name('store'); // ✅ UBAH JADI storeIzin
+        Route::post('/store', [CutiIzinController::class, 'storeIzin'])->name('store');
         Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
         Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
     });
@@ -71,7 +75,7 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
     Route::prefix('cuti')->name('karyawan.cuti.')->group(function () {
         Route::get('/', [CutiIzinController::class, 'index'])->name('index');
         Route::get('/create', [CutiIzinController::class, 'create'])->name('create');
-        Route::post('/store', [CutiIzinController::class, 'storeCuti'])->name('store'); // ✅ UBAH JADI storeCuti
+        Route::post('/store', [CutiIzinController::class, 'storeCuti'])->name('store');
         Route::get('/{id}', [CutiIzinController::class, 'show'])->name('show');
         Route::delete('/{id}', [CutiIzinController::class, 'destroy'])->name('destroy');
     });
@@ -120,6 +124,7 @@ Route::prefix('karyawan')->middleware(['auth', 'karyawan'])->group(function () {
         Route::delete('/{id}', [LaporanNotarisController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/notaris/{notaris}', [LaporanNotarisController::class, 'notarisDetail'])->name('notaris-detail');
         Route::get('/{id}/grafik', [LaporanNotarisController::class, 'grafik'])->name('grafik');
+        Route::get('/{id}/download-zip', [LaporanNotarisController::class, 'downloadZip'])->name('download-zip'); // ✅ TAMBAHAN BARU
         Route::get('/{id}', [LaporanNotarisController::class, 'show'])->name('show');
     });
 

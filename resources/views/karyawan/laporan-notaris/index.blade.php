@@ -108,6 +108,13 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
 
+                                        <!-- Download ZIP (8 Excel Files) -->
+                                        <a href="{{ route('karyawan.laporan-notaris.download-zip', $laporan->id) }}" 
+                                           class="text-teal-600 hover:text-teal-800 text-lg" 
+                                           title="Download Laporan (ZIP - 8 File Excel)">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+
                                         <!-- Grafik -->
                                         <a href="{{ route('karyawan.laporan-notaris.grafik', $laporan->id) }}" 
                                            class="text-purple-600 hover:text-purple-800 text-lg" 

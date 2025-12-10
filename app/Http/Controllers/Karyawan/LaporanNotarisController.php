@@ -8,6 +8,10 @@ use App\Models\LaporanNotarisDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LaporanGabunganExport;
+use App\Exports\LaporanNotarisDetailExport;
+use ZipArchive;
 
 class LaporanNotarisController extends Controller
 {
@@ -267,5 +271,52 @@ class LaporanNotarisController extends Controller
             });
 
         return view('karyawan.laporan-notaris.grafik', compact('laporan', 'notarisList', 'trendData'));
+    }
+
+    // ========================================
+    // DOWNLOAD ZIP - Unduh Laporan Lengkap
+    // ========================================
+    public function downloadZip($id)
+    {
+        set_time_limit(300); // Set timeout 5 menit untuk proses besar
+        
+        try {
+            $laporan = LaporanNotaris::with('details')->findOrFail($id);
+            $notarisList = LaporanNotaris::getNotarisList();
+            
+            // Nama file ZIP yang akan didownload
+            $zipFileName = 'Laporan_Notaris_' . str_replace(' ', '_', $laporan->nama_bulan) . '.zip';
+            
+            // Buat ZIP langsung di memory menggunakan response stream
+            $zip = new ZipArchive();
+            $zipPath = sys_get_temp_dir() . '/' . $zipFileName;
+            
+            if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+                throw new \Exception('Tidak dapat membuat file ZIP');
+            }
+
+            // 1. Tambahkan Laporan Gabungan ke ZIP
+            $gabunganFileName = 'Laporan_Gabungan_' . str_replace(' ', '_', $laporan->nama_bulan) . '.xlsx';
+            $gabunganContent = Excel::raw(new LaporanGabunganExport($laporan), \Maatwebsite\Excel\Excel::XLSX);
+            $zip->addFromString($gabunganFileName, $gabunganContent);
+
+            // 2. Tambahkan Detail Per Notaris ke ZIP
+            foreach ($notarisList as $key => $nama) {
+                $notarisFileName = 'Laporan_' . str_replace(' ', '_', $nama) . '_' . str_replace(' ', '_', $laporan->nama_bulan) . '.xlsx';
+                $notarisContent = Excel::raw(new LaporanNotarisDetailExport($laporan, $key, $nama), \Maatwebsite\Excel\Excel::XLSX);
+                $zip->addFromString($notarisFileName, $notarisContent);
+            }
+
+            $zip->close();
+
+            // 3. Download file ZIP dan hapus setelahnya
+            return response()->download($zipPath, $zipFileName, [
+                'Content-Type' => 'application/zip',
+            ])->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            \Log::error('Download ZIP Error: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengunduh laporan: ' . $e->getMessage());
+        }
     }
 }

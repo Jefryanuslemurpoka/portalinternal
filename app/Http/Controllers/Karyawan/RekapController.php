@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Setting;
 use App\Helpers\AttendanceHelper;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\RekapAbsensiExport;
 
 class RekapController extends Controller
 {
@@ -480,5 +482,96 @@ class RekapController extends Controller
         $record->exists = false;
         
         return $record;
+    }
+
+    // Method baru untuk Export Excel
+    public function exportRekap(Request $request)
+    {
+        $user = Auth::user();
+        $periode = $request->get('periode', 'bulanan'); // harian, mingguan, bulanan
+        
+        // Jam kerja dari Setting
+        $jamMasuk = Setting::get('jam_masuk', '08:00');
+
+        // Get periode kerja saat ini (15 - 14)
+        $currentPeriod = AttendanceHelper::getCurrentPeriod();
+
+        // ✅ Tanggal mulai sistem (November 2025)
+        $systemStartDate = Carbon::create(2025, 11, 1)->startOfDay();
+
+        // Get data based on periode
+        if ($periode === 'harian') {
+            // Harian: periode kerja saat ini (15 - 14)
+            $absensi = $this->getHarian($user->id);
+            $startDate = Carbon::parse($currentPeriod['start']);
+            $endDate = Carbon::parse($currentPeriod['end']);
+        } elseif ($periode === 'mingguan') {
+            // Mingguan: 4 minggu terakhir
+            $absensi = $this->getMingguan($user->id);
+            $startDate = Carbon::now()->subWeeks(4)->startOfWeek();
+            $endDate = Carbon::now()->endOfWeek();
+        } else {
+            // Bulanan: Dari November 2025 sampai sekarang
+            $absensi = $this->getBulanan($user->id);
+            $startDate = $systemStartDate; // ✅ Mulai dari November 2025
+            $endDate = Carbon::now()->endOfMonth();
+        }
+        
+        // ✅ Pastikan startDate tidak lebih awal dari November 2025
+        if ($startDate->lessThan($systemStartDate)) {
+            $startDate = $systemStartDate;
+        }
+
+        // ✅ Batasi endDate sampai hari ini saja
+        $today = Carbon::now()->endOfDay();
+        if ($endDate->greaterThan($today)) {
+            $endDate = $today;
+        }
+
+        // ✅ Generate SEMUA hari dalam periode
+        $absensi = $this->generateCompleteAttendance($user->id, $absensi, $startDate, $endDate);
+
+        // Statistik - EXCLUDE MINGGU dan IZIN/CUTI yang APPROVED
+        $totalHariKerja = AttendanceHelper::countWorkingDays(
+            $user->id, 
+            $startDate->format('Y-m-d'), 
+            $endDate->format('Y-m-d')
+        );
+
+        // Filter absensi yang valid
+        $absensiValid = $absensi->filter(function($item) use ($user) {
+            if (in_array($item->status, ['libur', 'izin', 'cuti'])) {
+                return false;
+            }
+            return AttendanceHelper::isWorkingDay($user->id, $item->tanggal);
+        });
+
+        $totalHadir = $absensiValid->count();
+        $tepatWaktu = $absensiValid->filter(function($item) {
+            return $item->jam_masuk && !AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+        $terlambat = $absensiValid->filter(function($item) {
+            return $item->jam_masuk && AttendanceHelper::isLate($item->jam_masuk, $item->tanggal);
+        })->count();
+
+        // Generate filename
+        $periodeTeks = strtoupper($periode);
+        $filename = 'Rekap_Absensi_' . $user->name . '_' . $periodeTeks . '_' . date('Ymd_His') . '.xlsx';
+
+        // Export Excel
+        return Excel::download(
+            new RekapAbsensiExport(
+                $absensi, 
+                $user, 
+                $periode, 
+                $startDate, 
+                $endDate, 
+                $jamMasuk, 
+                $totalHadir, 
+                $tepatWaktu, 
+                $terlambat
+            ),
+            $filename
+        );
     }
 }
