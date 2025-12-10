@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AbsensiExport;
+use App\Exports\CutiIzinExport;
+use App\Exports\KaryawanExport; // Tambahkan ini
 
 class LaporanController extends Controller
 {
@@ -153,7 +155,7 @@ class LaporanController extends Controller
             $query->where('status', $request->status);
         }
 
-        $cutiIzin = $query->orderBy('tanggal_mulai', 'desc')->get();
+        $cutiIzin = $query->orderBy('tanggal_mulai', 'asc')->get();
 
         $data = [
             'cutiIzin' => $cutiIzin,
@@ -163,7 +165,7 @@ class LaporanController extends Controller
         ];
 
         $pdf = Pdf::loadView('superadmin.laporan.pdf.cutiizin', $data)
-            ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'portrait');
         
         return $pdf->download('Laporan_CutiIzin_' . date('Ymd_His') . '.pdf');
     }
@@ -184,46 +186,12 @@ class LaporanController extends Controller
             $query->where('status', $request->status);
         }
 
-        $cutiIzin = $query->orderBy('tanggal_mulai', 'desc')->get();
+        $cutiIzin = $query->orderBy('tanggal_mulai', 'asc')->get();
 
-        $filename = 'Laporan_CutiIzin_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
-        ];
-
-        $callback = function() use ($cutiIzin) {
-            $file = fopen('php://output', 'w');
-            
-            // UTF-8 BOM
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Header
-            fputcsv($file, ['No', 'Nama Karyawan', 'NIK', 'Divisi', 'Jenis', 'Tanggal Mulai', 'Tanggal Selesai', 'Durasi', 'Status', 'Keterangan']);
-
-            // Data
-            foreach ($cutiIzin as $key => $item) {
-                fputcsv($file, [
-                    $key + 1,
-                    $item->user->name,
-                    $item->user->nik ?? '-',
-                    $item->user->divisi,
-                    strtoupper($item->jenis),
-                    \Carbon\Carbon::parse($item->tanggal_mulai)->format('d/m/Y'),
-                    \Carbon\Carbon::parse($item->tanggal_selesai)->format('d/m/Y'),
-                    $item->durasi . ' hari',
-                    strtoupper($item->status),
-                    $item->keterangan ?? '-',
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(
+            new CutiIzinExport($cutiIzin, $request->tanggal_mulai, $request->tanggal_selesai, $request->status),
+            'Laporan_CutiIzin_' . date('Ymd_His') . '.xlsx'
+        );
     }
 
     // Laporan Karyawan
@@ -272,12 +240,12 @@ class LaporanController extends Controller
         ];
 
         $pdf = Pdf::loadView('superadmin.laporan.pdf.karyawan', $data)
-            ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'portrait'); // Ubah ke portrait
         
         return $pdf->download('Laporan_Karyawan_' . date('Ymd_His') . '.pdf');
     }
 
-    // Export Excel Karyawan
+    // Export Excel Karyawan - UPDATED
     public function exportKaryawanExcel(Request $request)
     {
         $query = User::where('role', 'karyawan');
@@ -292,42 +260,9 @@ class LaporanController extends Controller
 
         $karyawan = $query->orderBy('name')->get();
 
-        $filename = 'Laporan_Karyawan_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
-        ];
-
-        $callback = function() use ($karyawan) {
-            $file = fopen('php://output', 'w');
-            
-            // UTF-8 BOM
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Header
-            fputcsv($file, ['No', 'NIK', 'Nama', 'Email', 'Divisi', 'Jabatan', 'No. HP', 'Status', 'Terdaftar']);
-
-            // Data
-            foreach ($karyawan as $key => $item) {
-                fputcsv($file, [
-                    $key + 1,
-                    $item->nik ?? '-',
-                    $item->name,
-                    $item->email,
-                    $item->divisi,
-                    $item->jabatan,
-                    $item->no_hp ?? '-',
-                    strtoupper($item->status),
-                    $item->created_at->format('d/m/Y'),
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(
+            new KaryawanExport($karyawan, $request->divisi, $request->status),
+            'Laporan_Karyawan_' . date('Ymd_His') . '.xlsx'
+        );
     }
 }
