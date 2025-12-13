@@ -64,21 +64,46 @@ class DashboardController extends Controller
             ->count();
 
         // ========================
-        // DATA GRAFIK ABSENSI 7 HARI TERAKHIR
+        // DATA GRAFIK ABSENSI 7 HARI TERAKHIR (DENGAN WARNA DINAMIS)
         // ========================
         
         $labels = [];
         $dataAbsensi = [];
+        $warna = [];
 
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $labels[] = $date->format('d M');
             
+            // Cek apakah hari Minggu (libur)
+            if ($date->dayOfWeek === Carbon::SUNDAY) {
+                $dataAbsensi[] = 4; // Libur
+                $warna[] = 'rgba(239, 68, 68, 0.8)'; // Merah
+                continue;
+            }
+
+            // Cek data absensi
             $absen = Absensi::where('user_id', $user->id)
                 ->whereDate('tanggal', $date)
-                ->exists();
+                ->first();
             
-            $dataAbsensi[] = $absen ? 1 : 0;
+            if ($absen) {
+                // Ada absensi
+                if ($absen->status == 'cuti') {
+                    $dataAbsensi[] = 2; // Cuti
+                    $warna[] = 'rgba(168, 85, 247, 0.8)'; // Ungu
+                } elseif ($absen->status == 'izin') {
+                    $dataAbsensi[] = 3; // Izin
+                    $warna[] = 'rgba(249, 115, 22, 0.8)'; // Orange
+                } else {
+                    $dataAbsensi[] = 1; // Hadir
+                    $warna[] = 'rgba(20, 184, 166, 0.8)'; // Teal/Hijau
+                }
+            } else {
+                // Tidak ada absensi
+                $dataAbsensi[] = 0;
+                $warna[] = 'rgba(156, 163, 175, 0.8)'; // Abu-abu
+            }
         }
 
         // ========================
@@ -135,6 +160,7 @@ class DashboardController extends Controller
             'terlambat',
             'labels',
             'dataAbsensi',
+            'warna', // 👈 Tambahkan array warna
             'cutiPending',
             'cutiDisetujui',
             'pengumuman',

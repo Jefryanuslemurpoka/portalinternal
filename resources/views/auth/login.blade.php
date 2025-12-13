@@ -6,8 +6,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - Portal Internal PT Puri Digital Output</title>
     
+    <!-- Favicon - Multiple formats for better compatibility -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind CSS CDN (development only) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -280,6 +289,7 @@
                                 type="button" 
                                 onclick="togglePassword()"
                                 class="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-teal-600 transition-all duration-200 p-2"
+                                aria-label="Toggle password visibility"
                             >
                                 <i class="fas fa-eye text-base sm:text-lg" id="toggleIcon"></i>
                             </button>
@@ -324,6 +334,7 @@
     </div>
 
     <script>
+        // Toggle password visibility
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');
@@ -368,7 +379,7 @@
                 btnIcon.classList.remove('fa-arrow-right');
                 btnIcon.classList.add('fa-spinner', 'fa-spin');
                 
-                // Re-enable after 5 seconds (jaga-jaga jika ada error)
+                // Re-enable after 5 seconds (fallback if error)
                 setTimeout(function() {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');

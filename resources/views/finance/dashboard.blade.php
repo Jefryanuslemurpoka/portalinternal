@@ -10,7 +10,7 @@
     <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl shadow-lg p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold mb-2">Selamat Datang di Finance Portal, {{ Auth::user()->name }}! 💰</h2>
+                <h2 class="text-2xl font-bold mb-2">Selamat Datang di Finance Portal, {{ Auth::user()->name }}! </h2>
                 <p class="text-teal-50">{{ Auth::user()->divisi }} - {{ now()->format('l, d F Y') }}</p>
             </div>
             <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
@@ -366,15 +366,20 @@
 <script>
     // Mini Grafik Absensi 7 Hari
     const ctx = document.getElementById('miniAbsensiChart').getContext('2d');
+    
+    // Data dari controller
+    const chartData = @json($dataAbsensi);
+    const chartColors = @json($warna); // Array warna dari controller
+    
     const miniAbsensiChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: @json($labels),
             datasets: [{
                 label: 'Kehadiran',
-                data: @json($dataAbsensi),
-                backgroundColor: 'rgba(20, 184, 166, 0.8)',
-                borderColor: 'rgb(20, 184, 166)',
+                data: chartData,
+                backgroundColor: chartColors, // Gunakan warna dinamis
+                borderColor: chartColors.map(color => color.replace('0.8', '1')), // Border lebih solid
                 borderWidth: 2,
                 borderRadius: 8,
             }]
@@ -385,16 +390,25 @@
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const labels = ['Tidak Hadir', 'Hadir', 'Cuti', 'Izin', 'Libur'];
+                            return labels[context.parsed.y] || 'Tidak Ada Data';
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 1,
+                    max: 4,
                     ticks: {
                         stepSize: 1,
                         callback: function(value) {
-                            return value === 1 ? 'Hadir' : 'Tidak';
+                            const labels = ['', 'Hadir', 'Cuti', 'Izin', 'Libur'];
+                            return labels[value] || '';
                         }
                     }
                 }
