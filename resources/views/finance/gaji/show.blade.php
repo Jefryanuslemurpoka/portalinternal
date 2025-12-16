@@ -102,7 +102,7 @@
                 </div>
                 <div>
                     <p class="text-xs text-gray-500">Periode</p>
-                    <p class="font-semibold text-gray-800">{{ $slip->periode_start->format('d M Y') }} - {{ $slip->periode_end->format('d M Y') }}</p>
+                    <p class="font-semibold text-gray-800">{{ $slip->periode_start_formatted }} - {{ $slip->periode_end_formatted }}</p>
                 </div>
                 <div>
                     <p class="text-xs text-gray-500">Tanggal Generate</p>
@@ -290,7 +290,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Tanggal:</span>
-                                <span class="font-semibold">{{ $slip->approved_at ? $slip->approved_at->format('d M Y H:i') : '-' }}</span>
+                                <span class="font-semibold">{{ $slip->approved_at_formatted }}</span>
                             </div>
                         </div>
                     </div>
@@ -302,7 +302,7 @@
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Tanggal Bayar:</span>
-                                <span class="font-semibold">{{ $slip->payment_date ? $slip->payment_date->format('d M Y') : '-' }}</span>
+                                <span class="font-semibold">{{ $slip->payment_date_formatted }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Metode:</span>
@@ -328,7 +328,7 @@
                 <div>
                     <h4 class="font-semibold text-red-800 mb-2">Slip Ditolak</h4>
                     <p class="text-red-700 text-sm mb-2">{{ $slip->rejection_reason }}</p>
-                    <p class="text-xs text-red-600">Ditolak oleh: {{ $slip->approvedBy->name ?? '-' }} pada {{ $slip->approved_at->format('d M Y H:i') }}</p>
+                    <p class="text-xs text-red-600">Ditolak oleh: {{ $slip->approvedBy->name ?? '-' }} pada {{ $slip->approved_at_formatted }}</p>
                 </div>
             </div>
         </div>

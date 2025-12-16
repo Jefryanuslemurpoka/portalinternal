@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class SalarySlip extends Model
 {
@@ -18,6 +18,7 @@ class SalarySlip extends Model
         'bulan',
         'periode_start',
         'periode_end',
+        'tanggal_bayar',
         'gaji_pokok',
         'total_tunjangan',
         'total_potongan',
@@ -27,11 +28,14 @@ class SalarySlip extends Model
         'hari_hadir',
         'hari_izin',
         'hari_sakit',
+        'hari_cuti',
         'hari_alpha',
         'jam_lembur',
         'upah_lembur',
-        'tunjangan_detail',
-        'potongan_detail',
+        'jumlah_terlambat',
+        'menit_terlambat',
+        'detail_tunjangan',
+        'detail_potongan',
         'status',
         'approved_by',
         'approved_at',
@@ -39,13 +43,12 @@ class SalarySlip extends Model
         'payment_date',
         'payment_method',
         'payment_notes',
+        'generated_at',
     ];
 
     protected $casts = [
         'tahun' => 'integer',
         'bulan' => 'integer',
-        'periode_start' => 'date',
-        'periode_end' => 'date',
         'gaji_pokok' => 'decimal:2',
         'total_tunjangan' => 'decimal:2',
         'total_potongan' => 'decimal:2',
@@ -53,24 +56,21 @@ class SalarySlip extends Model
         'gaji_bersih' => 'decimal:2',
         'jam_lembur' => 'decimal:2',
         'upah_lembur' => 'decimal:2',
-        'tunjangan_detail' => 'array',
-        'potongan_detail' => 'array',
-        'approved_at' => 'datetime',
-        'payment_date' => 'date',
+        'detail_tunjangan' => 'array',
+        'detail_potongan' => 'array',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
+    protected $dates = [
+        'approved_at',
+        'generated_at',
+        'created_at',
+        'updated_at',
+    ];
 
-        static::creating(function ($model) {
-            if (empty($model->slip_number)) {
-                $model->slip_number = self::generateSlipNumber($model->tahun, $model->bulan);
-            }
-        });
-    }
+    // ==========================================
+    // RELATIONSHIPS
+    // ==========================================
 
-    // Relationships
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -81,14 +81,53 @@ class SalarySlip extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    // Helper Methods
-    public static function generateSlipNumber($tahun, $bulan): string
+    // ==========================================
+    // ACCESSOR - FORMAT TANGGAL
+    // ==========================================
+    
+    public function getPeriodeStartFormattedAttribute(): string
     {
-        $prefix = 'SLIP';
-        $date = sprintf('%04d%02d', $tahun, $bulan);
-        $random = strtoupper(Str::random(6));
-        return "{$prefix}/{$date}/{$random}";
+        return $this->periode_start ? Carbon::parse($this->periode_start)->format('d M Y') : '-';
     }
+
+    public function getPeriodeEndFormattedAttribute(): string
+    {
+        return $this->periode_end ? Carbon::parse($this->periode_end)->format('d M Y') : '-';
+    }
+
+    public function getPeriodeStartShortAttribute(): string
+    {
+        return $this->periode_start ? Carbon::parse($this->periode_start)->format('d/m') : '-';
+    }
+
+    public function getPeriodeEndShortAttribute(): string
+    {
+        return $this->periode_end ? Carbon::parse($this->periode_end)->format('d/m') : '-';
+    }
+
+    public function getTanggalBayarFormattedAttribute(): string
+    {
+        return $this->tanggal_bayar ? Carbon::parse($this->tanggal_bayar)->format('d M Y') : '-';
+    }
+
+    public function getPaymentDateFormattedAttribute(): string
+    {
+        return $this->payment_date ? Carbon::parse($this->payment_date)->format('d M Y') : '-';
+    }
+
+    public function getApprovedAtFormattedAttribute(): string
+    {
+        return $this->approved_at ? Carbon::parse($this->approved_at)->format('d M Y H:i') : '-';
+    }
+
+    public function getGeneratedAtFormattedAttribute(): string
+    {
+        return $this->generated_at ? Carbon::parse($this->generated_at)->format('d M Y H:i') : '-';
+    }
+
+    // ==========================================
+    // ACCESSOR - DATA HELPER
+    // ==========================================
 
     public function getBulanNameAttribute(): string
     {
@@ -129,7 +168,10 @@ class SalarySlip extends Model
         return $labels[$this->status] ?? 'Unknown';
     }
 
-    // Scopes
+    // ==========================================
+    // SCOPES
+    // ==========================================
+
     public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
@@ -155,7 +197,10 @@ class SalarySlip extends Model
         return $query->whereIn('status', ['draft', 'pending', 'approved']);
     }
 
-    // Status Methods
+    // ==========================================
+    // STATUS CHECK METHODS
+    // ==========================================
+
     public function isDraft(): bool
     {
         return $this->status === 'draft';

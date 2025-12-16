@@ -129,8 +129,7 @@
             <!-- Submit Buttons -->
             <div class="flex gap-3 pt-4">
                 <button type="submit" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold transition">
- +ZAsdfgthjukil;'
- '    <i class="fas fa-save mr-2"></i>Update Data Gaji
+                    <i class="fas fa-save mr-2"></i>Update Data Gaji
                 </button>
                 <a href="{{ route('finance.gaji.master.index') }}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-center transition">
                     <i class="fas fa-times mr-2"></i>Batal
@@ -176,7 +175,6 @@
         </div>
     </div>
     @endif
-azsdfgtyhjuikopl;[']
-\</div>
+</div>
 
 @endsection

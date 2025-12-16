@@ -16,7 +16,7 @@
             <a href="{{ route('finance.gaji.master.index') }}" class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 transition">
                 <i class="fas fa-cog mr-2"></i>Master Gaji
             </a>
-            <a href="{{ route('finance.gaji.create') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-lg transition">
+           <!-- <a href="{{ route('finance.gaji.create') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-lg transition"> -->
                 <i class="fas fa-plus mr-2"></i>Generate Slip Gaji
             </a>
         </div>
@@ -173,7 +173,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">{{ $slip->bulan_name }} {{ $slip->tahun }}</div>
-                                <div class="text-xs text-gray-500">{{ $slip->periode_start->format('d/m') }} - {{ $slip->periode_end->format('d/m') }}</div>
+                                <div class="text-xs text-gray-500">{{ $slip->periode_start_short }} - {{ $slip->periode_end_short }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-semibold text-gray-900">Rp {{ number_format($slip->gaji_bersih, 0, ',', '.') }}</div>
@@ -224,7 +224,7 @@
                                     <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
                                     <h3 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Data</h3>
                                     <p class="text-gray-500 mb-4">Belum ada slip gaji yang dibuat</p>
-                                    <a href="{{ route('finance.gaji.create') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition">
+                                    <!--<a href="{{ route('finance.gaji.create') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition">-->
                                         <i class="fas fa-plus mr-2"></i>Generate Slip Gaji
                                     </a>
                                 </div>
