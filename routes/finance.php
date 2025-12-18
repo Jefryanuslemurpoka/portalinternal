@@ -120,4 +120,25 @@ Route::prefix('finance')->middleware(['auth', 'karyawan', 'check.divisi:FINANCE'
         Route::get('/{id}/download', [InvoiceController::class, 'download'])->name('download');
     });
 
+        // ========================================
+    // INVOICE (STATIC UI ONLY - TEMPORARY)
+    // ========================================
+    Route::view('/invoice-edit', 'finance.invoice.edit')->name('finance.invoice.edit.static');
+    Route::view('/invoice-show', 'finance.invoice.show')->name('finance.invoice.show.static');
+
+    // ========================================
+    // INVOICE / FAKTUR
+    // ========================================
+    Route::prefix('invoice')->name('finance.invoice.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/create', [InvoiceController::class, 'create'])->name('create');
+        Route::post('/', [InvoiceController::class, 'store'])->name('store');
+        Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [InvoiceController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [InvoiceController::class, 'update'])->name('update');
+        Route::delete('/{id}', [InvoiceController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/download', [InvoiceController::class, 'download'])->name('download');
+    });
+
+
 });
