@@ -236,16 +236,16 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900 font-medium">Penjualan Produk Premium</div>
-                            <div class="text-xs text-gray-500">20 unit Product A, 15 unit Product B</div>
+                            <div class="text-sm text-gray-900 font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            <div class="font-medium">PT Mitra Sejahtera</div>
-                            <div class="text-xs text-gray-400">0821-9876-5432</div>
+                            <div class="font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-400">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="text-sm font-bold text-gray-900">Rp 45.000.000</div>
-                            <div class="text-xs text-gray-500">Transfer Bank</div>
+                            <div class="text-sm font-bold text-gray-900">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
@@ -293,16 +293,16 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900 font-medium">Jasa Konsultasi IT</div>
-                            <div class="text-xs text-gray-500">Project Development Q4 2024</div>
+                            <div class="text-sm text-gray-900 font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            <div class="font-medium">CV Teknologi Maju</div>
-                            <div class="text-xs text-gray-400">0812-3456-7890</div>
+                            <div class="font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-400">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="text-sm font-bold text-gray-900">Rp 28.500.000</div>
-                            <div class="text-xs text-gray-500">Virtual Account</div>
+                            <div class="text-sm font-bold text-gray-900">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
@@ -353,16 +353,16 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900 font-medium">Return Investasi Deposito</div>
-                            <div class="text-xs text-gray-500">Periode November 2024</div>
+                            <div class="text-sm text-gray-900 font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            <div class="font-medium">Bank Mandiri</div>
-                            <div class="text-xs text-gray-400">Deposito 12 Bulan</div>
+                            <div class="font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-400">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="text-sm font-bold text-gray-900">Rp 12.750.000</div>
-                            <div class="text-xs text-gray-500">Auto Credit</div>
+                            <div class="text-sm font-bold text-gray-900">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
@@ -407,16 +407,16 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900 font-medium">Penjualan Produk Reguler</div>
-                            <div class="text-xs text-gray-500">50 unit Product C</div>
+                            <div class="text-sm text-gray-900 font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            <div class="font-medium">Toko Berkah Jaya</div>
-                            <div class="text-xs text-gray-400">0856-7890-1234</div>
+                            <div class="font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-400">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="text-sm font-bold text-gray-900">Rp 18.250.000</div>
-                            <div class="text-xs text-gray-500">Transfer Bank</div>
+                            <div class="text-sm font-bold text-gray-900">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
@@ -461,16 +461,16 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900 font-medium">Bunga Tabungan</div>
-                            <div class="text-xs text-gray-500">Periode November 2024</div>
+                            <div class="text-sm text-gray-900 font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            <div class="font-medium">Bank BCA</div>
-                            <div class="text-xs text-gray-400">Rekening Operasional</div>
+                            <div class="font-medium">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-400">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="text-sm font-bold text-gray-900">Rp 3.250.000</div>
-                            <div class="text-xs text-gray-500">Auto Credit</div>
+                            <div class="text-sm font-bold text-gray-900">xxxxxxxxx</div>
+                            <div class="text-xs text-gray-500">xxxxxxxxx</div>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">

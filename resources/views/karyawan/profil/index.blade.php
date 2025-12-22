@@ -228,7 +228,7 @@
             <!-- Dokumen Karyawan (Read Only) -->
             @if($user->foto_ktp || $user->foto_npwp || $user->foto_bpjs || $user->dokumen_kontrak)
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-cyan-600">
                     <h3 class="text-lg font-bold text-white">
                         <i class="fas fa-file-alt mr-2"></i>Dokumen Saya
                     </h3>

@@ -68,7 +68,7 @@
                     <i class="fas fa-filter mr-2 text-teal-600"></i>Filter Absensi
                 </h3>
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <button type="button" onclick="resetFilter()" class="text-xs sm:text-sm text-gray-600 hover:text-teal-600 transition whitespace-nowrap">
+                   <button type="button" onclick="resetFilter()" class="text-xs sm:text-sm text-gray-600 hover:text-teal-600 transition whitespace-nowrap">
                         <i class="fas fa-redo mr-1"></i><span class="hidden sm:inline">Reset Filter</span><span class="sm:hidden">Reset</span>
                     </button>
                     <a href="{{ route('superadmin.absensi.create') }}" class="inline-flex items-center justify-center px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md text-xs sm:text-sm whitespace-nowrap flex-shrink-0">
@@ -375,7 +375,8 @@
                         </td>
                         <td class="px-4 xl:px-6 py-3 xl:py-4">
                             <div class="flex items-center space-x-2">
-                                <a href="{{ route('superadmin.absensi.edit', $a->id) }}" 
+                                <!-- -tombol edit disini -->
+                               <a href="{{ route('superadmin.absensi.edit', $a->id) }}" 
                                    class="p-1.5 xl:p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition"
                                    title="Edit">
                                     <i class="fas fa-edit text-xs xl:text-sm"></i>
